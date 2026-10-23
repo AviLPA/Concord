@@ -18,16 +18,14 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Watch it live
-A guided, autoplaying simulation in 8 steps. Concord never runs or edits an agent.
+A guided, autoplaying story in three acts and six steps. About a minute. Concord never runs or edits an agent. The left panel is labeled for each act. The right panel is always what Concord sees.
 
-1. Read Claude through the Compliance API and n8n through its REST API. Dana’s Thursday chat already says 35. Concord cannot see a Claude project’s connectors.
-2. Last week’s answers, side by side: 35, 42, 17, 28. Tom’s Monday run already posted to #cs-risk. Concord only read the log.
-3. Definitions from instructions, a knowledge file, and workflow JSON. Dana’s source is a personal spreadsheet.
-4. Same job, four definitions. Routed to Sara Klein, Head of RevOps.
-5. Sara publishes Priya’s definition. She could have written her own or imported it. Suggested changes go to Dana, Maya, and Tom. Nothing is edited.
-6. Dana starts to rebuild her agent. The org-wide MCP connector offers Customer health v2 before the spreadsheet.
-7. Day 1: Concord re-reads Dana’s instructions and verifies her. Maya and Tom still have the suggestion.
-8. Tom opens n8n and applies the suggestion himself. The AI step calls the block. The Slack post is untouched. Maya applied hers on day 3. Day 6, Concord re-reads Tom’s workflow. The job is 100. Company score 53 → 68.
+1. **The problem.** Last week four agents said 35, 42, 17, and 28. Concord found that by reading chats and logs.
+2. **The problem, continued.** The four rules, one line each: a personal spreadsheet, a ticket count, a usage drop over 40%, a combined score.
+3. **The fix.** Sara Klein, Head of RevOps, owns the number. She picks the renewal agent’s rule. The official answer is 28. The company score does not move yet.
+4. **It sticks.** Dana starts a new agent. Claude offers 28 before she pastes her spreadsheet.
+5. **It sticks.** Existing builders each get one suggestion and apply it themselves. Day 1 Dana, Day 3 the CS owner, Day 6 Tom. Tom’s Slack step stays unchanged.
+6. **Finale.** Every agent says 28. This job is 100. Company score 53 → 68.
 
 Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health.
 
