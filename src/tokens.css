@@ -1,4 +1,4 @@
-/* In Sync brand tokens. Dark is the default. data-theme="light" switches semantics.
+/* In Sync brand tokens. Light is the default (Paper, Ink, Slate).
    Fonts are self-hosted (SIL OFL). No CDN. */
 @font-face {
   font-family: "Manrope";
@@ -23,26 +23,26 @@
   --sync-50: #ECFCF6; --sync-100: #D9F9EC; --sync-200: #B2F3D9; --sync-300: #8CECC7; --sync-400: #65E6B4;
   --sync-500: #3FE0A1; --sync-600: #35BC8A; --sync-700: #2A9873; --sync-800: #20745C; --sync-900: #165045;
 
-  --bg: #061821;
-  --surface: #0C2430;
-  --raised: #12303E;
-  --line: #18394A;
-  --control: #4A7486;
-  --text: #E4F0EE;
-  --text-muted: #7F9BA6;
+  --bg: #F5F9F8;
+  --surface: #FFFFFF;
+  --raised: #EAF1F1;
+  --line: #D4E1E3;
+  --control: #748E97;
+  --text: #071E29;
+  --text-muted: #4D6773;
   --agent: var(--tide-500);
-  --agent-text: var(--tide-300);
+  --agent-text: var(--tide-700);
   --sync: var(--sync-500);
-  --sync-text: var(--sync-500);
-  --on-sync: #061821;
+  --sync-text: var(--sync-800);
+  --on-sync: #071E29;
   --danger: var(--status-conflict-fill);
 
-  --status-in-sync-fill: #3FE0A1; --status-in-sync-on: #061821; --status-in-sync-text: #3FE0A1; --status-in-sync-tint: #103C38; --status-in-sync-border: transparent;
-  --status-review-fill: #5BB4F5; --status-review-on: #061821; --status-review-text: #7CC3F7; --status-review-tint: #153447; --status-review-border: transparent;
-  --status-risk-fill: #FFD23F; --status-risk-on: #061821; --status-risk-text: #FFD23F; --status-risk-tint: #333926; --status-risk-border: transparent;
-  --status-drift-fill: #F57A1F; --status-drift-on: #061821; --status-drift-text: #FF9A4D; --status-drift-tint: #312A21; --status-drift-border: transparent;
-  --status-conflict-fill: #D42F26; --status-conflict-on: #FFFFFF; --status-conflict-text: #FF7A72; --status-conflict-tint: #2B1C22; --status-conflict-border: transparent;
-  --status-unknown-fill: #62747D; --status-unknown-on: #FFFFFF; --status-unknown-text: #9AABB3; --status-unknown-tint: #172932; --status-unknown-border: transparent;
+  --status-in-sync-fill: #3FE0A1; --status-in-sync-on: #061821; --status-in-sync-text: #1B6B53; --status-in-sync-tint: #E4FBF2; --status-in-sync-border: #1B6B53;
+  --status-review-fill: #5BB4F5; --status-review-on: #061821; --status-review-text: #1D5F8F; --status-review-tint: #E8F4FE; --status-review-border: #1D5F8F;
+  --status-risk-fill: #FFD23F; --status-risk-on: #061821; --status-risk-text: #7A5B00; --status-risk-tint: #FFF9E4; --status-risk-border: #7A5B00;
+  --status-drift-fill: #F57A1F; --status-drift-on: #061821; --status-drift-text: #A34A00; --status-drift-tint: #FEECE0; --status-drift-border: #A34A00;
+  --status-conflict-fill: #D42F26; --status-conflict-on: #FFFFFF; --status-conflict-text: #B42318; --status-conflict-tint: #F9E2E1; --status-conflict-border: #B42318;
+  --status-unknown-fill: #62747D; --status-unknown-on: #FFFFFF; --status-unknown-text: #56676F; --status-unknown-tint: #E9ECED; --status-unknown-border: #56676F;
   --status-row-border: 4px;
 
   --font-sans: "Manrope", "Avenir Next", "Helvetica Neue", Arial, sans-serif;

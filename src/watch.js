@@ -12,7 +12,7 @@ play:'<path d="M7 4v16l13-8z" fill="currentColor"/>',pause:'<path d="M7 4h3v16H7
 back:'<path d="M19 4v16L8 12z" fill="currentColor"/><path d="M5 4v16"/>',redo:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>'}
 const ic=n=>sv(IC[n])
 const tag=p=>`<span class="ptag"><i style="background:${p==='Claude'?'#82B9D9':'#58A2CD'}"></i>Built in ${p}</span>`
-const av=(ini,c)=>`<span class="dav" style="background:${c}">${ini}</span>`
+const av=(ini,c)=>`<span class="dav" style="background:${c};color:var(--on-sync)">${ini}</span>`
 const AG={
   dana:{k:'dana',i:0,n:'Q4 at-risk accounts',b:'Dana',ini:'DO',d:'Sales Ops',c:'#EAF3F9',p:'Claude',ans:35,rule:'no login 21d OR > 3 open tickets'},
   maya:{k:'maya',i:1,n:'Account health monitor',b:'Maya',ini:'MC',d:'CS',c:'#82B9D9',p:'Claude',ans:42,rule:'tickets > 5 OR CSAT < 3.5'},

@@ -38,7 +38,7 @@ function group(g){
   const tools=[...new Set(g.ids.map(i=>M.AGENTS[i].tool))].map(t=>M.TOOLS[t].n).join(' and ')
   const agreed=score===100
   return `<section class="sg card"><div class="sgh"><div><h3>${esc(g.job)}</h3><div class="mut">${g.ids.length} agents · built in ${tools}${c?` · on record: “${esc(c.q)}”`:''}</div></div>
-<div class="sga">${c?(agreed?status('sync','In sync'):`${status('conflict','Conflict')}${M.isOpen(c,C.S)?`<button class="btn p" data-resolve="${c.id}">Resolve as owner →</button>`:''}`):status(score==null?'unknown':'sync',score==null?'Not checked':'In sync')}</div></div>
+<div class="sga">${(()=>{const pres=M.jobPresentation(g.job,C.S);return status(pres.kind,pres.label)+(c&&M.isOpen(c,C.S)?`<button class="btn p" data-resolve="${c.id}">Resolve as owner →</button>`:'')})()}</div></div>
 ${c?`<div class="sgrid" style="--n:${c.cols.length}">${c.cols.map(k=>{const a=M.AGENTS[k.a], variant=M.isVariant(c.id,k.a,C.S);return `<div class="sc ${agreed||variant?'ok':''}"><div class="sch">${C.dav(a)}<div><b>${esc(a.n)}</b><span>${esc(a.b)} · ${esc(a.dept)}</span></div></div>${C.tool(a.tool)}<div class="scn">${esc(M.effectiveAnswer(k.a,C.S))}</div><div class="scl">${M.effectiveDef(k.a,C.S).map(esc).join('<br/>')}</div><div class="dim">${esc(a.evidence)}</div></div>`}).join('')}</div>`:''}
 ${rest.length?`<div class="srest">${c?'<div class="lbl" style="margin:0 0 4px">Also doing this job</div>':''}${rest.map(i=>{const a=M.AGENTS[i];return `<div class="sr">${C.dav(a)}<div class="srn"><b>${esc(a.n)}</b><span>${esc(a.b)} · ${esc(a.dept)}</span></div>${C.tool(a.tool)}<code>${esc(M.effectiveDef(i,C.S)[0]||'')}</code></div>`}).join('')}</div>`:''}</section>`
 }

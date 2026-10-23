@@ -244,6 +244,23 @@ export function jobScore(job, state){
   if(t.count<2) return null
   return Math.round(100*t.majority/t.count)
 }
+// How a shared job reads in the status system. Counts do not change.
+// 100 is In sync. An open high-severity job is Conflict. Medium is At risk.
+// Low severity is Needs sign-off. A signed-off job that is not 100 yet is Drift.
+export function jobPresentation(job, state){
+  const score=jobScore(job, state)
+  const c=conflictByJob(job)
+  if(c && state.resolved[c.id]==='variant') return {kind:'sync', label:'Valid variant', score}
+  if(score==null) return {kind:'unknown', label:'Not checked', score}
+  if(score===100) return {kind:'sync', label:'In sync', score}
+  if(c && state.resolved[c.id]==='official') return {kind:'drift', label:'Drift detected', score}
+  if(c && isOpen(c, state)){
+    if(c.sev==='bad') return {kind:'conflict', label:'Conflict', score}
+    if(c.sev==='warn') return {kind:'risk', label:'At risk', score}
+    return {kind:'review', label:'Needs sign-off', score}
+  }
+  return {kind:'drift', label:'Drift detected', score}
+}
 export function companyParts(state){
   let maj=0, n=0
   const rows=JOB_ORDER.map(job=>{

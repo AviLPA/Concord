@@ -23,7 +23,7 @@ chev:'<path d="m8 10 4 4 4-4"/>',play:'<path d="M7 4v16l13-8z" fill="currentColo
 const ic=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`
 const {AGENTS,CONF,BLOCKS,TOOLS,DC}=M
 const tool=k=>`<span class="ptag"><i style="background:${TOOLS[k].c}"></i>Built in ${TOOLS[k].n}</span>`
-const dav=a=>`<span class="dav" style="background:${DC[a.dept]||'#64748b'}">${initials(a.b)}</span>`
+const dav=a=>`<span class="dav" style="background:${DC[a.dept]||'#9AABB3'};color:var(--on-sync)">${initials(a.b)}</span>`
 const S=Object.assign(M.emptyState(),{route:'overview',agent:null,conflict:null,filter:'all',toast:null,scoreOpen:false,semanticConnected:false})
 const parts=()=>M.companyParts(S)
 const openN=()=>M.openConflicts(S).length
@@ -83,7 +83,7 @@ ${S.scoreOpen?`<div class="scorepop"><p>${esc(M.SCORE_HELP)}</p>${p.rows.map(r=>
 function overview(){
   const p=parts(), cl=AGENTS.filter(a=>a.tool==='claude').length
   const dep=M.deptConflicts(S), max=Math.max(1,...dep.map(d=>d[1]))
-  const jobs=p.rows.filter(r=>r.count>=2).slice(0,4)
+  const jobs=p.rows.filter(r=>r.count>=2)
   return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in Claude and n8n. ${Brand} reads both, and never runs or edits an agent.</p><div style="margin-top:8px">${tag(AGENTS.length+' agents · one inventory')}</div></div><div class="act"><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
 ${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.resolved.c1?'Watch it again':'New here? Start with this'}</span><h2>Watch an employee build an agent, and see what Concord sees</h2><p>Four Customer health agents already told people 35, 42, 17, and 28. Sara publishes one definition. Dana is offered it before she pastes her spreadsheet. Tom applies the change himself. About a minute.</p></div><a class="btn p big" href="#/watch" data-startwatch>${ic('play',14)} Watch it live</a></div>
 <div class="grid g4" style="margin-bottom:14px">
@@ -93,8 +93,8 @@ ${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.r
 <div class="card kpi"><div class="l">${ic('bot',14)}No owner</div><div class="v">${AGENTS.filter(a=>a.own==='Unassigned').length}</div><div class="d">Unassigned agents</div></div></div>
 <div class="grid g2" style="margin-bottom:14px">${scoreBox(p)}
 <div class="card"><div class="hd"><h3>Recent activity</h3><span class="r">All</span></div><ul class="feed">${acts().slice(0,5).map(a=>`<li><span class="ic" style="${icc[a[0]]}">${a[1]==='check'?ic('check',12):a[1]}</span><div>${a[2]}</div><span class="t">${a[3]}</span></li>`).join('')}</ul></div></div>
-<div class="grid g3"><div class="card"><div class="hd"><h3>Open conflicts by owner</h3></div><div class="bd" style="padding-top:6px">${dep.map(([n,v])=>`<div class="dept"><span class="mut">${n}</span><div class="bar"><span style="width:${v/max*100}%"></span></div><b style="text-align:right">${v}</b></div>`).join('')}</div></div>
-<div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd">${jobs.map(j=>{const c=M.conflictByJob(j.job);const chip=j.score===100?status('sync','In sync'):c&&M.isOpen(c,S)?status('conflict','Conflict'):status('drift','Drift detected');return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0"><b style="font-weight:500">${j.job}</b><span class="mut">${j.count} agents</span><span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center"><b class="mono">${j.score}</b>${chip}</span></div>`}).join('')}</div></div>
+<div class="grid dash3"><div class="card"><div class="hd"><h3>Open conflicts by owner</h3></div><div class="bd" style="padding-top:6px">${dep.map(([n,v])=>`<div class="dept"><span class="mut">${n}</span><div class="bar"><span style="width:${v/max*100}%"></span></div><b style="text-align:right">${v}</b></div>`).join('')}</div></div>
+<div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd sjbd">${jobs.map(j=>{const pres=M.jobPresentation(j.job,S);return `<div class="sj"><b>${esc(j.job)}</b><span class="n">${j.count} agents</span><span class="end"><b class="mono">${j.score}</b>${status(pres.kind,pres.label)}</span></div>`}).join('')}</div></div>
 <div class="card"><div class="hd"><h3>Official block adoption</h3><a class="r" href="#/blocks">Library</a></div><div class="bd">${BLOCKS.slice(0,4).map(b=>{const c=M.conflictByJob(b.job);const live=M.blockLive(b,S);const plan=c&&live?M.adoptionPlan(c,S):null;const t=M.tally(b.job,S);const label=plan?`${plan.verifiedNeed.length}/${plan.need.length} suggestions verified`:t.count?`${t.majority}/${t.count} match`:'—';const pct=plan&&plan.need.length?plan.verifiedNeed.length/plan.need.length*100:t.count?t.majority/t.count*100:0;return `<div style="margin:6px 0 12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${b.n} <span class="dim">${b.v}</span></span><span class="mut">${live?label:'Draft'}</span></div><div class="bar"><span style="width:${live?pct:0}%"></span></div></div>`}).join('')}</div></div></div></div>`}
 
 function agentsPg(){
@@ -118,15 +118,14 @@ ${a.tool==='claude'?`<p class="blind">${ic('alert',14)} ${esc(M.BLIND)}</p>`:`<p
 <section><div class="lbl">Official block</div>${blk?`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px">${ic('cube')}<div><b>${esc(blk.n)} ${esc(blk.v)}</b><div class="mut" style="font-size:12px">Owner ${esc(blk.own)} · MCP concord.${M.slug(blk.job)}</div></div><span style="margin-left:auto">${on?status('sync','In sync'):M.blockLive(blk,S)?status('drift','Drift detected'):status('unknown','Not checked')}</span></div>`:'<span class="mut">No official block for this job yet.</span>'}</section></div>`}
 
 function venn(n,col){const pos=n>=4?[[-40,-14],[40,-14],[-40,22],[40,22]]:n===3?[[-34,-12],[34,-12],[0,24]]:[[-28,0],[28,0]]
-return `<svg viewBox="-110 -75 220 150" class="venn" width="100%">${pos.slice(0,Math.max(n,2)).map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="46" fill="${col[i%col.length]||'#64748b'}" fill-opacity=".16" stroke="${col[i%col.length]||'#64748b'}" stroke-opacity=".7"/>`).join('')}<text x="0" y="5" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">${n<2?'one agent':'shared job'}</text></svg>`}
+return `<svg viewBox="-110 -75 220 150" class="venn" width="100%">${pos.slice(0,Math.max(n,2)).map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="46" fill="${col[i%col.length]||'#9AABB3'}" fill-opacity=".28" stroke="${col[i%col.length]||'#9AABB3'}" stroke-opacity=".9"/>`).join('')}<text x="0" y="5" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">${n<2?'one agent':'shared job'}</text></svg>`}
 function jobs(){
   return `<div class="page"><div class="hrow"><div><h1>Jobs & overlap</h1><p class="sub">Agents grouped by the job they do. A job scores 100 when the agents still in it agree. Colors are the builder’s department.</p></div></div>
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">${M.JOB_ORDER.map(job=>{
-  const ids=M.jobIds(job), score=M.jobScore(job,S), c=M.conflictByJob(job)
-  const kind=c&&S.resolved[c.id]==='variant'?'sync':score==null?'unknown':score===100?'sync':c&&M.isOpen(c,S)?'conflict':'drift'
-  const label=c&&S.resolved[c.id]==='variant'?'Valid variant':score==null?'Not checked':score===100?'In sync':c&&M.isOpen(c,S)?'Conflict':'Drift detected'
+  const ids=M.jobIds(job), score=M.jobScore(job,S)
+  const pres=M.jobPresentation(job,S), kind=pres.kind, label=pres.label
   return `<div class="card job k-${kind}"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h4>${esc(job)}</h4><span class="mut">${ids.length} agent${ids.length>1?'s':''}</span><span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center">${score==null?'':`<b class="mono">${score}</b>`}${status(kind,label)}</span></div>
-${venn(ids.length, ids.map(i=>DC[AGENTS[i].dept]))}${ids.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #1b1e26">${dav(AGENTS[i])}<span>${esc(AGENTS[i].n)}<span class="dim" style="display:block;font-size:11px">${esc(AGENTS[i].b)} · ${esc(AGENTS[i].dept)} · ${esc(M.effectiveAnswer(i,S))}</span></span><span style="margin-left:auto">${tool(AGENTS[i].tool)}</span></div>`).join('')}</div>`}).join('')}</div></div>`}
+${venn(ids.length, ids.map(i=>DC[AGENTS[i].dept]))}${ids.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)">${dav(AGENTS[i])}<span>${esc(AGENTS[i].n)}<span class="dim" style="display:block;font-size:11px">${esc(AGENTS[i].b)} · ${esc(AGENTS[i].dept)} · ${esc(M.effectiveAnswer(i,S))}</span></span><span style="margin-left:auto">${tool(AGENTS[i].tool)}</span></div>`).join('')}</div>`}).join('')}</div></div>`}
 
 const sevc={bad:'var(--status-conflict-fill)',warn:'var(--status-risk-fill)',info:'var(--status-review-fill)'}
 function conflicts(){
@@ -160,7 +159,7 @@ ${BLOCKS.map(b=>{const c=M.conflictByJob(b.job), live=M.blockLive(b,S), t=M.tall
   return `<tr class="k-${live?'sync':'unknown'}"><td><span style="display:inline-flex;gap:8px;align-items:center">${ic('cube',15)}<b style="font-weight:500">${esc(b.n)}</b></span></td><td>${tag(esc(b.v)+(live?'':' · draft'))}</td><td>${esc(b.own)}</td><td class="mut" style="font-family:ui-monospace,monospace;font-size:11.5px">concord.${M.slug(b.job)}</td>
 <td class="mut">${t.count?`${t.majority}/${t.count} match`+(M.jobScore(b.job,S)===100?' · 100':''):'—'}</td><td class="mut">${sugg}</td><td class="mut">${live&&b.id==='c1'&&S.resolved.c1?'Just now':esc(b.upd)}</td></tr>`}).join('')}
 </tbody></table></div></div>
-${CONF.filter(c=>S.resolved[c.id]==='official').map(c=>`<div class="card" style="margin-top:14px"><div class="hd"><h3>${esc(c.job)} · published</h3><span class="r">Verified by re-reading</span></div><div class="bd">${timelineMarkup(c.id)}${c.cols.map(col=>{const a=AGENTS[col.a];return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1b1e26">${dav(a)}<span>${esc(a.n)}</span><span class="dim">${esc(a.b)}</span>${tool(a.tool)}<span style="margin-left:auto">${statusChip(M.agentStatus(col.a,S))}</span></div>`}).join('')}</div></div>`).join('')}
+${CONF.filter(c=>S.resolved[c.id]==='official').map(c=>`<div class="card" style="margin-top:14px"><div class="hd"><h3>${esc(c.job)} · published</h3><span class="r">Verified by re-reading</span></div><div class="bd">${timelineMarkup(c.id)}${c.cols.map(col=>{const a=AGENTS[col.a];return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">${dav(a)}<span>${esc(a.n)}</span><span class="dim">${esc(a.b)}</span>${tool(a.tool)}<span style="margin-left:auto">${statusChip(M.agentStatus(col.a,S))}</span></div>`}).join('')}</div></div>`).join('')}
 </div>`}
 
 function integ(){
