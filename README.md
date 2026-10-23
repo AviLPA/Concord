@@ -1,13 +1,24 @@
 # Concord (demo)
 
-Interactive proof-of-concept for an agent consistency layer. Concord maps every agent employees build (here, in Claude and n8n), finds agents doing the same job with conflicting definitions, rules or sources, and lets the owner publish one official version that every agent calls over MCP.
+Interactive proof-of-concept for an agent consistency layer. Employees build agents in Claude, n8n and more; Concord connects read-only, maps every agent, finds agents doing the same job that give different answers, and lets the owner publish one official definition that every agent calls over MCP.
 
 Live demo: https://concord-demo.space.fast/
 
-All data is fictional ("Northwind", 400 people). Everything runs client-side; there is no backend.
+All data is fictional ("Northwind", 400 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v1`) and can be cleared with **Reset demo** (landing page footer, or the app sidebar).
 
-## Watch it live (start here)
-The landing page leads with **▶ Watch it live** (also in the sidebar and top bar, route `#/watch`). It is a guided, autoplaying simulation in 8 steps:
+## Routes
+| Route | What |
+|---|---|
+| `#/` (or no hash) | Marketing landing page: hero with two equal CTAs (**Get started**, **▶ Watch it live**), the problem (35 / 42 / 17 / 28 from the demo company), how it works, integrations (Claude and n8n available, others "coming soon"), built for RevOps / Data / AI CoE. No logos, testimonials, pricing or real-world stats. |
+| `#/start` | Hands-on onboarding (no autoplay): 1 Create workspace → 2 Connect Claude (org-admin consent, read-only scopes) and n8n (instance URL + API key, Test connection) → 3 Scan (streams in 47 agents, groups them into 14 jobs, surfaces 7 conflicts; Skip available) → 4 Search → 5 Resolve. A one-line guide bar always says what to do next. |
+| `#/search/<query>` | Search across every agent (also from the app top bar). Synonym and fuzzy matching, so "customer health", "custmer helth", "how many accounts are at risk?" or "how much revenue do we have" all work. Results show every agent doing the job, with builder, definition/source and answer side by side; disagreements highlighted. |
+| `#/resolve/<cid>` | Resolve as owner: compare definitions, pick or edit one, add a reason, publish as an official MCP block, notify builders / rewire and watch answers converge; adoption and consistency score update. |
+| `#/watch` | **Watch it live**: guided 8-step simulation (unchanged; see below). Reachable from the landing hero, first item in the app sidebar, the top bar, onboarding header and the end of onboarding. |
+| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The Overview shows a setup checklist (Connect, Scan, Search, Resolve first conflict) until it is done, and reflects what you did (score 71 → 86 after resolving Customer health). |
+| `#/live` | Old route, redirects to `#/watch`. |
+
+## Watch it live
+A guided, autoplaying simulation in 8 steps:
 
 1. Dana (Sales Ops) builds a "Q4 at-risk accounts" agent in Claude, in plain words → Concord detects the new agent.
 2. She pastes her own at-risk definition and a personal spreadsheet → Concord reads instructions and sources, read-only.
@@ -18,7 +29,7 @@ The landing page leads with **▶ Watch it live** (also in the sidebar and top b
 7. Dana's agent is rewired; asked again, it answers 28 (adoption 2/4).
 8. Tom's n8n workflow and Maya's agent are rewired → all four agree, consistency 71 → 86.
 
-Left panel: a generic chat labelled "Built in Claude". Right panel: Concord's backend event log. A narration bar explains every step. Controls: play/pause (space), back/next (← →), restart, speed (1×, 1.5×, 2×, 0.75×), and clickable step markers. On phones the panels become tabs that follow the action. The wrap-up card's **Explore the full app** opens the dashboard with the result applied (Dana's agent in the inventory, conflict resolved, score 86).
+Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. The wrap-up card's **Explore the full app** opens the dashboard with the result applied.
 
 ## Run locally
     npm install
@@ -29,11 +40,13 @@ Left panel: a generic chat labelled "Built in Claude". Right panel: Concord's ba
     npm run preview    # serves dist/ on :4173
 
 ## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
-- `test-watch.mjs`: end-to-end test of the live mode at 1280×800 and 390×844 (full run, controls, explore).
-- `shots.mjs`: high-res screenshots to /workspace/concord-shots/.
-- `video.mjs [desktop|phone]`: records the walkthrough with a fake cursor and captions (CDP screencast frames, then ffmpeg).
+- `test-onboarding.mjs [baseUrl] [shotDir]`: end-to-end test at 1280×800 and 390×844: landing → Get started → connect both → scan → search (chip, free text, typo) → resolve → dashboard; persistence; landing → Watch it live → wrap-up → Explore; Reset. Fails on console errors, horizontal scroll or raw template text.
+- `test-watch.mjs`: detailed test of the Watch it live mode (timing, controls, explore).
+- `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
+- `video.mjs [desktop|phone]`: records the Watch it live walkthrough. `video-onboarding.mjs [desktop|phone]`: records the hands-on onboarding. Both use CDP screencast frames plus a fake cursor and captions, then ffmpeg.
 
 ## Code
-- `src/main.js`: app shell, data, and screens (Overview, Agents, Jobs, Conflicts, Official blocks, Integrations).
+- `src/main.js`: app shell, data, routing, persistence, and app screens (Overview, Agents, Jobs, Conflicts, Official blocks, Integrations).
+- `src/onboard.js`: landing page, onboarding (workspace, connect modals, scan), search, resolve flow, setup checklist.
 - `src/watch.js`: the Watch it live mode (step/beat timeline engine, chat and backend renderers).
 - `src/style.css`: all styles.

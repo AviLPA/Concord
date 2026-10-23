@@ -1,6 +1,9 @@
 import './style.css'
 import {watchPage,mountWatch,startWatch} from './watch.js'
+import {OB,initOB,landingPage,onboardPage,searchBox,resolveView,checklist,mountOB} from './onboard.js'
 const $=s=>document.querySelector(s)
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))
+const initials=n=>n.trim().split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase()
 const I={
 home:'<path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
 bot:'<rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/>',
@@ -72,13 +75,13 @@ const BLOCKS=[{n:'Customer health',v:'v2',st:'draft',own:'Sara Klein',job:'Custo
 {n:'Onboarding FAQ',v:'v5',st:'pub',own:'Omer Levi',job:'Onboarding FAQ',ag:[13,23,33],done:3,calls:'2.4k / wk',upd:'Oct 11'}]
 const status=a=>({ok:'<span class="chip c-ok"><i></i>Consistent</span>',conflict:'<span class="chip c-bad"><i></i>Conflict</span>',stale:'<span class="chip c-warn"><i></i>Stale source</span>',orphan:'<span class="chip c-mut"><i></i>Orphaned</span>',rewired:'<span class="chip c-acc"><i></i>On official block</span>'}[a.st])
 const NAV=[['watch','Watch it live','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official blocks','cube'],['integrations','Integrations','plug']]
-function shell(inner){const title=NAV.find(n=>n[0]===S.route)[1]
-return `<div class="shell"><aside class="side" id="side"><div class="ws"><div class="logo">N</div><div><b>Northwind</b><small>400 members · Business</small></div><span style="margin-left:auto;color:var(--dim)">${ic('chev',14)}</span></div>
+function shell(inner){const title=(NAV.find(n=>n[0]===S.route)||[0,{search:'Search',resolve:'Resolve conflict'}[S.route]||''])[1]
+return `<div class="shell"><aside class="side" id="side"><div class="ws"><div class="logo">N</div><div><b>${esc(OB.company)}</b><small>400 members · Business</small></div><span style="margin-left:auto;color:var(--dim)">${ic('chev',14)}</span></div>
 ${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${S.open}</span>`:r==='agents'?`<span class="ct">${agents.length}</span>`:r==='watch'?'<span class="newb">Start here</span>':''}</a>`).join('')}
-<div class="sec">Workspace</div><a class="nav" href="#/integrations">${ic('gear')}Settings</a>
+<div class="sec">Workspace</div><a class="nav ${S.route==='start'?'on':''}" href="#/start">${ic('check')}Setup guide</a><a class="nav" href="#/integrations">${ic('gear')}Settings</a><button class="nav navbtn" data-reset>${ic('x')}Reset demo</button>
 <div class="sidefoot"><div style="display:flex;align-items:center;gap:8px;color:var(--tx);font-weight:500">${ic('lock',14)}Read-only connections</div><div style="margin-top:4px">Concord never writes to your tools. Claude and n8n call official blocks over MCP.</div></div></aside>
 <div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><div class="crumb"><span class="x">Concord / </span><b>${title}</b></div><span class="pill-demo">Demo data</span>
-${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Watch it live</span></a>`:''}<label class="search">${ic('search',14)}<input placeholder="Search agents, jobs, blocks…"/><kbd>⌘K</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="Sara Klein · Head of CS Ops">SK</div></header>${inner}</div></div>
+${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Watch it live</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
 ${S.toast?`<div class="toast">${ic('check')}${S.toast}</div>`:''}`}
 function gauge(v){const r=70,c=Math.PI*r,p=v/100*c;return `<svg viewBox="0 0 180 110" width="100%" style="max-width:260px"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#7c6cff"/><stop offset="1" stop-color="#3fcf8e"/></linearGradient></defs>
 <path d="M20 95 A70 70 0 0 1 160 95" fill="none" stroke="#1f222c" stroke-width="13" stroke-linecap="round"/><path id="garc" d="M20 95 A70 70 0 0 1 160 95" fill="none" stroke="url(#gg)" stroke-width="13" stroke-linecap="round" stroke-dasharray="${p} ${c}" style="transition:stroke-dasharray 1.2s cubic-bezier(.2,.8,.2,1)"/>
@@ -90,13 +93,13 @@ ${[60,70,80,90].map(v=>`<line x1="20" x2="${W-20}" y1="${Y(v)}" y2="${Y(v)}" str
 <polygon points="20,${H-20} ${pts} ${X(d.length-1)},${H-20}" fill="url(#ar)"/><polyline points="${pts}" fill="none" stroke="#8b7dff" stroke-width="2.2" stroke-linejoin="round"/>
 ${d.map((v,i)=>`<text x="${X(i)}" y="${H-4}" fill="#5d6272" font-size="9" text-anchor="middle">${months[i]}</text>`).join('')}
 <circle cx="${X(d.length-1)}" cy="${Y(d.at(-1))}" r="4.5" fill="${S.score>71?'#3fcf8e':'#8b7dff'}" stroke="#0b0c10" stroke-width="2"/></svg>`}
-const acts=()=>[...(S.dana?[['acc','+','<b>Dana Ortiz</b> built "Q4 at-risk accounts" in Claude · rewired to Customer health v2','now']]:[]),...(S.resolved.c1?[['ok','check','<b>Sara Klein</b> made <b>Customer health v2</b> official · 4 agents rewiring','now']]:[]),
+const acts=()=>[...(S.dana?[['acc','+','<b>Dana Ortiz</b> built "Q4 at-risk accounts" in Claude · rewired to Customer health v2','now']]:[]),...(S.resolved.c1?[['ok','check',`<b>${esc(OB.name)}</b> made <b>Customer health v2</b> official · every agent on this job rewired`,'now']]:[]),
 ['bad','!','New conflict: <b>ARR</b> answers differ by $500K across 3 agents','6h'],['acc','+','<b>Ravi Iyer</b> created "Board pack builder" in Claude · built on ARR (net) v3','1d'],
 ['warn','~','<b>Refund macro workflow</b> cites a source 9 weeks old','1d'],['ok','✓','<b>Noa Friedman</b> published Discount approval v3','3w'],['mut','○','<b>Exec churn brief</b> became orphaned (builder left team)','3w']]
 const icc={ok:'background:rgba(63,207,142,.14);color:#6ee7b0',bad:'background:rgba(242,85,90,.14);color:#ff8b8f',warn:'background:rgba(245,165,36,.14);color:#fbbf4b',acc:'background:rgba(124,108,255,.16);color:#c2baff',mut:'background:#1b1e27;color:#8b90a0'}
 function overview(){const dep=[['Customer Success',S.resolved.c1?1:3],['Sales',3],['Finance',S.resolved.c1?1:2],['Support',1],['Marketing',S.resolved.c1?0:1],['People',1]]
-return `<div class="page"><div class="hrow"><div><h1>Good evening, Sara</h1><p class="sub">Your team builds agents in 2 places: Claude and n8n. Concord sees all of them as one inventory.</p><div class="chip c-acc" style="margin-top:8px"><i></i>${agents.length} agents across Claude and n8n, one source of truth</div></div><div class="act"><button class="btn">Last 30 days ${ic('chev',13)}</button><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
-${S.hideHero?'':`<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.dana?'Watch it again':'New here? Start with this'}</span><h2>Watch an employee build an agent, and see what Concord sees</h2><p>Dana in Sales Ops builds an agent in Claude. Three colleagues already built one for the same job, in Claude and n8n. Watch Concord catch the conflict and fix it, live. About a minute.</p></div><a class="btn p big" href="#/watch" data-startwatch>${ic('play',14)} Watch it live</a></div>`}<div class="grid g4" style="margin-bottom:14px">
+return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in 2 places: Claude and n8n. Concord sees all of them as one inventory.</p><div class="chip c-acc" style="margin-top:8px"><i></i>${agents.length} agents across Claude and n8n, one source of truth</div></div><div class="act"><button class="btn">Last 30 days ${ic('chev',13)}</button><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
+${checklist()}${S.hideHero?'':`<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.dana?'Watch it again':'New here? Start with this'}</span><h2>Watch an employee build an agent, and see what Concord sees</h2><p>Dana in Sales Ops builds an agent in Claude. Three colleagues already built one for the same job, in Claude and n8n. Watch Concord catch the conflict and fix it, live. About a minute.</p></div><a class="btn p big" href="#/watch" data-startwatch>${ic('play',14)} Watch it live</a></div>`}<div class="grid g4" style="margin-bottom:14px">
 <div class="card kpi"><div class="l">${ic('bot',14)}Agents monitored</div><div class="v">${agents.length}</div><div class="d"><span class="up">+${agents.length-42}</span> this month</div></div>
 <div class="card kpi"><div class="l">${ic('plug',14)}Connected tools</div><div class="v">2</div><div class="d">Claude + n8n · read-only</div></div>
 <div class="card kpi"><div class="l">${ic('alert',14)}Open conflicts</div><div class="v" id="kopen">${S.open}</div><div class="d">${S.resolved.c1?'<span class="up">−1</span> today':'<span class="dn">2 high severity</span>'}</div></div>
@@ -153,20 +156,41 @@ function integ(){const st=[['claude','Compliance API','Projects, instructions, k
 return `<div class="page"><div class="hrow"><div><h1>Integrations</h1><p class="sub">Your team builds agents in 2 places: Claude and n8n. Concord sees all of them as one inventory. It connects read-only: it inventories agents and reads their instructions and sources; it never edits them.</p></div><div class="act"><button class="btn">+ Connect tool</button></div></div>
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">${st.map(([k,api,what,sc,who])=>`<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot" style="background:${TOOLS[k].c};display:grid;place-items:center;font-weight:700;color:#fff">${TOOLS[k].a}</span><div><b style="font-size:14px">${TOOLS[k].n}</b><div class="mut">${agents.filter(a=>a.tool===k).length} agents discovered</div></div><span class="chip c-ok" style="margin-left:auto"><i></i>Connected</span></div>
 <div class="mut">${who}</div><div class="kv"><span>Access</span><span><span class="chip c-mut">${ic('lock',11)} Read-only</span></span><span>Connected via</span><span>${api}</span><span>Reads</span><span class="mut">${what}</span><span>Scopes</span><span class="mut" style="font-family:ui-monospace,monospace;font-size:11.5px">${sc}</span><span>Last sync</span><span>${k==='claude'?2:4} min ago</span></div></div>`).join('')}</div></div>`}
-function render(){if(location.hash==='#/live'){history.replaceState(null,'','#/watch')}const h=location.hash.slice(2).split('/');S.route=NAV.some(n=>n[0]===h[0])?h[0]:'overview';S.conflict=S.route==='conflicts'?(h[1]||(innerWidth>=820?'c1':null)):S.conflict
-if(S.route==='watch'){$('#app').innerHTML=shell(watchPage());mountWatch(exploreAfterWatch);return}
-const pg={overview,agents:agentsPg,jobs,conflicts,blocks,integrations:integ}[S.route]();$('#app').innerHTML=shell(pg)}
+function render(){if(location.hash==='#/live'){history.replaceState(null,'','#/watch')}const raw=location.hash.replace(/^#\/?/,''),h=raw.split('/')
+ document.body.classList.toggle('lpbody',!raw)
+ if(!raw){S.route='home';$('#app').innerHTML=landingPage();return}
+ if(h[0]==='start'){S.route='start';$('#app').innerHTML=onboardPage();mountOB();return}
+ if(h[0]==='search'){S.route='search';S.q=decodeURIComponent(h.slice(1).join('/')||'');$('#app').innerHTML=shell(`<div class="page spage"><h1>Search</h1><p class="sub">Every agent doing a job, across Claude and n8n, with its definition and answer side by side.</p>${searchBox(S.q)}</div>`);return}
+ if(h[0]==='resolve'){S.route='resolve';$('#app').innerHTML=shell(`<div class="page">${resolveView(h[1]||'c1',false)}</div>`);return}
+ S.route=NAV.some(n=>n[0]===h[0])?h[0]:'overview';S.conflict=S.route==='conflicts'?(h[1]||(innerWidth>=820?'c1':null)):S.conflict
+ if(S.route==='watch'){$('#app').innerHTML=shell(watchPage());mountWatch(exploreAfterWatch);return}
+ const pg={overview,agents:agentsPg,jobs,conflicts,blocks,integrations:integ}[S.route]();$('#app').innerHTML=shell(pg)}
 window.addEventListener('hashchange',()=>{S.agent=null;render();scrollTo(0,0)});window.addEventListener('resize',()=>{});
 function toast(t){S.toast=t;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{S.toast=null;render()},2600)}
 function animScore(to){const from=S.score;const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);S.score=Math.round(from+(to-from)*e);if(k<1)requestAnimationFrame(step);else render()};requestAnimationFrame(step)}
-function makeOfficial(id,instant){if(S.resolved[id])return;S.resolved[id]=true;S.open--;if(id==='c1'){BLOCKS[0].st='pub';const L=BLOCKS[0].ag;const done=()=>L.slice(0,S.rewire).forEach(i=>agents[i].st='rewired')
- if(instant){S.rewire=L.length;done();S.score=86;return}
- S.rewire=0;const tick=()=>{if(S.rewire<L.length){S.rewire++;done();render();setTimeout(tick,900)}};setTimeout(tick,700);animScore(86)}else animScore(S.score+3)
-toast('Published official block · agents rewiring over MCP');}
-function exploreAfterWatch(){if(!S.dana){S.dana=true;agents.splice(3,0,{n:'Q4 at-risk accounts',job:'Customer health',tool:'claude',b:'Dana Ortiz',dept:'Sales Ops',own:'Dana Ortiz',src:'Customer health v2 · official',up:'just now',st:'ok'});BLOCKS[0].ag=[0,1,2,3];for(const c of CONF)for(const k of c.cols)if(k.a>=3)k.a++;for(const b of BLOCKS.slice(1))b.ag=b.ag.map(i=>i>=3?i+1:i)}
- makeOfficial('c1',true);S.score=86;location.hash='#/overview';S.toast='Customer health v2 is official · 4 of 4 agents agree';render();setTimeout(()=>{S.toast=null;render()},3200)}
+const BMAP={c1:0,c2:1,c3:2,c4:3}
+function scoreFor(){return 71+(S.resolved.c1?15:0)+3*Object.keys(S.resolved).filter(k=>k!=='c1').length}
+function scoreAfter(id){const had=S.resolved[id];S.resolved[id]=true;const v=scoreFor();if(!had)delete S.resolved[id];return v}
+function makeOfficial(id,instant){if(S.resolved[id])return;S.resolved[id]=true;S.open--;const c=CONF.find(x=>x.id===id)
+ if(id==='c1'){BLOCKS[0].st='pub';const L=BLOCKS[0].ag;const done=()=>L.slice(0,S.rewire).forEach(i=>agents[i].st='rewired')
+  if(instant){S.rewire=L.length;done();S.score=scoreFor();save();return}
+  S.rewire=0;const tick=()=>{if(S.rewire<L.length){S.rewire++;done();render();setTimeout(tick,900)}};setTimeout(tick,700);animScore(scoreFor())}
+ else{if(c)c.cols.forEach(k=>agents[k.a].st='rewired');const b=BLOCKS[BMAP[id]];if(b)b.done=b.ag.length;if(instant){S.score=scoreFor();save();return}animScore(scoreFor())}
+ save();toast('Published official block · agents rewiring over MCP');}
+function commit(id,pick,edit){const c=CONF.find(x=>x.id===id);if(c&&pick!=null)c.win=pick;if(edit)OB.edits[id]=edit;makeOfficial(id,true)}
+// ---------- persistence ----------
+const LS='concord-demo-v1'
+function save(){try{localStorage.setItem(LS,JSON.stringify({OB,resolved:Object.keys(S.resolved),wins:Object.fromEntries(CONF.map(c=>[c.id,c.win])),dana:!!S.dana}))}catch(e){}}
+function reset(){try{localStorage.removeItem(LS)}catch(e){};location.hash='#/';location.reload()}
+function addDana(){if(S.dana)return;S.dana=true;agents.splice(3,0,{n:'Q4 at-risk accounts',job:'Customer health',tool:'claude',b:'Dana Ortiz',dept:'Sales Ops',own:'Dana Ortiz',src:'Customer health v2 · official',up:'just now',st:'ok'});BLOCKS[0].ag=[0,1,2,3];for(const c of CONF)for(const k of c.cols)if(k.a>=3)k.a++;for(const b of BLOCKS.slice(1))b.ag=b.ag.map(i=>i>=3?i+1:i)}
+function load(){let d=null;try{d=JSON.parse(localStorage.getItem(LS)||'null')}catch(e){}if(!d)return
+ Object.assign(OB,d.OB||{});if(d.dana)addDana();for(const c of CONF)if(d.wins&&d.wins[c.id]!=null)c.win=d.wins[c.id];for(const id of d.resolved||[])makeOfficial(id,true);if(S.resolved.c1)S.rewire=BLOCKS[0].ag.length}
+function exploreAfterWatch(){addDana()
+ makeOfficial('c1',true);S.rewire=BLOCKS[0].ag.length;S.score=scoreFor();save();location.hash='#/overview';S.toast='Customer health v2 is official · 4 of 4 agents agree';render();setTimeout(()=>{S.toast=null;render()},3200)}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-f],[data-agent],[data-close],[data-official],[data-legit],#burger,.nav');if(!t)return
 if(t.id==='burger'){$('#side').classList.toggle('open');return}
 if(t.dataset.f){S.filter=t.dataset.f;render()}else if(t.dataset.agent){S.agent=+t.dataset.agent;render()}else if('close'in t.dataset){S.agent=null;render()}
-else if(t.dataset.official){makeOfficial(t.dataset.official.split(':')[0])}else if(t.dataset.legit){S.resolved[t.dataset.legit]=true;S.open--;toast('Marked as legitimate variant');}})
+else if(t.dataset.official){makeOfficial(t.dataset.official.split(':')[0])}else if(t.dataset.legit){S.resolved[t.dataset.legit]=true;S.open--;S.score=scoreFor();save();toast('Marked as legitimate variant');}})
+initOB({S,agents,CONF,BLOCKS,TOOLS,ic,tool,dav,save,reset,render:()=>render(),scoreFor,scoreAfter,commit})
+load()
 render()
