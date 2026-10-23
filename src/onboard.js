@@ -226,6 +226,16 @@ function syncField(){
   const cols=[['Dana','Claude','35',-52],['Maya','Claude','42',44],['Tom','n8n','17',-20],['Priya','Claude','28',0]]
   return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' always':''}" style="--off:${c[3]};--i:${i}"><span class="sfn"><span class="off">${c[2]}</span><span class="on">28</span></span><span class="sfdot"></span><span class="sfl"><span class="sfnm">${c[0]}</span><span class="sfpl"> · ${c[1]}</span></span></div>`).join('')}</div>`
 }
+const BURGER=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`
+const CLOSE=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`
+const MKT=[['home','Home','#/'],['how','How it works','#/how'],['watch','Watch it live','#/watch'],['pricing','Pricing','#/pricing'],['about','About','#/about']]
+function mktLinks(active){return MKT.map(([id,label,href])=>`<a href="${href}" class="${active===id?'on':''}"${active===id?' aria-current="page"':''}>${label}</a>`).join('')}
+function marketFoot(active){
+  return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Read-only by design</span><span>Northwind · ${M.PEOPLE} people · fictional</span><a href="#/overview">Sign in</a><a href="#/start">Request a consistency audit</a><span>© 2026</span><button data-reset>Reset demo</button></div></div></footer>`
+}
+function marketShell(active, main){
+  return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
+}
 let syncTimer=0
 export function mountLanding(){
   clearInterval(syncTimer)
@@ -241,8 +251,7 @@ export function landingPage(){
     ['02','conflict','Catch the conflicts',`Group agents doing the same job and compare definitions plus answers already on record. Northwind has ${M.AGENTS.length} agents, ${cl} in Claude and ${M.AGENTS.length-cl} in n8n. A real scope difference, like Tom excluding contracts under $10k, can be marked as a valid variant. A sandboxed test is optional, never the default.`],
     ['03','sync','Owner signs off, agents follow','The person who owns the number picks one definition, writes their own, or imports it from dbt, Atlan, or Qontext. The block is an org-wide MCP connector in Claude and an MCP tool in n8n, so the next builder sees it before they paste a spreadsheet. Each builder applies a suggested change. Concord re-reads the project or the workflow to verify.'],
   ]
-  return `<div class="lp"><header class="lph"><a class="brand" href="#/">${lockup(20)}</a><nav class="lpn"><button data-scroll="how">How it works</button><button data-scroll="audit">The audit</button><a href="#/watch">Watch it live</a></nav><div class="lpr"><a class="lsign" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request an audit</a></div></header>
-<section class="lhero"><div class="lht"><h1>Keep every agent<br><span class="em">in sync.</span></h1>
+  return marketShell('home', `<section class="lhero"><div class="lht"><h1>Keep every agent<br><span class="em">in sync.</span></h1>
 <p class="lsub">Your teams build agents in Claude and n8n. ${Brand} finds the ones doing the same job that answer differently, and brings them back to one definition their owner signs off. Read-only: it never edits your agents.</p>
 <div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live · 60 s</a></div></div>
 <div class="lcard" id="lcard"><div class="lcardh"><span class="q">“How many accounts are at risk this quarter?”</span><span class="slot" data-off>${status('conflict','Conflict · 4 answers',{big:true})}</span><span class="slot" data-on>${status('sync','4/4 in sync',{big:true})}</span></div>
@@ -266,8 +275,40 @@ ${[['Priya · Claude','sync','28','In sync'],['Dana · Claude','sync','28','In s
 <section class="lsec"><div class="lsh"><span class="eyebrow">Built for</span><h2>The people who own the numbers</h2><p>At a company of a few hundred people, that is usually RevOps, Data, or IT.</p></div>
 <div class="l3 cards">${[['RevOps','Sara Klein, Head of RevOps, owns customer health, pipeline, and discount. She picks the official definition.'],['Data','Ravi’s team already certifies ARR in dbt, Atlan, or Qontext. Concord pulls that metric in, and can publish a block back. It does not replace the semantic layer.'],['IT','IT connects the Compliance API and the n8n key, and installs Concord as an org-wide MCP connector.']].map(([t,d])=>`<div class="card"><b>${t}</b><p>${d}</p></div>`).join('')}</div>
 <div class="ltags">Works with ${tag('Claude · Compliance API')} ${tag('n8n · REST API')} ${tag('dbt, Atlan, Qontext')} ${tag('Coming soon')}</div></section>
-<section class="lclose" id="audit"><div style="display:flex;justify-content:center">${lockup(28)}</div><h2>See where your agents disagree.</h2><p>Connect read-only and get a conflict report for the agents your teams already built. Or watch the Northwind story, about a minute.</p><div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live</a></div></section>
-<footer class="lfoot">${lockup(14)}<span>Read-only by design</span><span>Northwind · ${M.PEOPLE} people · fictional</span><span style="margin-left:auto">© 2026 · <a href="#/overview">Sign in</a> · <button data-reset>Reset demo</button></span></footer></div>`}
+<section class="lclose" id="audit"><div style="display:flex;justify-content:center">${lockup(28)}</div><h2>See where your agents disagree.</h2><p>Connect read-only and get a conflict report for the agents your teams already built. Or watch the Northwind story, about a minute.</p><div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live</a></div></section>`)
+}
+export function howPage(){
+  const steps=[
+    ['01','Read','Concord reads the instructions an agent already has, and the answers it already gave. It does not run the agent, and it does not change it.'],
+    ['02','Detect','It lines up agents that do the same job. When they disagree, you see each answer. Last week at Northwind, four agents said 35, 42, 17, and 28.'],
+    ['03','Decide','The person who owns the number picks one official answer. They can write their own, or use a metric the company already trusts.'],
+    ['04','Verify adoption','The next time someone builds, that answer is offered first. People who already have an agent get one suggestion and apply it themselves. Concord checks by reading the agent again.'],
+  ]
+  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Read, detect, decide, then check that it stuck.</h1><p>Concord is a read-only consistency layer for agents your teams already built in Claude and n8n.</p></section>
+<div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}</div>
+<section class="lclose"><h2>See it with the Northwind story.</h2><p>About a minute. Four answers, then one. Or request an audit of a workspace.</p><div class="lcta"><a class="btn p xl" href="#/watch">Watch it live</a><a class="btn xl" href="#/start">Request a consistency audit</a></div></section>`)
+}
+export function pricingPage(){
+  const tiers=[
+    ['Consistency Audit','Free','A read-only pass over the agents you already have: where they do the same job, and where the answers differ.','Request a consistency audit','#/start',true],
+    ['Team','Contact us','For teams building agents in more than one tool. One official answer per job, a suggestion for each existing builder, and a check that they applied it.','Contact us','#/start',false],
+    ['Enterprise','Contact us','For a wider rollout across workspaces, including the semantic layer you already use. Same read-only rule: owners decide, builders apply.','Contact us','#/start',false],
+  ]
+  return marketShell('pricing', `<section class="mhero"><span class="eyebrow">Pricing</span><h1>Start with a consistency audit.</h1><p>The audit is free in this demo. Team and Enterprise prices are placeholders. There is no checkout.</p></section>
+<div class="prices">${tiers.map(t=>`<article class="price card ${t[5]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p><a class="btn ${t[5]?'p':''}" href="${t[4]}">${t[3]}</a></article>`).join('')}</div>
+<p class="pricenote">Placeholder prices only. Nothing here is a quote, and this demo does not bill anyone.</p>`)
+}
+export function aboutPage(){
+  return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Agents doing the same job should give the same answer.</h1><p>Concord is a demo of that idea. Northwind, the company in the product, is fictional.</p></section>
+<div class="abouts">
+<article class="card"><h2>Why now</h2><p>People build agents where they already work, in Claude and in n8n. Two agents can be asked the same business question and answer with different numbers. That number then shows up in a forecast, a customer note, or a board update.</p></article>
+<article class="card"><h2>Principles</h2><ul>
+<li><b>Read-only.</b> Concord reads instructions and answers already given. It does not run an agent, and it does not edit one.</li>
+<li><b>Owners decide.</b> The person who owns the number picks the official answer.</li>
+<li><b>Publish into the tools you already use.</b> The official answer shows up where the next person builds. Existing builders apply the change themselves.</li>
+</ul></article>
+</div>`)
+}
 
 export function checklist(){
   const items=[['Connect Claude and n8n',OB.conn.claude&&OB.conn.n8n,'connect'],['Scan for agents',OB.scanned,'scan'],['Search a business term',OB.searched,'search'],['Resolve your first conflict',OB.resolved,'resolve']]
@@ -294,9 +335,10 @@ function runQ(q){const r=document.getElementById('sres');if(!r)return;r.innerHTM
   const box=document.querySelector('.sbox'),x=document.querySelector('.sclr');if(q&&!x&&box)box.insertAdjacentHTML('beforeend','<button class="sclr" data-sclear title="Clear">×</button>');else if(!q&&x)x.remove()}
 document.addEventListener('keydown',e=>{if(e.target.id==='topq'&&e.key==='Enter')location.hash='#/search/'+encodeURIComponent(e.target.value.trim())})
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-obgo],[data-obws],[data-connect],[data-mclose],[data-cauth],[data-ntest],[data-nsave],[data-scan],[data-scanskip],[data-sq],[data-sclear],[data-resolve],[data-rpick],[data-rwrite],[data-rnext],[data-rback],[data-rchip],[data-rpublish],[data-rsuggest],[data-rvariant],[data-rsem],[data-rsandbox],[data-obfinish],[data-scroll],[data-reset],[data-chkx],[data-semcon]')
+  const t=e.target.closest('[data-navtoggle],[data-obgo],[data-obws],[data-connect],[data-mclose],[data-cauth],[data-ntest],[data-nsave],[data-scan],[data-scanskip],[data-sq],[data-sclear],[data-resolve],[data-rpick],[data-rwrite],[data-rnext],[data-rback],[data-rchip],[data-rpublish],[data-rsuggest],[data-rvariant],[data-rsem],[data-rsandbox],[data-obfinish],[data-scroll],[data-reset],[data-chkx],[data-semcon]')
   if(!t)return
   const d=t.dataset,Rerender=()=>C.render()
+  if(d.navtoggle!=null){const bar=t.closest('.sitebar'),menu=bar.querySelector('.sitemenu'),open=menu.hasAttribute('hidden');if(open)menu.removeAttribute('hidden');else menu.setAttribute('hidden','');t.setAttribute('aria-expanded',open?'true':'false');t.setAttribute('aria-label',open?'Close menu':'Open menu');t.innerHTML=open?CLOSE:BURGER;return}
   if(d.scroll){document.getElementById(d.scroll)?.scrollIntoView({behavior:'smooth'});return}
   if(d.reset!=null){C.reset();return}
   if(d.chkx!=null){OB.dismissed=true;save();Rerender();return}

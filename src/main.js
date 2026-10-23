@@ -1,6 +1,6 @@
 import './style.css'
 import {watchPage,mountWatch} from './watch.js'
-import {OB,initOB,landingPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup} from './onboard.js'
+import {OB,initOB,landingPage,howPage,pricingPage,aboutPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup} from './onboard.js'
 import * as M from './model.js'
 import {status, tag, lockup, mark, Brand} from './brand.js'
 
@@ -38,7 +38,7 @@ function shell(inner){
 ${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${openN()}</span>`:r==='agents'?`<span class="ct">${AGENTS.length}</span>`:r==='watch'?'<span class="newb">Start here</span>':''}</a>`).join('')}
 <div class="sec">Workspace</div><a class="nav ${S.route==='start'?'on':''}" href="#/start">${ic('check')}Setup guide</a><a class="nav" href="#/integrations">${ic('gear')}Settings</a><button class="nav navbtn" data-reset>${ic('x')}Reset demo</button>
 <div class="sidefoot"><div style="display:flex;align-items:center;gap:8px;color:var(--tx);font-weight:500">${ic('lock',14)}Read-only connections</div><div style="margin-top:4px">Concord never runs or edits an agent. Builders call official blocks over MCP. Concord re-reads projects and workflows to see who adopted them.</div></div></aside>
-<div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><div class="crumb"><span class="x">${Brand} / </span><b>${title}</b></div>${tag('Demo data')}
+<div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><a class="backsite" href="#/">← Site</a><div class="crumb"><span class="x">${Brand} / </span><b>${title}</b></div>${tag('Demo data')}
 ${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Watch it live</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
 ${S.toast?`<div class="toast">${ic('check')}${esc(S.toast)}</div>`:''}`}
 
@@ -179,9 +179,13 @@ ${S.semanticConnected?'<div class="ion">'+ic('check',14)+' Read-only preview con
 function render(){
   if(location.hash==='#/live') history.replaceState(null,'','#/watch')
   const raw=location.hash.replace(/^#\/?/,''), h=raw.split('/')
-  document.body.classList.toggle('lpbody',!raw)
+  const marketing=!raw||raw==='home'||raw==='how'||raw==='pricing'||raw==='about'
+  document.body.classList.toggle('lpbody',marketing)
   document.title=Brand+' · Northwind'
-  if(!raw){S.route='home';$('#app').innerHTML=landingPage();mountLanding();return}
+  if(!raw||raw==='home'){S.route='home';$('#app').innerHTML=landingPage();mountLanding();return}
+  if(raw==='how'){S.route='how';$('#app').innerHTML=howPage();return}
+  if(raw==='pricing'){S.route='pricing';$('#app').innerHTML=pricingPage();return}
+  if(raw==='about'){S.route='about';$('#app').innerHTML=aboutPage();return}
   if(h[0]==='start'){S.route='start';$('#app').innerHTML=onboardPage();mountOB();return}
   if(h[0]==='search'){S.route='search';S.q=decodeURIComponent(h.slice(1).join('/')||'');$('#app').innerHTML=shell(`<div class="page spage"><h1>Search</h1><p class="sub">Every agent doing a job, in Claude and n8n, with the definition and the answer already on record.</p>${searchBox(S.q)}</div>`);return}
   if(h[0]==='resolve'){S.route='resolve';$('#app').innerHTML=shell(`<div class="page">${resolveView(h[1]||'c1',false)}</div>`);return}

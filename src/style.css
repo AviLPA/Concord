@@ -449,6 +449,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .mark circle{fill:currentColor}
 .mark circle.sync{fill:var(--sync)}
 .sidebrand{display:flex;padding:8px 8px 12px}
+.backsite{color:var(--agent-text);font-weight:600;font-size:12.5px;white-space:nowrap;padding:6px 2px;flex:none}
+.backsite:hover{color:var(--text)}
 .mono,.kpi .v,.scn,.rcn,.ccn,.lcn,.ans .n,.rvm b,#gnum,.scount b,.sfn,.bav,.sem strong,.impact b,.numxl,.adoptn,.opt em,.rule em{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600}
 .code,.bcode,.rcl,.scl,.lg,#rdef{font-family:var(--font-mono)}
 .dav{color:var(--on-sync)}
@@ -631,4 +633,55 @@ tbody tr:hover{background:var(--raised)}
 @media (max-width:640px){
   .sj{flex-wrap:wrap;row-gap:4px}
   .sj .end{margin-left:0}
+}
+/* ---------- marketing nav ---------- */
+.sitebar{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--line)}
+.sitebar-in{max-width:1180px;margin:0 auto;padding:0 28px;height:68px;display:flex;align-items:center;gap:18px}
+.sitenav{display:flex;align-items:center;gap:2px;min-width:0}
+.sitenav a,.sitefoot-nav a{color:var(--text-muted);font-weight:500;padding:8px 10px;border-radius:8px;white-space:nowrap}
+.sitenav a:hover,.sitefoot-nav a:hover,.sitemenu a:hover{color:var(--text);background:var(--raised)}
+.sitenav a.on,.sitefoot-nav a.on,.sitemenu a.on{color:var(--text);font-weight:700;box-shadow:inset 0 -2px 0 var(--sync)}
+.siteacts{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+.sitein{color:var(--text);font-weight:600;padding:8px 10px;white-space:nowrap}
+.sitein:hover{color:var(--agent-text)}
+.siteacts .btn,.sitemenu .btn{white-space:nowrap}
+.siteburger{display:none;margin-left:auto;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);place-items:center}
+.sitemenu{display:flex;flex-direction:column;gap:4px;padding:8px 18px 16px;background:var(--bg);border-top:1px solid var(--line)}
+.sitemenu[hidden]{display:none}
+.sitemenu a{color:var(--text);font-weight:600;padding:12px 10px;border-radius:8px;font-size:16px}
+.sitemenu .btn{justify-content:center;margin-top:6px}
+.sitefoot{border-top:1px solid var(--line);padding:28px 0 40px;background:var(--bg)}
+.sitefoot-in{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.sitefoot-nav{display:flex;flex-wrap:wrap;gap:2px}
+.sitefoot-meta{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;color:var(--dim);font-size:12.5px}
+.sitefoot button{background:none;border:0;color:var(--dim);padding:0;text-decoration:underline}
+.mhero{padding:48px 0 8px;max-width:720px}
+.mhero h1{font-size:clamp(32px,5vw,46px);line-height:1.08;letter-spacing:-.03em;font-weight:700;margin:8px 0 12px}
+.mhero p{margin:0;color:var(--text-muted);font-size:17px;line-height:1.6}
+.msteps{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0 8px}
+.msteps article{padding:18px 18px 6px}
+.msteps .lsn{position:static;display:block;margin:0 0 8px;font-family:var(--font-mono)}
+.msteps h2,.price h2,.abouts h2{margin:0 0 8px;font-size:20px;letter-spacing:-.02em}
+.msteps p,.price p,.abouts p,.abouts li{color:var(--text-muted);line-height:1.55}
+.prices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:28px 0 12px}
+.price{padding:22px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.price.feat{box-shadow:inset 0 0 0 1px var(--sync)}
+.pricev{font-family:var(--font-mono);font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.price .btn{margin-top:auto;justify-content:center}
+.pricenote{color:var(--text-muted);font-size:13px;margin:0 0 36px}
+.abouts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0 48px}
+.abouts article{padding:20px}
+.abouts ul{margin:0;padding-left:18px}
+.abouts li{margin:8px 0}
+.abouts b{color:var(--text)}
+@media (max-width:1020px){
+  .sitenav,.siteacts{display:none}
+  .siteburger{display:grid}
+  .sitebar-in{padding:0 18px;height:60px}
+  .sitefoot-in{padding:0 18px}
+  .sitefoot-meta{margin-left:0}
+}
+@media (max-width:800px){
+  .msteps,.prices,.abouts{grid-template-columns:1fr}
+  .mhero h1{font-size:32px}
 }
