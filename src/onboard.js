@@ -245,14 +245,14 @@ export function mountLanding(){
 }
 export function landingPage(){
   const cl=M.AGENTS.filter(a=>a.tool==='claude').length
-  const defs=[["Dana's agent",'Sales Ops','Claude','35','no login 21d OR &gt; 3 tickets'],['Account health monitor','CS','Claude','42','tickets &gt; 5 OR CSAT &lt; 3.5'],["Tom's workflow",'CS','n8n','17','usage drop &gt; 40%, excl. under $10k'],['Renewal radar','Sales','Claude','28','usage + NPS + tickets, score &lt; 60']]
+  const defs=[["Dana's agent",'Sales Ops','Claude','35','no login 21d OR &gt; 3 tickets'],['Account health monitor','CS','Claude','42','tickets &gt; 5 OR CSAT &lt; 3.5'],["Tom's workflow",'CS','n8n','17','usage drop &gt; 40%, excl. under $10k'],['Renewal radar','RevOps','Claude','28','usage + NPS + tickets, score &lt; 60']]
   const steps=[
     ['01','unknown','Scanning','Scan on a schedule',`Connect Claude (through its Compliance API, on Claude Enterprise) and n8n (through its REST API). ${Brand} scans daily and reads each agent's instructions and recent answers. A new agent shows up on the first scan after someone uses it.`],
     ['02','conflict','Conflict','Alert when they disagree',`When agents give different answers to the same question, ${Brand} alerts the person who owns that number. At Northwind: customer health, 4 agents, 4 answers (35, 42, 17, 28). If a difference is intentional, for example a team that only counts contracts over $10k, the owner can allow it and ${Brand} stops flagging it.`],
     ['03','sync','In sync','The owner decides, builders fix',`Sara Klein, Head of RevOps, signs off one official answer. She can pick an existing answer or write her own. ${Brand} tells each builder what to change, and builders update their own agents. Each scan after that confirms the fix landed and alerts Sara again if an agent is still off.`],
   ]
   return marketShell('home', `<section class="lhero"><div class="lht"><h1>Keep every agent<br><span class="em">in sync.</span></h1>
-<p class="lsub">Works alongside the agents you already have. Your teams keep building agents in Claude and n8n. ${Brand} checks their answers on a schedule, tells the owner the moment two agents give different answers to the same question, and confirms the fix landed. It's read-only, so it never changes an agent.</p>
+<p class="lsub">Works alongside the agents you already have. Your teams keep building agents in Claude and n8n. ${Brand} checks their answers on a schedule, tells the owner when two agents give different answers to the same question, and confirms the fix landed. It's read-only, so it never changes an agent.</p>
 <div class="lcta"><a class="btn p xl" href="#/start">Try it with sample data</a><a class="btn xl" href="#/watch">Take the walkthrough</a></div></div>
 <div class="lcard" id="lcard"><div class="lcardh"><span class="q">“How many accounts are at risk this quarter?”</span><span class="slot" data-off>${status('conflict','Conflict · 4 answers',{big:true})}</span><span class="slot" data-on>${status('sync','4 of 4 agree',{big:true})}</span></div>
 ${syncField()}<div class="mcap">Example: Northwind, a fictional company</div></div></section>

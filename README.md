@@ -25,7 +25,7 @@ A click-through story in three acts and six steps. The user clicks Next and Back
 
 1. **Dana builds.** She asks how many accounts are at risk in her Claude project and gets 35. Concord does not interrupt. The chat box is on screen only here.
 2. **Night scan.** Concord finds the new agent, matches Customer health, and shows the same question and the same line: Dana's agent answered 35.
-3. **Four answers.** Dana's 35 is marked as the one just seen. Three other agents answer the same question: the CS team lead's Account health monitor (42), Tom's n8n workflow (17), and the RevOps warehouse score (28). Each card names the owner, team, and tool, plus a short definition.
+3. **Four answers.** Dana's 35 is marked as the one just seen. Three other agents answer the same question: the CS team lead's Account health monitor (42), Tom's n8n workflow (17), and Renewal radar (RevOps · Claude, warehouse score, 28). The left panel keeps Dana's chat, faded. Each card names the owner, team, and tool, plus a short definition.
 4. **Sara's alert.** A notification to Sara Klein: Customer health, 4 agents, 4 different answers.
 5. **Sara decides.** In Concord she marks 28, the warehouse score. Concord sends each builder a note. It does not change anyone's agent.
 6. **Daily scans.** Day 1 Dana updates. Day 3 Tom edits his n8n workflow himself. Day 5 the Account health monitor still says 42, so Concord alerts again. The CS team lead updates it after that and matches last. Daily monitoring keeps running.

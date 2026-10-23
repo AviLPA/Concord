@@ -17,7 +17,7 @@ const SAID=[
   {id:'n35', name:"Dana's agent", who:'Dana · Sales Ops · Claude', seen:true, ini:'DO', c:'#ABD1E6', n:35, rule:'A personal spreadsheet'},
   {id:'n42', name:'Account health monitor', who:'CS team lead · CS · Claude', ini:'CS', c:'#82B9D9', n:42, rule:'A ticket count'},
   {id:'n17', name:"Tom's n8n workflow", short:"Tom's workflow", who:'Tom · CS Ops · n8n', ini:'TR', c:'#82B9D9', n:17, rule:'Usage drop over 40%'},
-  {id:'n28', name:'RevOps warehouse score', short:'Renewal radar', who:'RevOps · Claude', ini:'RR', c:'#58A2CD', n:28, rule:'Warehouse score'},
+  {id:'n28', name:'Renewal radar', short:'Renewal radar', who:'RevOps · Claude', ini:'RR', c:'#58A2CD', n:28, rule:'Warehouse score'},
 ]
 const NEXT=['the nightly scan','four answers',"Sara's alert",'Sara decides','daily scans','the ending']
 const ALERT='Customer health: 4 agents, 4 different answers (35, 42, 17, 28)'
@@ -37,7 +37,7 @@ const STEPS=[
  know:'The scan reads the agent list, the instructions, and the answer already in the chat. It does not run the agent.',
  dwell:5200,
  beats:[{t:'ev', id:'found', side:'be', wait:700}]},
-{act:2, label:'Four answers', left:'why', leftTitle:'Why the numbers differ',
+{act:2, label:'Four answers', left:'build', leftTitle:"Dana's Claude project",
  title:'The same scan finds four different answers',
  body:"Dana's 35 is the one we just saw. Three other agents at Northwind answer the same question. Different definitions, different sources.",
  know:'The other three answers were already on record. Concord compared them. It did not ask anyone.',
@@ -154,10 +154,6 @@ function chatItems(V){
     if(V.has('noted')) A('noted',`<div class="cnote">${ic('check')}<span>Notes sent to each builder. Concord doesn't change anyone's agent.</span></div>`)
     return it
   }
-  if(mode==='why'){
-    A('why',`<div class="chello"><b>3 other agents at Northwind answer the same question</b><span>Dana's 35 is the one we just saw.</span></div><div class="src">${SAID.map(a=>`<div class="srcrow${a.seen?' seen':''}">${av(a.ini,a.c)}<div class="srcm"><b>${a.name}</b><span>${a.who}</span><small>${a.rule}</small></div><em>${a.n}</em>${a.seen?'<i class="ccseen">Just seen</i>':''}</div>`).join('')}</div>`)
-    return it
-  }
   if(mode==='days'){
     A('hello',`<div class="chello"><b>After Sara marked 28</b><span>The following scans watch for who updated.</span></div>`)
     A('days',dayList(V))
@@ -169,6 +165,7 @@ function chatItems(V){
     A('hello',`<div class="chello"><b>Q4 at-risk agent</b><span>Dana's Claude project</span></div>`)
     if(asked) um('u1',Q)
     if(answered) am('a1',`<div class="big${step===1?' linked':''}">35</div>Accounts at risk this quarter.`)
+    if(step===2) A('fournote',`<div class="cnote">Dana's agent is one of four.</div>`)
     if(step===0&&c&&c.t==='reply'&&W.thinking) A('think',`<div class="cm a"><span class="cav">${ic('spark')}</span><div class="cb typing"><span></span><span></span><span></span></div></div>`)
     return it
   }
@@ -221,18 +218,18 @@ function draw(){
   setH(root.querySelector('.wv-cap'),caption())
   const atEnd=W.step>=N
   const nextLabel=W.step<0?'Start the walkthrough':atEnd?'Done':`Next: ${NEXT[W.step]}`
-  setH(root.querySelector('.wv-btns'),`<button class="btn" data-w="back" ${W.step<0?'disabled':''}>Back</button><button class="btn p wnext" data-w="${W.step<0?'start':'next'}" ${atEnd?'disabled':''}>${nextLabel}</button>`)
-  const leftTab={n8n:"Tom's workflow",build:'Dana in Claude',alert:"Sara's alert",sara:"Sara's view",days:'Daily scans',why:'Why they differ'}[mode]||'What they said'
+  setH(root.querySelector('.wv-btns'),`<button class="btn" data-w="back" ${W.step<=0?'disabled':''}>Back</button><button class="btn p wnext" data-w="${W.step<0?'start':'next'}" ${atEnd?'disabled':''}>${nextLabel}</button>`)
+  const leftTab={n8n:"Tom's workflow",build:'Dana in Claude',alert:"Sara's alert",sara:"Sara's view",days:'Daily scans'}[mode]||'What they said'
   setH(root.querySelector('.wv-tabs'),`<button data-wside="chat" class="${W.side==='chat'?'on':''}">${leftTab}${c&&c.side==='chat'&&W.side!=='chat'?'<i></i>':''}</button><button data-wside="be" class="${W.side==='be'?'on':''}">What Concord sees${c&&c.side==='be'&&W.side!=='be'?'<i></i>':''}</button>`)
   const actN=st?st.act:W.step>=N?3:1
-  const titles={said:[ic('layers'),'What the agents said'],build:[ic('spark'),"Dana's Claude project"],why:[ic('layers'),'Why the numbers differ'],alert:[ic('alert'),"Sara's alert"],sara:[ic('user'),"Sara's view in Concord"],days:[ic('eye'),'Daily scans'],n8n:[ic('flow'),"Tom's n8n workflow"]}
+  const titles={said:[ic('layers'),'What the agents said'],build:[ic('spark'),"Dana's Claude project"],alert:[ic('alert'),"Sara's alert"],sara:[ic('user'),"Sara's view in Concord"],days:[ic('eye'),'Daily scans'],n8n:[ic('flow'),"Tom's n8n workflow"]}
   const hd=titles[mode]||titles.said
   const who=mode==='n8n'?av('TR','#82B9D9'):mode==='build'?av('DO','#ABD1E6'):mode==='sara'||mode==='alert'?av('SK','#3FE0A1'):''
   setH(root.querySelector('.wleft-hd'),`<span class="cav">${hd[0]}</span><div class="wleft-titles"><div class="wact">Act ${actN} · ${ACT[actN]}</div><h3>${hd[1]}</h3></div>${who?`<span class="r">${who}</span>`:''}`)
   const ch=root.querySelector('.cmsgs'),be=root.querySelector('.elog')
   sync(ch,chatItems(V));sync(be,beItems(V))
   const chat=root.querySelector('.wchat')
-  if(chat) chat.dataset.input=mode==='build'&&shownStep()===0?'on':'off'
+  if(chat){chat.dataset.input=mode==='build'&&shownStep()===0?'on':'off';chat.dataset.fade=shownStep()===2?'on':'off'}
   const comp=root.querySelector('.ccomp-t'),typing=mode==='build'&&shownStep()===0&&c&&c.t==='type'
   if(comp) comp.innerHTML=typing?c.text.slice(0,W.prog).replace(/</g,'&lt;')+'<span class="caret"></span>':mode==='build'&&shownStep()===0?'<span class="ph">Message Claude…</span>':'<span class="ph">Read-only</span>'
   root.querySelector('.ccomp')?.classList.toggle('active',!!typing)
@@ -268,9 +265,9 @@ document.addEventListener('click',e=>{
   const a=t.dataset.w
   if(a==='start') enter(0)
   else if(a==='next') enter(W.step+1)
-  else if(a==='back') settle(W.step-1)
+  else if(a==='back'&&W.step>0) settle(W.step-1)
   else if(a==='restart') settle(-1)
   else if(a==='explore') onExplore()
 })
-document.addEventListener('keydown',e=>{if(!document.getElementById('wv')||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')enter(W.step+1);else if(e.key==='ArrowLeft'&&W.step>=0)settle(W.step-1)})
+document.addEventListener('keydown',e=>{if(!document.getElementById('wv')||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')enter(W.step+1);else if(e.key==='ArrowLeft'&&W.step>0)settle(W.step-1)})
 export const watchState=W
