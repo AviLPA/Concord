@@ -68,7 +68,7 @@ const STEPS=[
  ]},
 {act:3, label:'Daily scans', left:'days', leftTitle:'Daily scans',
  title:'The next scans check that it stuck',
- body:'Day 1 Dana updates. Day 3 Tom updates his workflow. Day 5 one agent is still off, so Concord alerts again. Then every agent says 28.',
+ body:'Day 1 Dana updates. Day 3 Tom updates his workflow. Day 5 the Account health monitor still says 42, so Concord alerts again. The CS team lead updates it after that.',
  know:'Each builder edits their own agent. Concord checks the following scheduled scans, and alerts again if something is still off or drifts later.',
  dwell:5600,
  beats:[
@@ -124,8 +124,8 @@ function dayList(V){
   const rows=[
     ['Day 1','Dana updated her agent',V.has('d1'),''],
     ['Day 3','Tom updated his workflow himself',V.has('d3'),''],
-    ['Day 5','One agent still says 42. Concord alerted again.',V.has('d5'),'off'],
-    ['Next scan','Every agent says 28',V.has('agree'),''],
+    ['Day 5','Account health monitor still says 42. Concord alerted again.',V.has('d5'),'off'],
+    ['Next scan',V.has('agree')?'The CS team lead updated it. Every agent says 28.':'Waiting on the next scan.',V.has('agree'),''],
   ]
   return `<div class="days">${rows.map(([d,w,on,k])=>`<div class="day ${on?'on':''} ${on&&k==='off'&&!V.has('agree')?'off':''}"><b>${d}</b><span>${w}</span></div>`).join('')}</div>`
 }
@@ -177,7 +177,7 @@ function chatItems(V){
   return []
 }
 function numberCards(ok){
-  return `<div class="cmp">${SAID.map(a=>`<div class="cc ${ok?'ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.name}</b></div></div>`).join('')}</div>`
+  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc ${ok?'ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.name}</b></div></div>`).join('')}</div>`
 }
 function beItems(V){
   const it=[], step=shownStep()
@@ -194,7 +194,7 @@ function beItems(V){
     if(V.has('inbox')) A('inbox','check','ok','Also waiting in Concord','Sara can open it when she is ready.')
   }else if(step===4){
     if(V.has('picked')) A('marked','check','ok','Official answer is 28','The warehouse score. Nothing was edited.')
-    if(V.has('noted')) A('notes','link','','Notes sent to Dana, Tom, and the health monitor',"What differs, and what to change. Concord doesn't change anyone's agent.")
+    if(V.has('noted')) A('notes','link','','Notes sent to Dana, Tom, and the CS team lead',"What differs, and what to change. Concord doesn't change anyone's agent.")
   }else if(step===5){
     if(V.has('d1')) A('days','eye',V.has('agree')?'ok':'','Daily scans',V.has('agree')?'This job is 100. Daily monitoring is still running.':'Checking who updated. Concord does not edit the agents.',dayList(V)+(V.has('agree')?numberCards(true)+`<div class="flagrow">${status('sync','In sync')}</div>`:''))
   }
@@ -234,20 +234,17 @@ function draw(){
   if(comp) comp.innerHTML=typing?c.text.slice(0,W.prog).replace(/</g,'&lt;')+'<span class="caret"></span>':mode==='build'&&shownStep()===0?'<span class="ph">Message Claude…</span>':'<span class="ph">Read-only</span>'
   root.querySelector('.ccomp')?.classList.toggle('active',!!typing)
   for(const el of [ch,be]){if(el._new||typing){el.scrollTo({top:el.scrollHeight,behavior:W.playing?'smooth':'auto'});el._new=false}}
-  root.querySelector('.am-bar span').style.width=(stepBar()*100)+'%'
+  const bar=root.querySelector('.am-bar')
+  const scanning=W.step===1
+  bar.hidden=!scanning
+  if(scanning) bar.querySelector('span').style.width=(V.has('found')?100:W.playing?45:0)+'%'
   const head=V.has('agree')||W.step>=N?`<b>Every agent says 28</b>`:W.step===5?`<b>Daily scans</b>`:W.step===4?`<b>Official answer 28</b>`:W.step===3?`<b>Alert sent to Sara</b>`:W.step===2?`<b>Four different answers</b>`:W.step===1?`<b>New agent found</b>`:`<b>No alert yet</b>`
   setH(root.querySelector('.am-t'),head)
   setH(root.querySelector('.am-s'),`Daily`)
   setH(root.querySelector('.wv-over'),W.step<0?intro():W.step>=N?wrap():'')
 }
-function stepBar(){
-  if(W.step<0) return 0
-  if(W.step>=N) return 1
-  const st=STEPS[W.step]
-  return (W.step+(st.beats.length?W.beat/st.beats.length:0))/N
-}
-function intro(){return `<div class="wcard"><div class="wbadge">${ic('play')} Watch it live</div><h2>Build anything. Concord scans, then alerts.</h2><p>Dana builds a Q4 at-risk agent in Claude and asks how many accounts are at risk. She gets 35. Concord does not interrupt her. That night's scan finds her agent, lines it up with the others, and sees 35, 42, 17, and 28. Sara gets the alert. She marks 28, the warehouse score. Concord tells each builder what to change. It does not change their agents. The next daily scans check, alert again while one agent is still off, and then every agent says 28.</p><div class="wsteps2"><span>1 · Dana uses it</span><span>2 · The scan alerts Sara</span><span>3 · Daily scans check</span></div><button class="btn p big" data-w="toggle">${ic('play')} Start · about a minute</button><div class="dim" style="margin-top:10px;font-size:12px">Pause, step back, or skip anytime.</div></div>`}
-function wrap(){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Every agent says 28</div><h2>Every agent says 28</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav">28</div><div class="bas">This job is 100</div></div></div><p>Dana updated on day 1. Tom updated his workflow on day 3. Concord alerted again on day 5, then the last agent matched. Daily scans are still running.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">${ic('redo')} Watch again</button></div></div>`}
+function intro(){return `<div class="wcard"><div class="wbadge">${ic('play')} Watch it live</div><h2>Build anything. Concord scans, then alerts.</h2><p>Dana gets 35. That night's scan alerts Sara. She marks 28, and later scans check.</p><div class="wsteps2"><span>1 · Dana uses it</span><span>2 · The scan alerts Sara</span><span>3 · Daily scans check</span></div><button class="btn p big" data-w="toggle">${ic('play')} Start · about a minute</button><div class="dim" style="margin-top:10px;font-size:12px">Pause, step back, or skip anytime.</div></div>`}
+function wrap(){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Every agent says 28</div><h2>Every agent says 28</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav">28</div><div class="bas">This job is 100</div></div></div><p>Dana updated on day 1. Tom updated his workflow on day 3. On day 5 the Account health monitor still said 42, so Concord alerted again. The CS team lead updated it and matched last. Daily scans are still running.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">${ic('redo')} Watch again</button></div></div>`}
 export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="be" data-left="said">
 <div class="wv-head"><div><h1>Watch it live</h1><p class="sub" style="margin:0">Dana uses an agent. That night's scan alerts Sara. Builders fix it themselves. Daily scans keep watching.</p></div><span class="tag">Guided story · demo data</span></div>

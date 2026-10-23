@@ -223,7 +223,7 @@ function stopScan(){SC.timers.forEach(clearTimeout);SC.timers=[];SC.running=fals
 function searchStep(){return `<div class="obwide"><h1>Search across every agent</h1><p class="sub">Type a business term or a question. You get every agent on that job, the definition Concord read, and the answer already on record.</p>${searchBox(OB.q)}</div>`}
 
 function syncField(){
-  const cols=[['Dana','Claude','35',-52],['Health monitor','Claude','42',44],['Tom','n8n','17',-20],['Renewal radar','Claude','28',0]]
+  const cols=[['Dana','Claude','35',-52],['Account health monitor','Claude','42',44],['Tom','n8n','17',-20],['Renewal radar','Claude','28',0]]
   return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' always':''}" style="--off:${c[3]};--i:${i}"><span class="sfn"><span class="off">${c[2]}</span><span class="on">28</span></span><span class="sfdot"></span><span class="sfl"><span class="sfnm">${c[0]}</span><span class="sfpl"> · ${c[1]}</span></span></div>`).join('')}</div>`
 }
 const BURGER=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`
@@ -245,7 +245,7 @@ export function mountLanding(){
 }
 export function landingPage(){
   const cl=M.AGENTS.filter(a=>a.tool==='claude').length
-  const defs=[["Dana's agent",'Sales Ops','Claude','35','no login 21d OR &gt; 3 tickets'],['Health monitor','CS','Claude','42','tickets &gt; 5 OR CSAT &lt; 3.5'],["Tom's workflow",'CS','n8n','17','usage drop &gt; 40%, excl. under $10k'],['Renewal radar','Sales','Claude','28','usage + NPS + tickets, score &lt; 60']]
+  const defs=[["Dana's agent",'Sales Ops','Claude','35','no login 21d OR &gt; 3 tickets'],['Account health monitor','CS','Claude','42','tickets &gt; 5 OR CSAT &lt; 3.5'],["Tom's workflow",'CS','n8n','17','usage drop &gt; 40%, excl. under $10k'],['Renewal radar','Sales','Claude','28','usage + NPS + tickets, score &lt; 60']]
   const steps=[
     ['01','unknown','Scan on a schedule',`Link Claude through the Compliance API and n8n through its REST API, both read-only. After an agent is first used, the next scan picks it up. Scans are daily by default, and can run more often. ${Brand} reads the agent list, instructions, and recent answers. It does not run the agent, and it does not sit in the chat.`],
     ['02','conflict','Alert when they disagree',`When agents doing the same job return different values, ${Brand} alerts the owner. At Northwind: Customer health, 4 agents, 4 different answers (35, 42, 17, and 28). A real scope difference, like Tom excluding contracts under $10k, can be marked as a valid variant.`],
@@ -269,7 +269,7 @@ ${syncField()}<div class="mcap">Northwind demo workspace (fictional)</div></div>
 <div class="lmain"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:18px">Customer health v2</b>${status('sync','In sync')}</div>
 <div class="mut" style="margin:4px 0 12px">Signed off by Sara Klein, Head of RevOps. “Most complete signal, and it matches what we report to the board.”</div>
 <div class="ldef">score = 0.5·usage + 0.3·nps + 0.2·tickets<br>at_risk = score &lt; 60<br><span class="c"># warehouse score, marked by Sara Klein</span></div>
-${[['Renewal radar · Claude','sync','28','In sync'],['Dana · Claude','sync','28','In sync'],['Health monitor · Claude','drift','42','Drift detected'],['Tom · n8n','drift','17','Drift detected']].map(a=>`<div class="larow k-${a[1]}"><b>${a[0]}</b><span class="n">${a[2]}</span>${status(a[1],a[3])}</div>`).join('')}
+${[['Renewal radar · Claude','sync','28','In sync'],['Dana · Claude','sync','28','In sync'],['Account health monitor · Claude','drift','42','Drift detected'],['Tom · n8n','drift','17','Drift detected']].map(a=>`<div class="larow k-${a[1]}"><b>${a[0]}</b><span class="n">${a[2]}</span>${status(a[1],a[3])}</div>`).join('')}
 </div></div></div>
 <div class="mcap">Illustration with Northwind demo data (fictional). ${M.AGENTS.length} agents in the workspace.</div></section>
 <section class="lsec"><div class="lsh"><span class="eyebrow">Built for</span><h2>The people who own the numbers</h2><p>At a company of a few hundred people, that is usually RevOps, Data, or IT.</p></div>
@@ -286,7 +286,6 @@ export function howPage(){
   ]
   return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Build anything. Concord scans daily, then alerts.</h1><p>People keep building in Claude and n8n. Concord does not sit in the way. It scans on a schedule, alerts the owner when answers disagree, and checks that builders fixed it.</p></section>
 <div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}</div>
-<p class="pricenote">Optional. A team can also show the official answer in the tool where the next person builds. The daily scan does not depend on that, and Concord still does not change an agent.</p>
 <section class="lclose"><h2>See it with the Northwind story.</h2><p>About a minute. Dana uses an agent. That night's scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Watch it live</a><a class="btn xl" href="#/start">Request a consistency audit</a></div></section>`)
 }
 export function pricingPage(){

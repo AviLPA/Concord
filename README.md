@@ -28,9 +28,7 @@ A guided, autoplaying story in three acts and six steps. About a minute. Concord
 3. **Four answers.** The same scan lines up 35, 42, 17, and 28. Different definitions, different sources.
 4. **Sara's alert.** A notification to Sara Klein: Customer health, 4 agents, 4 different answers.
 5. **Sara decides.** In Concord she marks 28, the warehouse score. Concord sends each builder a note. It does not change anyone's agent.
-6. **Daily scans.** Day 1 Dana updates. Day 3 Tom edits his n8n workflow himself. Day 5 one agent is still off, so Concord alerts again. Then every agent says 28. Daily monitoring keeps running.
-
-Showing the official answer inside the tool where the next person builds is optional, and only mentioned on How it works. It is not part of this story.
+6. **Daily scans.** Day 1 Dana updates. Day 3 Tom edits his n8n workflow himself. Day 5 the Account health monitor still says 42, so Concord alerts again. The CS team lead updates it after that and matches last. Daily monitoring keeps running.
 
 Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health.
 

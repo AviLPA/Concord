@@ -147,7 +147,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  const w0=Date.now();await p.waitForSelector('.wrapc',{timeout:90000})
  log(n,'watch wrap',((Date.now()-w0)/1000).toFixed(1)+'s at 2x')
  const wrap=await p.$eval('.wrapc',e=>e.innerText)
- assert(wrap.includes('28')&&wrap.includes('35')&&wrap.includes('100')&&/daily/i.test(wrap), 'wrap numbers '+wrap)
+ assert(wrap.includes('28')&&wrap.includes('35')&&wrap.includes('100')&&/daily/i.test(wrap)&&wrap.includes('CS team lead'), 'wrap numbers '+wrap)
  assert(!/offered|paste/i.test(wrap), 'wrap still offers while building')
  assert(!/rewir/i.test(wrap), 'wrap rewires')
  await p.click('.wrapc [data-w=explore]');await p.waitForTimeout(500)
