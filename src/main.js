@@ -176,12 +176,18 @@ function integ(){
 ${S.semanticConnected?'<div class="ion">'+ic('check',14)+' Read-only preview connected</div>':'<button class="btn p" data-semcon>Connect read-only</button>'}</div>
 </div></div>`}
 
+function docTitle(raw){
+  const key=(raw||'home').split('/')[0]||'home'
+  if(key==='home') return 'Concord · Keep your AI agents giving the same answer'
+  const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official blocks',integrations:'Integrations'}
+  return 'Concord · '+(names[key]||'Overview')
+}
 function render(){
   if(location.hash==='#/live') history.replaceState(null,'','#/watch')
   const raw=location.hash.replace(/^#\/?/,''), h=raw.split('/')
   const marketing=!raw||raw==='home'||raw==='how'||raw==='pricing'||raw==='about'||raw==='watch'
   document.body.classList.toggle('lpbody',marketing)
-  document.title=Brand+' · Northwind'
+  document.title=docTitle(raw)
   if(!raw||raw==='home'){S.route='home';$('#app').innerHTML=landingPage();mountLanding();return}
   if(raw==='how'){S.route='how';$('#app').innerHTML=howPage();return}
   if(raw==='pricing'){S.route='pricing';$('#app').innerHTML=pricingPage();return}

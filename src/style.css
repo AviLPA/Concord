@@ -310,6 +310,7 @@ body.lpbody{background:var(--bg)}
 .lline{text-align:center;font-size:19px;color:var(--text-muted);padding:26px 0 8px;letter-spacing:-.01em}.lline b{color:var(--text);font-weight:600}
 .lsec{padding:64px 0 8px}.lsh{max-width:680px;margin-bottom:28px}.lsh h2{font-size:34px;letter-spacing:-.025em;margin:10px 0 10px;line-height:1.15}.lsh p{color:var(--text-muted);font-size:16px;line-height:1.6;margin:0}
 .lprob{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px}.lq{display:flex;gap:9px;align-items:center;font-size:15px;font-weight:500;margin-bottom:16px}
+.lanswers{margin:0 0 12px;font-size:15px}.laccess{margin:18px 0 0;color:var(--text-muted);line-height:1.55;max-width:68ch}.lnext{margin:8px 0 0;color:var(--dim);font-size:13.5px;line-height:1.5}
 .l4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.lc{border:1px solid color-mix(in srgb, var(--status-conflict-fill) 30%, transparent);background:color-mix(in srgb, var(--status-conflict-fill) 5%, transparent);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .lcn{font-size:40px;font-weight:650;color:var(--status-conflict-text);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.lc span{font-size:12px;color:var(--mut)}.lc code{font-size:11px;color:var(--text-muted);margin-top:6px;font-family:ui-monospace,Menlo,monospace;white-space:normal}
 .lprob .mcap{padding:12px 0 0;text-align:left}

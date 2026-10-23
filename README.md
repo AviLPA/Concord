@@ -4,12 +4,12 @@ Interactive proof-of-concept for an agent consistency layer. Employees build age
 
 Live demo: https://concord-demo.space.fast/
 
-All data is fictional (Northwind, 480 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v2`) and can be cleared with **Reset demo** (landing page footer, or the app sidebar). The hands-on flow and the walkthrough share that store. If Customer health is already decided, the story says so and does not overwrite it.
+All data is fictional (Northwind, 480 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v2`) and can be cleared with **Reset demo** in the app sidebar. The hands-on flow and the walkthrough share that store. If Customer health is already decided, the story says so and does not overwrite it.
 
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Sign in, and **Request a consistency audit**. The line under the hero is the product: security tools ask if an agent is safe; Concord asks if every agent gives the same answer. |
+| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The line under the hero is the product: security tools check whether an agent is safe; Concord checks whether your agents give the same answer. |
 | `#/how` | How it works, in plain language: read, detect, decide, verify adoption. |
 | `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. Prices are placeholders. No checkout. |
 | `#/about` | Mission, why now, and three principles: read-only, owners decide, publish into the tools you already use. Northwind is fictional. |
@@ -21,7 +21,7 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Walkthrough
-A click-through story in three acts and six steps. The user clicks Next and Back, or a step in the stepper. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control. Concord never runs or edits an agent, and it does not sit in the chat. The right panel is always what Concord sees. Scans are daily by default, and can be set to run more often.
+A click-through story in three acts and six steps. The user clicks Next and Back, or a step in the stepper. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control. Concord never runs or edits an agent, and it does not sit in the chat. The right panel is always what Concord sees. Scans run daily.
 
 1. **Dana builds.** She asks how many accounts are at risk in her Claude project and gets 35. Concord does not interrupt. The chat box is on screen only here.
 2. **Night scan.** Concord finds the new agent, matches Customer health, and shows the same question and the same line: Dana's agent answered 35.

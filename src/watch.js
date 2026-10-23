@@ -33,7 +33,7 @@ const STEPS=[
  ]},
 {act:2, label:'Night scan', left:'build', leftTitle:"Dana's Claude project",
  title:"That night's scan finds Dana's agent",
- body:'Scans are scheduled, not instant. Daily by default, and they can run more often. This one matches the job: Customer health.',
+ body:'Scans are scheduled, not instant. They run daily. This one matches the job: Customer health.',
  know:'The scan reads the agent list, the instructions, and the answer already in the chat. It does not run the agent.',
  dwell:5200,
  beats:[{t:'ev', id:'found', side:'be', wait:700}]},
