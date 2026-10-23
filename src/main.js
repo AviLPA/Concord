@@ -7,7 +7,7 @@ bot:'<rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M
 layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
 alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
 cube:'<path d="m12 2 9 5v10l-9 5-9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/>',
-zap:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+
 plug:'<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/>',
 gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
 search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
@@ -20,7 +20,7 @@ const TOOLS={claude:{n:'Claude',a:'C',c:'#b8643f'},n8n:{n:'n8n',a:'n',c:'#c23a55
 const tool=k=>`<span class="ptag"><i style="background:${TOOLS[k].c}"></i>Built in ${TOOLS[k].n}</span>`
 const DC={CS:'#4cc3ff',Sales:'#f5a524',Finance:'#3fcf8e',RevOps:'#a78bfa',Exec:'#f472b6',Support:'#fb7185',Marketing:'#22d3ee','Sales Ops':'#fb923c',People:'#facc15',Eng:'#94a3b8',Legal:'#c084fc'}
 const dav=a=>`<span class="dav" style="background:${DC[a.dept]||'#64748b'}">${a.b.split(' ').map(x=>x[0]).join('')}</span>`
-const S={score:71,open:7,route:'overview',agent:null,conflict:null,resolved:{},rewire:0,live:0,filter:'all',toast:null}
+const S={score:71,open:7,route:'overview',agent:null,conflict:null,resolved:{},rewire:0,filter:'all',toast:null}
 const hist=[58,60,59,62,64,63,66,67,66,69,70,71]
 const people=['Maya Cohen','Tom Rivera','Priya Shah','Leo Park','Sara Klein','Omer Levi','Jess Wong','Ben Adler','Noa Friedman','Chris Hall','Dana Ortiz','Ravi Iyer']
 const base=[
@@ -71,7 +71,7 @@ const BLOCKS=[{n:'Customer health',v:'v2',st:'draft',own:'Sara Klein',job:'Custo
 {n:'Refund policy',v:'2026.1',st:'pub',own:'Maya Cohen',job:'Refund policy',ag:[11,12],done:1,calls:'410 / wk',upd:'Aug 14'},
 {n:'Onboarding FAQ',v:'v5',st:'pub',own:'Omer Levi',job:'Onboarding FAQ',ag:[13,23,33],done:3,calls:'2.4k / wk',upd:'Oct 11'}]
 const status=a=>({ok:'<span class="chip c-ok"><i></i>Consistent</span>',conflict:'<span class="chip c-bad"><i></i>Conflict</span>',stale:'<span class="chip c-warn"><i></i>Stale source</span>',orphan:'<span class="chip c-mut"><i></i>Orphaned</span>',rewired:'<span class="chip c-acc"><i></i>On official block</span>'}[a.st])
-const NAV=[['watch','Watch it live','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official blocks','cube'],['live','Live build','zap'],['integrations','Integrations','plug']]
+const NAV=[['watch','Watch it live','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official blocks','cube'],['integrations','Integrations','plug']]
 function shell(inner){const title=NAV.find(n=>n[0]===S.route)[1]
 return `<div class="shell"><aside class="side" id="side"><div class="ws"><div class="logo">N</div><div><b>Northwind</b><small>400 members · Business</small></div><span style="margin-left:auto;color:var(--dim)">${ic('chev',14)}</span></div>
 ${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${S.open}</span>`:r==='agents'?`<span class="ct">${agents.length}</span>`:r==='watch'?'<span class="newb">Start here</span>':''}</a>`).join('')}
@@ -149,24 +149,13 @@ ${BLOCKS.map((b,i)=>{const pub=i===0?!!S.resolved.c1:true,done=i===0?S.rewire:b.
 <td style="min-width:180px"><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="flex:1"><span style="width:${pct}%"></span></div><span class="mut">${done}/${b.ag.length}</span></div></td><td>${!pub?'<span class="chip c-mut">Not published</span>':done<b.ag.length?`<span class="chip c-info"><i></i>Rewiring ${b.ag.length-done} left</span>`:'<span class="chip c-ok"><i></i>Complete</span>'}</td><td class="mut">${i===0&&pub?(done*96)+' / wk':b.calls}</td><td class="mut">${i===0&&pub?'Just now':b.upd}</td></tr>`}).join('')}
 </tbody></table></div></div>
 <div class="card" style="margin-top:14px"><div class="hd"><h3>Customer health ${S.resolved.c1?'v2 · published':'v2 · draft'}</h3><span class="r">Per-agent rewire status</span></div><div class="bd">${BLOCKS[0].ag.map((k,j)=>{const a=agents[k],d=S.resolved.c1&&j<S.rewire;return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1b1e26">${dav(a)}<span>${a.n}</span><span class="dim">${a.b}</span>${tool(a.tool)}<span style="margin-left:auto">${d?'<span class="chip c-ok"><i></i>Calling block</span>':S.resolved.c1?'<span class="chip c-info"><i></i>Rewire pending</span>':'<span class="chip c-mut">Own logic</span>'}</span></div>`}).join('')}</div></div></div>`}
-const LIVE=[['0:00.4','zap','New agent request','Dana Ortiz (Sales Ops) · built in Claude'],['0:00.9','layers','Recognized the job: Customer health','confidence 0.94 · intent: find churn-risk accounts for a campaign'],['0:01.3','search','Found 3 overlapping agents','Account health monitor · CSM weekly risk digest · Renewal radar · by 3 different people'],['0:01.8','cube','Applied official block: Customer health v2','owner Sara Klein · MCP concord.customer_health'],['0:02.2','lock','Scoped to Dana\'s permissions','read-only · accounts in Marketing territories'],['0:02.7','check','Agent created: "Q4 at-risk accounts"','registered in inventory · monitored for drift']]
-function live(){const n=S.live
-return `<div class="page"><div class="hrow"><div><h1>Live build</h1><p class="sub">What happens when an employee asks their own AI tool for an agent.</p></div><div class="act"><button class="btn" id="lreset">Reset</button><button class="btn p" id="lplay">${ic('zap',13)} Replay Dana's request</button></div></div>
-<div class="split"><div class="card"><div class="hd"><h3><span class="av" style="width:22px;height:22px;font-size:9px;background:linear-gradient(135deg,#ec4899,#8b5cf6)">DO</span>Employee: Dana (Sales Ops) asks Claude</h3><span class="r">${tool('claude')}</span></div>
-<div class="chat genfr"><div class="msgs" id="msgs">${n>=1?'<div class="msg u">Build me an agent that lists our Q4 at-risk accounts, so my team can plan outreach.</div>':''}
-${n>=1&&n<7?'<div class="msg a typing"><span></span><span></span><span></span></div>':''}
-${n>=7?`<div class="msg a">Done. I created <b>Q4 at-risk accounts</b>.<br/><br/>It found <b>28 at-risk customers</b> this quarter, scored on usage, NPS and support tickets.<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:#0e1015;border:1px solid var(--line);font-size:12px" class="mut">Top 3: Brightline Foods · Altamira Health · Keeler Logistics</div></div>`:''}</div>
-<div class="compose"><div>Message your assistant…</div><button class="btn">Send</button></div></div></div>
-<div class="card"><div class="hd"><h3><span class="logo" style="width:20px;height:20px;font-size:10px">C</span>Concord, behind the scenes</h3><span class="r">${n>=7?'<span class="chip c-ok"><i></i>Completed in 2.7s</span>':n>=1?'<span class="chip c-info"><i></i>Running</span>':'Idle'}</span></div>
-<div class="log">${n===0?'<div class="mut" style="padding:20px 16px">Waiting for a request… press Replay.</div>':''}${LIVE.slice(0,Math.max(0,n-1)).map((e,i)=>`<div class="e"><span class="t">${e[0]}</span><span style="color:${i===5?'#6ee7b0':i===3?'#c2baff':'#8b90a0'}">${ic(e[1],14)}</span><div><b style="font-weight:500">${e[2]}</b><span class="s">${e[3]}</span></div></div>`).join('')}
-${n>=7?'<div style="margin:14px 16px;padding:12px;border-radius:10px;border:1px solid rgba(63,207,142,.3);background:rgba(63,207,142,.07);font-family:Inter,sans-serif;color:#a7f0cd">Dana never saw Concord. Her agent answers <b>28</b>, the same as every other Customer health agent.</div>':''}</div></div></div></div>`}
 function integ(){const st=[['claude','Compliance API','Projects, instructions, knowledge files','projects.read, conversations.metadata.read','Employees build agents and assistants as Claude Projects'],['n8n','REST API','Workflows with AI steps, credentials list (names only)','workflows.read, executions.read','RevOps and ops build automations and AI workflows']]
 return `<div class="page"><div class="hrow"><div><h1>Integrations</h1><p class="sub">Your team builds agents in 2 places: Claude and n8n. Concord sees all of them as one inventory. It connects read-only: it inventories agents and reads their instructions and sources; it never edits them.</p></div><div class="act"><button class="btn">+ Connect tool</button></div></div>
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">${st.map(([k,api,what,sc,who])=>`<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot" style="background:${TOOLS[k].c};display:grid;place-items:center;font-weight:700;color:#fff">${TOOLS[k].a}</span><div><b style="font-size:14px">${TOOLS[k].n}</b><div class="mut">${agents.filter(a=>a.tool===k).length} agents discovered</div></div><span class="chip c-ok" style="margin-left:auto"><i></i>Connected</span></div>
 <div class="mut">${who}</div><div class="kv"><span>Access</span><span><span class="chip c-mut">${ic('lock',11)} Read-only</span></span><span>Connected via</span><span>${api}</span><span>Reads</span><span class="mut">${what}</span><span>Scopes</span><span class="mut" style="font-family:ui-monospace,monospace;font-size:11.5px">${sc}</span><span>Last sync</span><span>${k==='claude'?2:4} min ago</span></div></div>`).join('')}</div></div>`}
-function render(){const h=location.hash.slice(2).split('/');S.route=NAV.some(n=>n[0]===h[0])?h[0]:'overview';S.conflict=S.route==='conflicts'?(h[1]||(innerWidth>=820?'c1':null)):S.conflict
+function render(){if(location.hash==='#/live'){history.replaceState(null,'','#/watch')}const h=location.hash.slice(2).split('/');S.route=NAV.some(n=>n[0]===h[0])?h[0]:'overview';S.conflict=S.route==='conflicts'?(h[1]||(innerWidth>=820?'c1':null)):S.conflict
 if(S.route==='watch'){$('#app').innerHTML=shell(watchPage());mountWatch(exploreAfterWatch);return}
-const pg={overview,agents:agentsPg,jobs,conflicts,blocks,live,integrations:integ}[S.route]();$('#app').innerHTML=shell(pg)}
+const pg={overview,agents:agentsPg,jobs,conflicts,blocks,integrations:integ}[S.route]();$('#app').innerHTML=shell(pg)}
 window.addEventListener('hashchange',()=>{S.agent=null;render();scrollTo(0,0)});window.addEventListener('resize',()=>{});
 function toast(t){S.toast=t;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{S.toast=null;render()},2600)}
 function animScore(to){const from=S.score;const t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-k,3);S.score=Math.round(from+(to-from)*e);if(k<1)requestAnimationFrame(step);else render()};requestAnimationFrame(step)}
@@ -176,9 +165,8 @@ function makeOfficial(id,instant){if(S.resolved[id])return;S.resolved[id]=true;S
 toast('Published official block · agents rewiring over MCP');}
 function exploreAfterWatch(){if(!S.dana){S.dana=true;agents.splice(3,0,{n:'Q4 at-risk accounts',job:'Customer health',tool:'claude',b:'Dana Ortiz',dept:'Sales Ops',own:'Dana Ortiz',src:'Customer health v2 · official',up:'just now',st:'ok'});BLOCKS[0].ag=[0,1,2,3];for(const c of CONF)for(const k of c.cols)if(k.a>=3)k.a++;for(const b of BLOCKS.slice(1))b.ag=b.ag.map(i=>i>=3?i+1:i)}
  makeOfficial('c1',true);S.score=86;location.hash='#/overview';S.toast='Customer health v2 is official · 4 of 4 agents agree';render();setTimeout(()=>{S.toast=null;render()},3200)}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-f],[data-agent],[data-close],[data-official],[data-legit],#lplay,#lreset,#burger,.nav');if(!t)return
+document.addEventListener('click',e=>{const t=e.target.closest('[data-f],[data-agent],[data-close],[data-official],[data-legit],#burger,.nav');if(!t)return
 if(t.id==='burger'){$('#side').classList.toggle('open');return}
 if(t.dataset.f){S.filter=t.dataset.f;render()}else if(t.dataset.agent){S.agent=+t.dataset.agent;render()}else if('close'in t.dataset){S.agent=null;render()}
-else if(t.dataset.official){makeOfficial(t.dataset.official.split(':')[0])}else if(t.dataset.legit){S.resolved[t.dataset.legit]=true;S.open--;toast('Marked as legitimate variant');}
-else if(t.id==='lplay'){S.live=0;render();let i=0;const go=()=>{i++;S.live=i;render();if(i<7)setTimeout(go,i===1?1000:1500)};setTimeout(go,300)}else if(t.id==='lreset'){S.live=0;render()}})
+else if(t.dataset.official){makeOfficial(t.dataset.official.split(':')[0])}else if(t.dataset.legit){S.resolved[t.dataset.legit]=true;S.open--;toast('Marked as legitimate variant');}})
 render()

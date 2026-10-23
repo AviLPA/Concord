@@ -34,6 +34,6 @@ Left panel: a generic chat labelled "Built in Claude". Right panel: Concord's ba
 - `video.mjs [desktop|phone]`: records the walkthrough with a fake cursor and captions (CDP screencast frames, then ffmpeg).
 
 ## Code
-- `src/main.js`: app shell, data, and screens (Overview, Agents, Jobs, Conflicts, Official blocks, Live build, Integrations).
+- `src/main.js`: app shell, data, and screens (Overview, Agents, Jobs, Conflicts, Official blocks, Integrations).
 - `src/watch.js`: the Watch it live mode (step/beat timeline engine, chat and backend renderers).
 - `src/style.css`: all styles.
