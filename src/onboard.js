@@ -148,7 +148,7 @@ function guideText(){const s=OB.step
 }
 export function guide(){const g=document.getElementById('obguide');if(g)g.innerHTML=`<span class="gdot"></span><span><b class="gk">Next:</b> ${guideText()}</span>`}
 export function onboardPage(){const s=OB.step
-  return `<div class="ob"><header class="obh"><a class="brand" href="#/">${lockup(20)}</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
+  return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="#/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
 <nav class="obsteps">${STEPS.map(([k,l],i)=>{const idx=STEPS.findIndex(x=>x[0]===s),done=i<idx||(k==='resolve'&&OB.resolved);return `<button class="${k===s?'on':''} ${done?'done':''}" data-obgo="${k}" ${reach(k)?'':'disabled'}><i>${done?'✓':i+1}</i><span>${l}</span></button>`}).join('')}</nav>
 <div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Watch it live</span></a><a class="obskip" href="#/overview">Skip to app</a></div></header>
 <div class="obguide" id="obguide"></div><main class="obm">${({workspace:wsStep,connect:connStep,scan:scanStep,search:searchStep,resolve:()=>resolveView(OB.cid,true)})[s]()}</main>${modal?modalHTML():''}</div>`}
@@ -233,7 +233,7 @@ function mktLinks(active){return MKT.map(([id,label,href])=>`<a href="${href}" c
 function marketFoot(active){
   return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Read-only by design</span><span>Northwind · ${M.PEOPLE} people · fictional</span><a href="#/overview">Sign in</a><a href="#/start">Request a consistency audit</a><span>© 2026</span><button data-reset>Reset demo</button></div></div></footer>`
 }
-function marketShell(active, main){
+export function marketShell(active, main){
   return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
 }
 let syncTimer=0

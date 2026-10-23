@@ -62,6 +62,8 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  else await p.click('.siteacts a[href="#/overview"]')
  await p.waitForTimeout(300)
  assert(await p.locator('.side .nav').count()>=5, 'app sidebar')
+ assert((await p.locator('.top .wordmark').innerText())==='concord', 'app header wordmark')
+ assert(await p.locator('.side .wordmark').count()===0, 'sidebar repeats the wordmark')
  assert((await p.locator('.backsite').innerText()).includes('Site'), 'back to site')
  await p.click('.backsite');await p.waitForSelector('.lhero')
  await p.click('.lhero a[href="#/start"]');await p.waitForTimeout(300);await shot('02-workspace')
