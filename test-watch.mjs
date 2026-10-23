@@ -1,23 +1,60 @@
+// Watch it live: scripted story, controls, and explore applying the shared store.
+// Usage: node test-watch.mjs [baseUrl]
 import {chromium} from 'playwright'
+const BASE=process.argv[2]||'http://localhost:4173/'
 const b=await chromium.launch();const errs=[]
-async function run(name,vp,dsf){const p=await b.newPage({viewport:vp,deviceScaleFactor:dsf});p.on('pageerror',e=>errs.push(name+': '+e.message));p.on('console',m=>{if(m.type()==='error')errs.push(name+' console: '+m.text())})
- await p.goto('http://localhost:4173/#/overview');await p.waitForTimeout(500);await p.screenshot({path:`/tmp/t-${name}-0-home.png`})
- await p.click('.hero [data-startwatch]');await p.waitForTimeout(500);await p.screenshot({path:`/tmp/t-${name}-1-intro.png`})
- await p.click('.wcard [data-w=toggle]');
- const t0=Date.now();const marks=[[4500,'1b-step1'],[9000,'2-step2'],[22000,'3-step4'],[33000,'4-step5'],[50000,'5-step7'],[60000,'6-step8']]
- for(const [ms,l] of marks){await p.waitForTimeout(ms-(Date.now()-t0));const st=await p.$eval('.wk',e=>e.textContent);console.log(name,l,(Date.now()-t0)/1000,st);await p.screenshot({path:`/tmp/t-${name}-${l}.png`})}
- await p.waitForSelector('.wrapc',{timeout:40000});console.log(name,'wrap at',(Date.now()-t0)/1000);await p.waitForTimeout(600);await p.screenshot({path:`/tmp/t-${name}-7-wrap.png`})
- // controls: restart, pause, next, back
- await p.click('.wrapc [data-w=restart]');await p.waitForTimeout(1500);await p.click('[data-w=toggle]');const s1=await p.$eval('.wk',e=>e.textContent);
- await p.click('[data-w=next]');await p.click('[data-w=next]');await p.click('[data-w=next]');const s2=await p.$eval('.wk',e=>e.textContent);const n2=await p.$$eval('.elog .wi',e=>e.length)
- await p.click('[data-w=back]');const s3=await p.$eval('.wk',e=>e.textContent);await p.click('[data-w=speed]');const sp=await p.$eval('.spd',e=>e.textContent)
- console.log(name,'controls',s1,'|',s2,n2,'events |',s3,'| speed',sp)
- if(vp.width<820){await p.click('[data-wside=chat]');await p.waitForTimeout(300);const v=await p.$eval('.wchat',e=>getComputedStyle(e).display);console.log(name,'tab chat display',v)}
- for(let i=0;i<10;i++)await p.click('[data-w=next]').catch(()=>{});await p.waitForSelector('.wrapc');await p.click('[data-w=explore]');await p.waitForTimeout(800)
- const k=await p.$$eval('.kpi .v',e=>e.map(x=>x.textContent));const g=await p.$eval('#gnum',e=>e.textContent);console.log(name,'after explore KPIs',k,'score',g)
+const fail=m=>{errs.push(m);console.error('FAIL',m)}
+const assert=(ok,m)=>{if(!ok)fail(m)}
+async function run(name,vp){
+ const ctx=await b.newContext({viewport:vp,deviceScaleFactor:1});const p=await ctx.newPage()
+ p.on('pageerror',e=>fail(name+': '+e.message));p.on('console',m=>{if(m.type()==='error')fail(name+' console: '+m.text())})
+ await p.goto(BASE);await p.evaluate(()=>localStorage.clear());await p.goto(BASE+'#/overview');await p.waitForTimeout(400)
+ assert(await p.$eval('#gnum',e=>e.textContent)==='53', name+' fresh score')
+ assert(await p.$eval('#kopen',e=>e.textContent)==='6', name+' fresh conflicts')
+ await p.screenshot({path:`/tmp/t-${name}-0-home.png`})
+ await p.click('.hero [data-startwatch]');await p.waitForTimeout(400);await p.screenshot({path:`/tmp/t-${name}-1-intro.png`})
+ await p.click('.wcard [data-w=toggle]')
+ const t0=Date.now()
+ await p.waitForFunction(()=>document.querySelectorAll('.cc').length>=4,{timeout:25000})
+ console.log(name,'four answers at',((Date.now()-t0)/1000).toFixed(1));await p.screenshot({path:`/tmp/t-${name}-2-answers.png`})
+ await p.waitForFunction(()=>(document.querySelector('.wk')?.textContent||'').includes('Dana builds'),{timeout:45000})
+ console.log(name,'dana builds at',((Date.now()-t0)/1000).toFixed(1));await p.screenshot({path:`/tmp/t-${name}-3-dana.png`})
+ await p.waitForSelector('.wrapc',{timeout:40000})
+ console.log(name,'wrap at',((Date.now()-t0)/1000).toFixed(1));await p.waitForTimeout(300);await p.screenshot({path:`/tmp/t-${name}-7-wrap.png`})
+ const wrap=await p.$eval('.wrapc',e=>e.innerText)
+ assert(wrap.includes('28')&&wrap.includes('35')&&wrap.includes('100')&&wrap.includes('53')&&wrap.includes('68'), name+' wrap '+wrap.slice(0,180))
+ assert(!/rewir/i.test(wrap)&&!/asked all/i.test(wrap), name+' wrap claims a run or edit')
+ assert(wrap.includes('Tom'), name+' wrap names Tom')
+ await p.click('.wrapc [data-w=restart]');await p.waitForTimeout(600);await p.click('[data-w=toggle]')
+ const s1=await p.$eval('.wk',e=>e.textContent)
+ await p.click('[data-w=next]');await p.click('[data-w=next]');await p.click('[data-w=next]')
+ const s2=await p.$eval('.wk',e=>e.textContent);const n2=await p.locator('.elog .wi').count()
+ await p.click('[data-w=back]');const s3=await p.$eval('.wk',e=>e.textContent)
+ await p.click('[data-w=speed]');const sp=await p.$eval('.spd',e=>e.textContent)
+ console.log(name,'controls',s1.slice(0,40),'|',s2.slice(0,40),n2,'events |',s3.slice(0,40),'| speed',sp)
+ assert(s1!==s2, name+' next did not change step')
+ assert(s3!==s2, name+' back did not change step')
+ assert(sp==='1.5×', name+' speed '+sp)
+ assert(n2>=2, name+' events '+n2)
+ if(vp.width<820){await p.click('[data-wside=chat]');await p.waitForTimeout(200)
+  const v=await p.$eval('.wchat',e=>getComputedStyle(e).display);console.log(name,'tab chat display',v)
+  assert(v!=='none', name+' phone chat tab')}
+ for(let i=0;i<10;i++){if(await p.$eval('[data-w=next]',e=>e.disabled).catch(()=>true))break;await p.click('[data-w=next]')}
+ await p.waitForSelector('.wrapc');await p.click('[data-w=explore]');await p.waitForTimeout(600)
+ const k=await p.$$eval('.kpi .v',e=>e.map(x=>x.textContent.trim()));const g=await p.$eval('#gnum',e=>e.textContent)
+ console.log(name,'after explore KPIs',k,'score',g)
+ assert(k.join('/')==='20/2/5/2', name+' explore KPIs '+k.join('/'))
+ assert(g==='68', name+' explore score '+g)
+ const toast=await p.locator('.toast').innerText().catch(()=>'')
+ assert(/verified by re-reading/.test(toast), name+' explore toast '+toast)
  await p.screenshot({path:`/tmp/t-${name}-8-explored.png`})
- await p.goto('http://localhost:4173/#/conflicts/c1');await p.waitForTimeout(400);await p.screenshot({path:`/tmp/t-${name}-9-c1.png`})
- const ov=await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth);console.log(name,'horizontal overflow',ov)
- await p.close()}
-await run('d',{width:1280,height:800},1);await run('m',{width:390,height:844},2)
-console.log('ERRORS',errs);await b.close()
+ await p.goto(BASE+'#/conflicts/c1');await p.waitForTimeout(400);await p.screenshot({path:`/tmp/t-${name}-9-c1.png`})
+ const conflict=await p.evaluate(()=>document.body.innerText)
+ assert(conflict.includes('Day 1')&&conflict.includes('Day 6')&&conflict.includes('Tom'), name+' adoption timeline')
+ assert(!/rewir/i.test(conflict), name+' conflict page rewires')
+ const ov=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)
+ assert(ov<=1, name+' horizontal overflow '+ov)
+ await ctx.close()}
+await run('d',{width:1280,height:800});await run('m',{width:390,height:844})
+console.log('ERRORS',errs.length?errs:'none');await b.close()
+if(errs.length) process.exit(1)

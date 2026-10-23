@@ -1,35 +1,35 @@
 # Concord (demo)
 
-Interactive proof-of-concept for an agent consistency layer. Employees build agents in Claude, n8n and more; Concord connects read-only, maps every agent, finds agents doing the same job that give different answers, and lets the owner publish one official definition that every agent calls over MCP.
+Interactive proof-of-concept for an agent consistency layer. Employees build agents in Claude and n8n. Agents doing the same job end up with different definitions. Concord connects read-only, compares those definitions and the answers already on record, and lets the owner publish one official definition. Builders adopt it themselves. Concord re-reads the project or the workflow to verify.
 
 Live demo: https://concord-demo.space.fast/
 
-All data is fictional ("Northwind", 400 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v1`) and can be cleared with **Reset demo** (landing page footer, or the app sidebar).
+All data is fictional (Northwind, 480 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v2`) and can be cleared with **Reset demo** (landing page footer, or the app sidebar). The hands-on flow and Watch it live share that store. If Customer health is already decided, the story says so and does not overwrite it.
 
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Marketing landing page: hero with two equal CTAs (**Get started**, **▶ Watch it live**), the problem (35 / 42 / 17 / 28 from the demo company), how it works, integrations (Claude and n8n available, others "coming soon"), built for RevOps / Data / AI CoE. No logos, testimonials, pricing or real-world stats. |
-| `#/start` | Hands-on onboarding (no autoplay): 1 Create workspace → 2 Connect Claude (org-admin consent, read-only scopes) and n8n (instance URL + API key, Test connection) → 3 Scan (streams in 47 agents, groups them into 14 jobs, surfaces 7 conflicts; Skip available) → 4 Search → 5 Resolve. A one-line guide bar always says what to do next. |
-| `#/search/<query>` | Search across every agent (also from the app top bar). Synonym and fuzzy matching, so "customer health", "custmer helth", "how many accounts are at risk?" or "how much revenue do we have" all work. Results show every agent doing the job, with builder, definition/source and answer side by side; disagreements highlighted. |
-| `#/resolve/<cid>` | Resolve as owner: compare definitions, pick or edit one, add a reason, publish as an official MCP block, notify builders / rewire and watch answers converge; adoption and consistency score update. |
-| `#/watch` | **Watch it live**: guided 8-step simulation (unchanged; see below). Reachable from the landing hero, first item in the app sidebar, the top bar, onboarding header and the end of onboarding. |
-| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The Overview shows a setup checklist (Connect, Scan, Search, Resolve first conflict) until it is done, and reflects what you did (score 71 → 86 after resolving Customer health). |
+| `#/` (or no hash) | Marketing landing page. The line under the headline is the product: security tools ask if an agent is safe; Concord asks if every agent gives the same answer. Two equal CTAs: **Get started** and **Watch it live**. |
+| `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
+| `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
+| `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
+| `#/watch` | **Watch it live**: guided story, about a minute. Same numbers as the model (35, 42, 17, 28, then 28; company score 53 → 68; this job 100). |
+| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Watch it live
-A guided, autoplaying simulation in 8 steps:
+A guided, autoplaying simulation in 8 steps. Concord never runs or edits an agent.
 
-1. Dana (Sales Ops) builds a "Q4 at-risk accounts" agent in Claude, in plain words → Concord detects the new agent.
-2. She pastes her own at-risk definition and a personal spreadsheet → Concord reads instructions and sources, read-only.
-3. Her agent answers "35 accounts" → Concord matches it to the Customer health job alongside Maya's and Priya's Claude agents and Tom's n8n workflow.
-4. Concord asks all four the same question: 35 / 42 / 17 / 28 → conflict flagged.
-5. The conflict is routed to the owner, Sara Klein, who picks the official definition.
-6. Customer health v2 is published as an official block over MCP.
-7. Dana's agent is rewired; asked again, it answers 28 (adoption 2/4).
-8. Tom's n8n workflow and Maya's agent are rewired → all four agree, consistency 71 → 86.
+1. Read Claude through the Compliance API and n8n through its REST API. Dana’s Thursday chat already says 35. Concord cannot see a Claude project’s connectors.
+2. Last week’s answers, side by side: 35, 42, 17, 28. Tom’s Monday run already posted to #cs-risk. Concord only read the log.
+3. Definitions from instructions, a knowledge file, and workflow JSON. Dana’s source is a personal spreadsheet.
+4. Same job, four definitions. Routed to Sara Klein, Head of RevOps.
+5. Sara publishes Priya’s definition. She could have written her own or imported it. Suggested changes go to Dana, Maya, and Tom. Nothing is edited.
+6. Dana starts to rebuild her agent. The org-wide MCP connector offers Customer health v2 before the spreadsheet.
+7. Day 1: Concord re-reads Dana’s instructions and verifies her. Maya and Tom still have the suggestion.
+8. Tom opens n8n and applies the suggestion himself. The AI step calls the block. The Slack post is untouched. Maya applied hers on day 3. Day 6, Concord re-reads Tom’s workflow. The job is 100. Company score 53 → 68.
 
-Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. The wrap-up card's **Explore the full app** opens the dashboard with the result applied.
+Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health.
 
 ## Run locally
     npm install
@@ -40,13 +40,14 @@ Controls: play/pause (space), back/next (← →), restart, speed, clickable ste
     npm run preview    # serves dist/ on :4173
 
 ## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
-- `test-onboarding.mjs [baseUrl] [shotDir]`: end-to-end test at 1280×800 and 390×844: landing → Get started → connect both → scan → search (chip, free text, typo) → resolve → dashboard; persistence; landing → Watch it live → wrap-up → Explore; Reset. Fails on console errors, horizontal scroll or raw template text.
-- `test-watch.mjs`: detailed test of the Watch it live mode (timing, controls, explore).
+- `test-onboarding.mjs [baseUrl] [shotDir]`: landing through resolve, dashboard, Watch it live, and reset, at 1280×800 and 390×844. Exits non-zero on failure.
+- `test-watch.mjs [baseUrl]`: Watch it live timing, controls, explore, and the adoption timeline. Exits non-zero on failure.
 - `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
-- `video.mjs [desktop|phone]`: records the Watch it live walkthrough. `video-onboarding.mjs [desktop|phone]`: records the hands-on onboarding. Both use CDP screencast frames plus a fake cursor and captions, then ffmpeg.
+- `video.mjs [desktop|phone]` and `video-onboarding.mjs [desktop|phone]`: CDP screencast recordings.
 
 ## Code
-- `src/main.js`: app shell, data, routing, persistence, and app screens (Overview, Agents, Jobs, Conflicts, Official blocks, Integrations).
-- `src/onboard.js`: landing page, onboarding (workspace, connect modals, scan), search, resolve flow, setup checklist.
-- `src/watch.js`: the Watch it live mode (step/beat timeline engine, chat and backend renderers).
+- `src/model.js`: Northwind agents, jobs, conflicts, the consistency score, and the shared adoption rules.
+- `src/main.js`: app shell, routing, persistence, and the dashboard screens.
+- `src/onboard.js`: landing page, onboarding, search, and the resolve flow.
+- `src/watch.js`: Watch it live.
 - `src/style.css`: all styles.
