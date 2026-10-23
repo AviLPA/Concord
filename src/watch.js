@@ -37,14 +37,14 @@ const STEPS=[
  know:"The rules were read from each agent's instructions. Dana's source is her own spreadsheet.",
  dwell:4800,
  beats:[{t:'ev', id:'rules', side:'be', wait:700}]},
-{act:2, label:'Sara picks', left:'said', leftTitle:"What the team's agents said",
+{act:2, label:'Sara picks', left:'sara', leftTitle:"Sara's view in Concord",
  title:'Sara picks one official answer',
  body:'She owns this number. She chooses the renewal agent’s rule. The answer is 28.',
  know:'Sara could write her own or import a certified metric. Choosing one does not edit the agents.',
  dwell:5000,
  beats:[
-  {t:'ev', id:'choose', side:'be', wait:800},
-  {t:'ev', id:'picked', side:'be', wait:700},
+  {t:'ev', id:'choose', side:'chat', wait:800},
+  {t:'ev', id:'picked', side:'chat', wait:700},
  ]},
 {act:3, label:'Dana builds', left:'build', leftTitle:'What Dana sees in Claude',
  title:'Dana starts a new agent',
@@ -59,7 +59,7 @@ const STEPS=[
  ]},
 {act:3, label:'They apply it', left:'n8n', leftTitle:"Tom's n8n workflow",
  title:'The others apply it themselves',
- body:'Each builder gets one suggestion. Day 1 Dana, Day 3 the CS owner, Day 6 Tom.',
+ body:"The agents already built each get one suggestion. Day 1 Dana's existing agent, Day 3 the CS owner, Day 6 Tom.",
  know:'Concord cannot change Tom’s workflow. He clicks Apply. The Slack post stays as it is. Concord checks by reading it again.',
  dwell:4600,
  beats:[
@@ -130,6 +130,14 @@ function saidItems(V){
   const note=won&&!all?`<div class="cnote">${ic('check')}<span>Sara picked the combined score. The official answer is 28.</span></div>`:''
   return [{k:'hello',h:`<div class="chello"><b>${hello[0]}</b><span>${hello[1]}</span></div>`},{k:'board',h:`<div class="said">${cards}</div>${note}`}]
 }
+function saraItems(V){
+  const picked=V.has('picked')
+  const opts=SAID.map(a=>`<div class="opt ${picked&&a.id==='n28'?'on':''}"><span class="rad"></span><div class="optlbl"><b>${a.rule}</b><span>${a.name}</span></div><em>${a.n}</em></div>`).join('')
+  return [
+    {k:'hello',h:`<div class="chello"><b>Sara Klein · Head of RevOps</b><span>She owns this number. She is choosing here.</span></div>`},
+    {k:'pick',h:`<div class="opts">${opts}</div>${picked?'<div class="picked28"><div class="numxl ok">28</div><span>She chose this</span></div>':''}`},
+  ]
+}
 function chatItems(V){
   const it=[], c=cur(), mode=leftMode()
   const A=(id,h)=>it.push({k:id,h})
@@ -144,12 +152,13 @@ function chatItems(V){
     if(applied) A('applied',`<div class="cnote">${ic('check')}<span>Tom applied it. The Slack post is unchanged.</span></div>`)
     return it
   }
+  if(mode==='sara') return saraItems(V)
   if(mode==='build'){
     A('hello',`<div class="chello"><b>New at-risk agent</b><span>Dana is building</span></div>`)
     if(V.has('u1')) um('u1',beatText('u1'))
     if(V.has('a1')) am('a1',`<div class="offer"><div class="numxl ok">28</div><div class="offerl">The official at-risk answer</div><div>Use it instead of your spreadsheet?</div></div>`)
     if(V.has('u2')) um('u2',beatText('u2'))
-    if(V.has('a2')) am('a2',`<div class="big ok">Added.</div>The answer on record is 28.`)
+    if(V.has('a2')) am('a2',`<div class="big ok">Added to this new agent.</div>The answer on record is 28.`)
     if(c&&c.t==='reply'&&W.thinking) A('think',`<div class="cm a"><span class="cav">${ic('spark')}</span><div class="cb typing"><span></span><span></span><span></span></div></div>`)
     return it
   }
@@ -169,15 +178,15 @@ function beItems(V){
   }else if(step===2){
     if(V.has('choose')){
       const picked=V.has('picked')
-      A('choose','user','','Sara Klein, Head of RevOps','She owns this number. She picks one rule.',`<div class="opts">${SAID.map(a=>`<div class="opt ${picked&&a.id==='n28'?'on':''}"><span class="rad"></span><b>${a.rule}</b><em>${a.n}</em></div>`).join('')}</div>${picked?'<div class="picked28"><div class="numxl ok">28</div><span>Official answer</span></div>':''}`)
+      A('choose','eye',picked?'ok':'', picked?'Official answer is 28':'Sara is choosing', picked?'She picked the combined score in her view. Nothing was edited.':'The choice is in her view, on the left.', picked?`<div class="picked28"><div class="numxl ok">28</div><span>On record</span></div>`:'')
     }
   }else if(step===3){
     if(V.has('u1')) A('dstart','spark','','Dana is building a new agent','She asked for an at-risk list.')
-    if(V.has('a1')) A('doffer','check','ok', V.has('a2')?'Dana used the official answer':'Official answer offered first', V.has('a2')?'The answer on record is 28.':'Before any spreadsheet.', `<div class="picked28"><div class="numxl ok">28</div><span>${V.has('a2')?'On record':'Offered first'}</span></div>`)
+    if(V.has('a1')) A('doffer','check','ok', V.has('a2')?'Added to this new agent':'Official answer offered first', V.has('a2')?'The answer on record is 28.':'Before any spreadsheet.', `<div class="picked28"><div class="numxl ok">28</div><span>${V.has('a2')?'On record':'Offered first'}</span></div>`)
   }else if(step===4){
     if(V.has('vdana')){
       const n=counts(V)
-      const rows=[['Day 1','Dana',n>=1],['Day 3','CS owner',n>=2],['Day 6','Tom',n>=3]]
+      const rows=[['Day 1',"Dana's existing agent",n>=1],['Day 3','CS owner',n>=2],['Day 6','Tom',n>=3]]
       A('adopt','check','ok', n>=3?'All three applied it':'They apply it themselves','One suggestion each. They click it themselves.',`<div class="adopt"><div class="adoptn">${n}<span>/3</span></div><ol>${rows.map(([d,w,on])=>`<li class="${on?'on':''}"><b>${d}</b> ${w}</li>`).join('')}</ol></div>`)
     }
   }else if(V.has('agree')){
@@ -197,35 +206,37 @@ function caption(){
 function draw(){
   root=document.getElementById('wv');if(!root)return
   const V=localVis(),c=cur(),st=STEPS[W.step],mode=leftMode()
-  if(!W.manual){const last=c||(st&&st.beats[st.beats.length-1]);if(last&&last.side)W.side=last.side;else W.side=mode==='build'||mode==='n8n'?'chat':'be'}
+  if(!W.manual){const last=c||(st&&st.beats[st.beats.length-1]);if(last&&last.side)W.side=last.side;else W.side=mode==='build'||mode==='n8n'||mode==='sara'?'chat':'be'}
   root.dataset.side=W.side;root.dataset.left=mode;root.dataset.state=W.step<0?'intro':W.step>=N?'done':'run'
   setH(root.querySelector('.wv-steps'),STEPS.map((s,i)=>`<button class="ws-i ${i<W.step?'done':i===W.step?'on':''}" data-wgo="${i}" title="${s.label}"><span class="wn">${i<W.step||W.step>=N?'✓':i+1}</span><span class="wl">${s.label}</span></button>`).join(''))
   const pct=W.step<0?0:W.step>=N?100:((W.step+(st?W.beat/st.beats.length:0))/N*100)
   root.querySelector('.wv-prog span').style.width=pct+'%'
   setH(root.querySelector('.wv-cap'),caption())
   setH(root.querySelector('.wv-btns'),`<button class="wc" data-w="back" ${W.step<=0?'disabled':''} title="Previous step">${ic('back')}</button><button class="wc main" data-w="toggle" title="${W.playing?'Pause':'Play'}">${W.playing?ic('pause'):ic('play')}<span>${W.playing?'Pause':W.step<0?'Start':W.step>=N?'Replay':'Play'}</span></button><button class="wc" data-w="next" ${W.step>=N?'disabled':''} title="Next step">${ic('next')}</button><button class="wc" data-w="restart" title="Restart">${ic('redo')}</button><button class="wc spd" data-w="speed" title="Playback speed">${W.speed}×</button>`)
-  const leftTab=mode==='n8n'?"Tom's workflow":mode==='build'?'Dana in Claude':'What they said'
+  const leftTab=mode==='n8n'?"Tom's workflow":mode==='build'?'Dana in Claude':mode==='sara'?"Sara's view":'What they said'
   setH(root.querySelector('.wv-tabs'),`<button data-wside="chat" class="${W.side==='chat'?'on':''}">${leftTab}${c&&c.side==='chat'&&W.side!=='chat'?'<i></i>':''}</button><button data-wside="be" class="${W.side==='be'?'on':''}">What Concord sees${c&&c.side==='be'&&W.side!=='be'?'<i></i>':''}</button>`)
   const actN=st?st.act:W.step>=N?3:1
-  const titles={said:[ic('layers'),st?st.leftTitle:"What the team's agents said"],build:[ic('spark'),'What Dana sees in Claude'],n8n:[ic('flow'),"Tom's n8n workflow"]}
+  const titles={said:[ic('layers'),st?st.leftTitle:"What the team's agents said"],sara:[ic('user'),st?st.leftTitle:"Sara's view in Concord"],build:[ic('spark'),'What Dana sees in Claude'],n8n:[ic('flow'),"Tom's n8n workflow"]}
   const hd=titles[mode]
-  const who=mode==='n8n'?av('TR','#82B9D9'):mode==='build'?av('DO','#EAF3F9'):''
+  const who=mode==='n8n'?av('TR','#82B9D9'):mode==='build'?av('DO','#EAF3F9'):mode==='sara'?av('SK','#3FE0A1'):''
   setH(root.querySelector('.wleft-hd'),`<span class="cav">${hd[0]}</span><div class="wleft-titles"><div class="wact">Act ${actN} · ${ACT[actN]}</div><h3>${hd[1]}</h3></div>${who?`<span class="r">${who}</span>`:''}`)
   const ch=root.querySelector('.cmsgs'),be=root.querySelector('.elog')
   sync(ch,chatItems(V));sync(be,beItems(V))
+  const chat=root.querySelector('.wchat')
+  if(chat) chat.dataset.input=mode==='build'||mode==='n8n'?'on':'off'
   const comp=root.querySelector('.ccomp-t'),typing=mode==='build'&&c&&c.t==='type'
-  comp.innerHTML=typing?c.text.slice(0,W.prog).replace(/</g,'&lt;')+'<span class="caret"></span>':mode==='build'?'<span class="ph">Message Claude…</span>':mode==='n8n'?'<span class="ph">Tom edits this. Concord cannot.</span>':'<span class="ph">Read-only · Concord is not sending this</span>'
-  root.querySelector('.ccomp').classList.toggle('active',!!typing)
+  if(comp) comp.innerHTML=typing?c.text.slice(0,W.prog).replace(/</g,'&lt;')+'<span class="caret"></span>':mode==='build'?'<span class="ph">Message Claude…</span>':mode==='n8n'?'<span class="ph">Tom edits this. Concord cannot.</span>':'<span class="ph">Read-only · Concord is not sending this</span>'
+  root.querySelector('.ccomp')?.classList.toggle('active',!!typing)
   for(const el of [ch,be]){if(el._new||typing){el.scrollTo({top:el.scrollHeight,behavior:W.playing?'smooth':'auto'});el._new=false}}
   const n=counts(V), sc=scores(n>0?n:-1)
   root.querySelector('.am-bar span').style.width=(n?n/3*100:0)+'%'
   const head=W.step>=5||V.has('agree')?`<b>Customer health is ${sc.job}</b>`:n?`<b>Applied ${n}/3</b>`:W.step===3?`<b>Offered to Dana</b>`:W.step===2?`<b>Official answer 28</b>`:`<b>Four different answers</b>`
   setH(root.querySelector('.am-t'),head)
-  setH(root.querySelector('.am-s'),`Company <b class="${sc.company>M.INITIAL.score?'up':''}">${sc.company}</b>`)
+  setH(root.querySelector('.am-s'),`Score <b class="${sc.company>M.INITIAL.score?'up':''}">${sc.company}</b>`)
   setH(root.querySelector('.wv-over'),W.step<0?intro():W.step>=N?wrap(scores(3)):'')
 }
 function intro(){return `<div class="wcard"><div class="wbadge">${ic('play')} Watch it live</div><h2>Four answers, then one.</h2><p>Last week, four agents gave 35, 42, 17, and 28. Sara picks one official answer. The next time Dana builds, she is offered it first. Then the others apply it themselves.</p><div class="wsteps2"><span>1 · The four numbers</span><span>2 · Sara picks one</span><span>3 · It sticks</span></div><button class="btn p big" data-w="toggle">${ic('play')} Start · about a minute</button><div class="dim" style="margin-top:10px;font-size:12px">Pause, step back, or skip anytime.</div></div>`}
-function wrap(sc){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Every agent says 28</div><h2>Every agent says 28</h2><div class="ba"><div class="b4"><div class="bal">Last week</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Four different answers</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav">28</div><div class="bas">This job is 100 · company ${M.INITIAL.score} → ${sc.company}</div></div></div><p>Sara picked one answer. Dana was offered it while she built. Tom and the others applied it themselves.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">${ic('redo')} Watch again</button></div></div>`}
+function wrap(sc){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Every agent says 28</div><h2>Every agent says 28</h2><div class="ba"><div class="b4"><div class="bal">Last week</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Four different answers</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav">28</div><div class="bas">This job is 100</div></div></div><p>Consistency score ${M.INITIAL.score} → ${sc.company}. That is how many of your agents agree.</p><p>Sara picked one answer. Dana was offered it while she built a new agent. Tom and the others applied it on the agents they already had.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">${ic('redo')} Watch again</button></div></div>`}
 export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="be" data-left="said">
 <div class="wv-head"><div><h1>Watch it live</h1><p class="sub" style="margin:0">Four answers last week. Sara picks one. The next person to build is offered it first.</p></div><span class="tag">Guided story · demo data</span></div>
@@ -233,8 +244,8 @@ ${alreadyDecided?'<div class="wbanner">Customer health is already decided in thi
 <div class="wv-steps"></div><div class="wv-prog"><span></span></div>
 <div class="wv-narr"><div class="wv-cap"></div><div class="wv-btns"></div></div>
 <div class="wv-tabs"></div>
-<div class="wv-split"><section class="card wchat"><div class="hd wleft-hd"></div><div class="cmsgs"></div><div class="ccomp"><div class="ccomp-t"></div><button class="csend" tabindex="-1">↑</button></div></section>
-<section class="card wbe"><div class="hd">${mark(16)}<h3>What Concord sees</h3><span class="r am-s"></span></div><div class="am"><div class="am-t"></div><div class="am-bar"><span></span></div></div><div class="elog"></div></section>
+<div class="wv-split"><section class="card wchat" data-input="off"><div class="hd wleft-hd"></div><div class="cmsgs"></div><div class="ccomp"><div class="ccomp-t"></div><button class="csend" tabindex="-1">↑</button></div></section>
+<section class="card wbe"><div class="hd">${mark(16)}<h3>What Concord sees</h3><span class="r am-s"></span></div><div class="am"><div class="am-t"></div><div class="am-bar"><span></span></div></div><div class="am-why">Consistency score: how many of your agents agree</div><div class="elog"></div></section>
 <div class="wv-over"></div></div></div></div>`}
 export function mountWatch(opts){onExplore=opts.onExplore||opts;requestAnimationFrame(()=>{draw();if(W.playing)tick()})}
 export function startWatch(){W.playing=true;go(0)}

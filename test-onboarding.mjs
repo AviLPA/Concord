@@ -25,6 +25,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(land.includes('Head of RevOps'), 'landing missing Head of RevOps')
  assert(land.includes('20'), 'landing missing agent count')
  assert(!/47 agents/.test(land), 'landing still says 47 agents')
+ assert(!/Maya|Priya|Ravi/.test(land), 'landing names stay with the watch story')
  await shot('01-landing')
  await p.evaluate(()=>scrollTo(0,document.body.scrollHeight));await p.waitForTimeout(200);await honesty(p,'landing bottom')
  await p.evaluate(()=>scrollTo(0,0))
