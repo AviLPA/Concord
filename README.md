@@ -12,7 +12,7 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The line under the hero is the product: security tools check whether an agent is safe; Concord checks whether your agents give the same answer. |
 | `#/how` | How it works, in plain language: read, detect, decide, verify adoption. |
 | `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. Prices are placeholders. No checkout. |
-| `#/about` | Mission, why now, and three principles: read-only, owners decide, publish into the tools you already use. Northwind is fictional. |
+| `#/about` | Mission, why now, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
 | `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
 | `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |

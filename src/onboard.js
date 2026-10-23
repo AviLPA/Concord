@@ -308,7 +308,7 @@ export function aboutPage(){
 <article class="card"><h2>Principles</h2><ul>
 <li><b>Read-only.</b> Concord reads instructions and answers already given. It's read-only, so it never changes an agent.</li>
 <li><b>Owners decide.</b> The person who owns the number signs off the official answer.</li>
-<li><b>Publish into the tools you already use.</b> Concord tells each builder what to change. They update their own agents, such as Dana's agent and Tom's workflow. Official metrics from dbt and Atlan are coming next.</li>
+<li><b>Builders stay in charge.</b> Concord tells them what changed, and they update their own agents. Official metrics from dbt and Atlan are coming next.</li>
 </ul></article>
 </div>`)
 }

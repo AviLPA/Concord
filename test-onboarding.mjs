@@ -50,7 +50,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  await mktClick('#/about')
  assert(await p.evaluate(()=>location.hash)==='#/about', 'about hash')
  const about=await p.evaluate(()=>document.body.innerText)
- assert(about.includes('same answer')&&about.includes('Read-only')&&about.includes('Owners decide')&&about.includes('tools you already use'), 'about copy')
+ assert(about.includes('same answer')&&about.includes('Read-only')&&about.includes('Owners decide')&&about.includes('Builders stay in charge')&&!/publish/i.test(about), 'about copy')
  await mktClick('#/how')
  const how=await p.locator('.msteps').innerText()
  assert(how.includes('Read')&&how.includes('Detect')&&how.includes('Decide')&&how.includes('Verify adoption'), 'how steps')
