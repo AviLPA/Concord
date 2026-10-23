@@ -191,7 +191,7 @@ select{background:var(--raised);border:1px solid var(--line2);color:var(--tx);bo
 .offer{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border:1px solid var(--sync);border-radius:12px;background:var(--status-in-sync-tint);max-width:280px}
 .offer .numxl{font-size:48px}.offerl{font-weight:600;color:var(--text)}
 .alertc{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.alertk{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sync-text)}
+.alertk{font-size:12px;font-weight:700;color:var(--sync-text)}
 .alertfrom,.alertc span{font-size:12.5px;color:var(--text-muted)}
 .alertc b{font-size:16px;line-height:1.4}
 .scanlog{display:flex;flex-direction:column;gap:6px;margin-top:8px}
