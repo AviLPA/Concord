@@ -116,7 +116,7 @@ function stage4(c,R,inOB,offAns,plan){
   const js=M.jobScore(c.job,C.S), p=M.companyParts(C.S)
   return `${timelineMarkup(c.id)}<div class="rdone">${C.ic('check',18)}<div><b>This job is ${js==null?'—':js}. The recorded answer on the official definition is ${esc(plan.ans||offAns)}.</b><span>${plan.verifiedNeed.length}/${plan.need.length} builders applied the suggestion. Concord verified by re-reading. It did not edit an agent. Company score is ${p.score}.</span></div></div>
 <p class="mut" style="margin-top:8px">The next daily scans check that the builders applied the change. Concord alerts again if one is still off. It does not edit an agent.</p>
-<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Watch it live</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
+<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Walkthrough</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
 }
 function variantDone(c,inOB){
   const p=M.companyParts(C.S)
@@ -150,7 +150,7 @@ export function guide(){const g=document.getElementById('obguide');if(g)g.innerH
 export function onboardPage(){const s=OB.step
   return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="#/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
 <nav class="obsteps">${STEPS.map(([k,l],i)=>{const idx=STEPS.findIndex(x=>x[0]===s),done=i<idx||(k==='resolve'&&OB.resolved);return `<button class="${k===s?'on':''} ${done?'done':''}" data-obgo="${k}" ${reach(k)?'':'disabled'}><i>${done?'✓':i+1}</i><span>${l}</span></button>`}).join('')}</nav>
-<div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Watch it live</span></a><a class="obskip" href="#/overview">Skip to app</a></div></header>
+<div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Walkthrough</span></a><a class="obskip" href="#/overview">Skip to app</a></div></header>
 <div class="obguide" id="obguide"></div><main class="obm">${({workspace:wsStep,connect:connStep,scan:scanStep,search:searchStep,resolve:()=>resolveView(OB.cid,true)})[s]()}</main>${modal?modalHTML():''}</div>`}
 const logo=()=>lockup(18)
 function wsStep(){return `<div class="obgrid"><div class="card obcard"><h1>Create your workspace</h1><p class="sub">Northwind is a fictional company of ${M.PEOPLE} people. Nothing leaves your browser.</p>
@@ -228,7 +228,7 @@ function syncField(){
 }
 const BURGER=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`
 const CLOSE=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`
-const MKT=[['home','Home','#/'],['how','How it works','#/how'],['watch','Watch it live','#/watch'],['pricing','Pricing','#/pricing'],['about','About','#/about']]
+const MKT=[['home','Home','#/'],['how','How it works','#/how'],['watch','Walkthrough','#/watch'],['pricing','Pricing','#/pricing'],['about','About','#/about']]
 function mktLinks(active){return MKT.map(([id,label,href])=>`<a href="${href}" class="${active===id?'on':''}"${active===id?' aria-current="page"':''}>${label}</a>`).join('')}
 function marketFoot(active){
   return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Read-only by design</span><span>Northwind · ${M.PEOPLE} people · fictional</span><a href="#/overview">Sign in</a><a href="#/start">Request a consistency audit</a><span>© 2026</span><button data-reset>Reset demo</button></div></div></footer>`
@@ -253,7 +253,7 @@ export function landingPage(){
   ]
   return marketShell('home', `<section class="lhero"><div class="lht"><h1>Keep every agent<br><span class="em">in sync.</span></h1>
 <p class="lsub">Your teams build agents in Claude and n8n. ${Brand} does not sit in the way. It scans on a schedule, alerts the owner when the same job gets different answers, and checks that builders fixed it. It never edits an agent.</p>
-<div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live · 60 s</a></div></div>
+<div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Start the walkthrough</a></div></div>
 <div class="lcard" id="lcard"><div class="lcardh"><span class="q">“How many accounts are at risk this quarter?”</span><span class="slot" data-off>${status('conflict','Conflict · 4 answers',{big:true})}</span><span class="slot" data-on>${status('sync','4/4 in sync',{big:true})}</span></div>
 ${syncField()}<div class="mcap">Northwind demo workspace (fictional)</div></div></section>
 <div class="lband" data-hero-line><span class="mut">Security tools ask if an agent is safe. </span><b>${Brand} asks if all your agents give the same answer.</b></div>
@@ -275,7 +275,7 @@ ${[['Renewal radar · Claude','sync','28','In sync'],['Dana · Claude','sync','2
 <section class="lsec"><div class="lsh"><span class="eyebrow">Built for</span><h2>The people who own the numbers</h2><p>At a company of a few hundred people, that is usually RevOps, Data, or IT.</p></div>
 <div class="l3 cards">${[['RevOps','Sara Klein, Head of RevOps, owns customer health, pipeline, and discount. She picks the official definition.'],['Data','The data team already certifies ARR in dbt, Atlan, or Qontext. Concord pulls that metric in, and can publish a block back. It does not replace the semantic layer.'],['IT','IT connects the Compliance API and the n8n key so the scheduled scan can read. Concord does not sit in the chat.']].map(([t,d])=>`<div class="card"><b>${t}</b><p>${d}</p></div>`).join('')}</div>
 <div class="ltags">Works with ${tag('Claude · Compliance API')} ${tag('n8n · REST API')} ${tag('dbt, Atlan, Qontext')} ${tag('Coming soon')}</div></section>
-<section class="lclose" id="audit"><div style="display:flex;justify-content:center">${lockup(28)}</div><h2>See where your agents disagree.</h2><p>Connect read-only and get a conflict report for the agents your teams already built. Or watch the Northwind story, about a minute.</p><div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live</a></div></section>`)
+<section class="lclose" id="audit"><div style="display:flex;justify-content:center">${lockup(28)}</div><h2>See where your agents disagree.</h2><p>Connect read-only and get a conflict report for the agents your teams already built. Or click through the Northwind story.</p><div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Walkthrough</a></div></section>`)
 }
 export function howPage(){
   const steps=[
@@ -286,7 +286,7 @@ export function howPage(){
   ]
   return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Build anything. Concord scans daily, then alerts.</h1><p>People keep building in Claude and n8n. Concord does not sit in the way. It scans on a schedule, alerts the owner when answers disagree, and checks that builders fixed it.</p></section>
 <div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}</div>
-<section class="lclose"><h2>See it with the Northwind story.</h2><p>About a minute. Dana uses an agent. That night's scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Watch it live</a><a class="btn xl" href="#/start">Request a consistency audit</a></div></section>`)
+<section class="lclose"><h2>See it with the Northwind story.</h2><p>Click through it. Dana uses an agent. That night's scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Start the walkthrough</a><a class="btn xl" href="#/start">Request a consistency audit</a></div></section>`)
 }
 export function pricingPage(){
   const tiers=[

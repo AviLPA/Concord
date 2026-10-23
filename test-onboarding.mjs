@@ -1,4 +1,4 @@
-// E2E: landing -> Get started -> connect both -> scan -> search -> resolve -> dashboard; landing -> Watch it live.
+// E2E: landing -> Get started -> connect both -> scan -> search -> resolve -> dashboard; landing -> Walkthrough.
 // Usage: node test-onboarding.mjs [baseUrl] [shotDir]   (needs `npm run preview` for the default base)
 import {chromium} from 'playwright'
 const BASE=process.argv[2]||'http://localhost:4173/',DIR=process.argv[3]||'/tmp/ob'
@@ -30,7 +30,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  await p.evaluate(()=>scrollTo(0,document.body.scrollHeight));await p.waitForTimeout(200);await honesty(p,'landing bottom')
  await p.evaluate(()=>scrollTo(0,0))
  const labels=await p.$$eval('.sitenav a',es=>es.map(e=>e.textContent.trim()))
- assert(labels.join('|')==='Home|How it works|Watch it live|Pricing|About', 'nav labels '+labels.join('|'))
+ assert(labels.join('|')==='Home|How it works|Walkthrough|Pricing|About', 'nav labels '+labels.join('|'))
  assert((await p.locator('.sitein').first().textContent())==='Sign in', 'sign in link')
  assert(await p.locator('a.btn.p[href="#/start"]').count()>=1, 'audit button')
  assert((await p.$eval('.sitenav a.on',e=>e.textContent.trim()))==='Home', 'home active')
@@ -64,7 +64,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(await p.locator('.side .nav').count()>=5, 'app sidebar')
  assert((await p.locator('.top .wordmark').innerText())==='concord', 'app header wordmark')
  assert(await p.locator('.side .wordmark').count()===0, 'sidebar repeats the wordmark')
- assert((await p.locator('.backsite').innerText()).includes('Site'), 'back to site')
+ assert(/back to site/i.test(await p.locator('.top .backsite').innerText()), 'back to site')
  await p.click('.backsite');await p.waitForSelector('.lhero')
  await p.click('.lhero a[href="#/start"]');await p.waitForTimeout(300);await shot('02-workspace')
  const size=await p.$eval('#f-size',e=>e.value)
@@ -135,7 +135,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(await p.$eval('#gnum',e=>e.textContent)==='68', 'dashboard score')
  assert((await p.$eval('#scoreline',e=>e.textContent)).includes('13 of 19'), 'score breakdown line')
  const nav=await p.$$eval('.side .nav',e=>e.map(x=>x.textContent.trim()))
- assert(/^Watch it live/.test(nav[0]), 'sidebar '+nav[0])
+ assert(/^Walkthrough/.test(nav[0]), 'sidebar '+nav[0])
  assert(!nav.some(x=>/Live build/.test(x)), 'old Live build nav')
  if(vp.width>=820){await p.fill('#topq','refund');await p.press('#topq','Enter');await p.waitForTimeout(400)
   assert(locationHash(await p.evaluate(()=>location.hash)).includes('refund'), 'top search hash')
@@ -145,9 +145,21 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  await p.goto(BASE+'#/watch');await p.waitForTimeout(400)
  assert(await p.locator('.wbanner').count()===1, 'watch should not overwrite a decision')
  await p.goto(BASE);await p.waitForTimeout(300);await p.click('.lhero a[href="#/watch"]');await p.waitForTimeout(400)
- await p.click('.wcard [data-w=toggle]');await p.click('[data-w=speed]');await p.click('[data-w=speed]')
- const w0=Date.now();await p.waitForSelector('.wrapc',{timeout:90000})
- log(n,'watch wrap',((Date.now()-w0)/1000).toFixed(1)+'s at 2x')
+ await p.click('.wcard [data-w=start]')
+ await p.waitForFunction(()=>(document.querySelector('.wk')?.textContent||'').includes('Dana builds'),{timeout:8000})
+ await p.waitForTimeout(400)
+ assert((await p.$eval('.wk',e=>e.textContent)).includes('Dana builds'), 'walkthrough left the first step on its own')
+ assert(await p.locator('[data-w=speed]').count()===0, 'speed control')
+ assert(await p.locator('[data-w=toggle]').count()===0, 'play control')
+ const w0=Date.now()
+ for(let i=0;i<8;i++){
+  if(await p.locator('.wrapc').count()) break
+  const next=p.locator('[data-w=next]')
+  if(!await next.count()||await next.isDisabled()) break
+  await next.click();await p.waitForTimeout(80)
+ }
+ await p.waitForSelector('.wrapc',{timeout:8000})
+ log(n,'walkthrough wrap',((Date.now()-w0)/1000).toFixed(1)+'s')
  const wrap=await p.$eval('.wrapc',e=>e.innerText)
  assert(wrap.includes('28')&&wrap.includes('35')&&wrap.includes('100')&&/daily/i.test(wrap)&&wrap.includes('CS team lead'), 'wrap numbers '+wrap)
  assert(!/offered|paste/i.test(wrap), 'wrap still offers while building')

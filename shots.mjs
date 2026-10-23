@@ -2,7 +2,7 @@
 import {chromium} from 'playwright'
 const D='/workspace/concord-shots/',U='http://localhost:4173/#/'
 const b=await chromium.launch()
-const at=async(p,step,beats)=>{await p.goto(U+'watch');await p.waitForTimeout(300);if(!await p.$('.wcard [data-w=toggle]')){await p.reload();await p.waitForTimeout(600)}await p.click('.wcard [data-w=toggle]');await p.waitForTimeout(200);await p.click('[data-w=toggle]');await p.click(`[data-wgo="${step}"]`);await p.waitForTimeout(900)}
+const at=async(p,step)=>{await p.goto(U+'watch');await p.waitForTimeout(300);if(!await p.$('.wcard [data-w=start]')){await p.reload();await p.waitForTimeout(600)}await p.click(`[data-wgo="${step}"]`);await p.waitForTimeout(400)}
 const d=await b.newPage({viewport:{width:1440,height:900},deviceScaleFactor:2})
 await d.goto(U+'overview');await d.waitForTimeout(500);await d.screenshot({path:D+'01-overview-watch-cta.png'})
 await at(d,1);await d.screenshot({path:D+'02-watch-live-answers-desktop.png'})

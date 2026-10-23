@@ -29,7 +29,7 @@ const parts=()=>M.companyParts(S)
 const openN=()=>M.openConflicts(S).length
 const highN=()=>M.openConflicts(S).filter(c=>c.sev==='bad').length
 
-const NAV=[['watch','Watch it live','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official blocks','cube'],['integrations','Integrations','plug']]
+const NAV=[['watch','Walkthrough','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official blocks','cube'],['integrations','Integrations','plug']]
 const TITLES={search:'Search',resolve:'Resolve conflict',start:'Setup'}
 function shell(inner){
   const title=(NAV.find(n=>n[0]===S.route)||[0,TITLES[S.route]||''])[1]
@@ -39,7 +39,7 @@ ${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-n
 <div class="sec">Workspace</div><a class="nav ${S.route==='start'?'on':''}" href="#/start">${ic('check')}Setup guide</a><a class="nav" href="#/integrations">${ic('gear')}Settings</a><button class="nav navbtn" data-reset>${ic('x')}Reset demo</button>
 <div class="sidefoot"><div style="display:flex;align-items:center;gap:8px;color:var(--tx);font-weight:500">${ic('lock',14)}Read-only connections</div><div style="margin-top:4px">Concord never runs or edits an agent. It scans on a schedule and alerts the owner. Later scans check that builders updated their own agents.</div></div></aside>
 <div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="#/">Back to site</a><div class="crumb"><b>${title}</b></div>${tag('Demo data')}
-${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Watch it live</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
+${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Walkthrough</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
 ${S.toast?`<div class="toast">${ic('check')}${esc(S.toast)}</div>`:''}`}
 
 function gauge(v){const r=70,c=Math.PI*r,p=v/100*c;return `<svg viewBox="0 0 180 110" width="100%" style="max-width:260px">
@@ -85,7 +85,7 @@ function overview(){
   const dep=M.deptConflicts(S), max=Math.max(1,...dep.map(d=>d[1]))
   const jobs=p.rows.filter(r=>r.count>=2)
   return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in Claude and n8n. ${Brand} reads both, and never runs or edits an agent.</p><div style="margin-top:8px">${tag(AGENTS.length+' agents · one inventory')}</div></div><div class="act"><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
-${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.resolved.c1?'Watch it again':'New here? Start with this'}</span><h2>Build anything. Concord scans, then alerts.</h2><p>Dana builds a Q4 at-risk agent and gets 35. That night's scan finds 35, 42, 17, and 28, and alerts Sara. She marks 28. Builders fix their own agents. Later scans check. About a minute.</p></div><a class="btn p big" href="#/watch" data-startwatch>${ic('play',14)} Watch it live</a></div>
+${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.resolved.c1?'Walk through again':'New here? Start with this'}</span><h2>Build anything. Concord scans, then alerts.</h2><p>Dana builds a Q4 at-risk agent and gets 35. That night's scan finds 35, 42, 17, and 28, and alerts Sara. She marks 28. Builders fix their own agents. Later scans check. Click through it.</p></div><a class="btn p big" href="#/watch" data-startwatch>Start the walkthrough</a></div>
 <div class="grid g4" style="margin-bottom:14px">
 <div class="card kpi"><div class="l">${ic('bot',14)}Agents monitored</div><div class="v">${AGENTS.length}</div><div class="d">${cl} in Claude · ${AGENTS.length-cl} in n8n</div></div>
 <div class="card kpi"><div class="l">${ic('plug',14)}Connected tools</div><div class="v">${S.semanticConnected?3:2}</div><div class="d">${S.semanticConnected?'Claude, n8n, semantic layer':'Claude + n8n · read-only'}</div></div>

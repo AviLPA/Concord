@@ -60,7 +60,7 @@ await p.waitForSelector('.rdone',{timeout:15000});await W(500);await cap('Every 
 if(PH){await ensure('.rdone');await W(1300)}
 // 7. dashboard
 await click('[data-obfinish]');await W(700);await cap('The dashboard reflects what you did. Checklist done.');await W(3000)
-await cap('Next: <b>Watch it live</b> to see an employee build a new agent.');await move(...await p.evaluate(()=>{const e=[...document.querySelectorAll('a[href="#/watch"]')].find(x=>x.offsetParent&&x.getBoundingClientRect().top>0);const b=e.getBoundingClientRect();return[b.x+b.width/2,b.y+b.height/2]}));await W(2600)
+await cap('Next: the <b>Walkthrough</b>, one click at a time.');await move(...await p.evaluate(()=>{const e=[...document.querySelectorAll('a[href="#/watch"]')].find(x=>x.offsetParent&&x.getBoundingClientRect().top>0);const b=e.getBoundingClientRect();return[b.x+b.width/2,b.y+b.height/2]}));await W(2600)
 await cap('Security tools ask if an agent is safe.<br/><b>Concord asks if all your agents give the same answer.</b>');await W(3800);await cap('');await W(500)
 await cdp.send('Page.stopScreencast');await W(300);await b.close()
 let list='';for(let i=0;i<frames.length;i++){const d=i<frames.length-1?Math.max(0.001,frames[i+1][1]-frames[i][1]):0.5;list+=`file '${frames[i][0]}'\nduration ${d.toFixed(4)}\n`}

@@ -1,4 +1,4 @@
-// Guided "Watch it live". Three acts, same numbers as the shared model.
+// Click-through walkthrough. Three acts, same numbers as the shared model.
 // Concord reads chats and logs. Sara picks one answer. Builders apply it.
 // Nothing here runs or edits an agent.
 import {status, mark} from './brand.js'
@@ -14,11 +14,12 @@ const av=(ini,c)=>`<span class="dav" style="background:${c};color:var(--on-sync)
 const ACT={1:'They build',2:'The scan',3:'It sticks'}
 const Q='How many accounts are at risk?'
 const SAID=[
-  {id:'n35', name:"Dana's agent", ini:'DO', c:'#ABD1E6', n:35, rule:'A personal spreadsheet'},
-  {id:'n42', name:'Account health monitor', ini:'CS', c:'#82B9D9', n:42, rule:'A ticket count'},
-  {id:'n17', name:"Tom's workflow", ini:'TR', c:'#82B9D9', n:17, rule:'Usage drop over 40%'},
-  {id:'n28', name:'Renewal radar', ini:'RR', c:'#58A2CD', n:28, rule:'Warehouse score'},
+  {id:'n35', name:"Dana's agent", who:'Dana · Sales Ops · Claude', seen:true, ini:'DO', c:'#ABD1E6', n:35, rule:'A personal spreadsheet'},
+  {id:'n42', name:'Account health monitor', who:'CS team lead · CS · Claude', ini:'CS', c:'#82B9D9', n:42, rule:'A ticket count'},
+  {id:'n17', name:"Tom's n8n workflow", short:"Tom's workflow", who:'Tom · CS Ops · n8n', ini:'TR', c:'#82B9D9', n:17, rule:'Usage drop over 40%'},
+  {id:'n28', name:'RevOps warehouse score', short:'Renewal radar', who:'RevOps · Claude', ini:'RR', c:'#58A2CD', n:28, rule:'Warehouse score'},
 ]
+const NEXT=['the nightly scan','four answers',"Sara's alert",'Sara decides','daily scans','the ending']
 const ALERT='Customer health: 4 agents, 4 different answers (35, 42, 17, 28)'
 const STEPS=[
 {act:1, label:'Dana builds', left:'build', leftTitle:"Dana's Claude project",
@@ -38,7 +39,7 @@ const STEPS=[
  beats:[{t:'ev', id:'found', side:'be', wait:700}]},
 {act:2, label:'Four answers', left:'why', leftTitle:'Why the numbers differ',
  title:'The same scan finds four different answers',
- body:'35, 42, 17, and 28. Each agent uses a different definition and a different source.',
+ body:"Dana's 35 is the one we just saw. Three other agents at Northwind answer the same question. Different definitions, different sources.",
  know:'The other three answers were already on record. Concord compared them. It did not ask anyone.',
  dwell:5200,
  beats:[
@@ -78,10 +79,9 @@ const STEPS=[
   {t:'ev', id:'agree', side:'be', wait:800},
  ]},
 ]
-const W={step:-1,beat:0,prog:0,thinking:false,playing:false,speed:1,side:'be',manual:false,timer:null}
+const W={step:-1,beat:0,prog:0,thinking:false,side:'be',manual:false,timer:null}
 let onExplore=()=>{}, root=null
 const N=STEPS.length
-const ACT_GAP=1400
 function localVis(){
   const s=new Set()
   const i=W.step>=N?N-1:W.step
@@ -91,23 +91,21 @@ function localVis(){
   return s
 }
 function cur(){const st=STEPS[W.step];return st&&W.beat<st.beats.length?st.beats[W.beat]:null}
-const later=(f,ms)=>{clearTimeout(W.timer);W.timer=setTimeout(f,ms/W.speed)}
-function tick(){if(!W.playing)return;if(!document.getElementById('wv')){pause();return}
- const st=STEPS[W.step];if(!st)return
- if(W.beat>=st.beats.length){
-  const next=STEPS[W.step+1]
-  const gap=next&&next.act!==st.act?ACT_GAP:0
-  later(()=>go(W.step+1),st.dwell+gap);return
- }
+const later=(f,ms)=>{clearTimeout(W.timer);W.timer=setTimeout(f,ms)}
+function tick(){if(!document.getElementById('wv')){clearTimeout(W.timer);return}
+ const st=STEPS[W.step];if(!st||W.beat>=st.beats.length)return
  const b=st.beats[W.beat]
  if(b.t==='type'){if(W.prog<b.text.length){W.prog=Math.min(b.text.length,W.prog+2);draw();later(tick,34)}else{W.beat++;W.prog=0;draw();later(tick,b.wait)}}
  else if(b.t==='reply'){if(!W.thinking){W.thinking=true;draw();later(tick,b.think)}else{W.thinking=false;W.beat++;draw();later(tick,b.wait)}}
  else{W.beat++;draw();later(tick,b.wait)}}
-function go(i){clearTimeout(W.timer);W.thinking=false;W.prog=0;W.manual=false
- if(i>=N){W.step=N;W.playing=false;draw();return}
- W.step=Math.max(0,i);W.beat=W.playing?0:STEPS[W.step].beats.length;draw();if(W.playing)later(tick,450)}
-function play(){if(W.step>=N||W.step<0){W.playing=true;go(0);return}W.playing=true;draw();tick()}
-function pause(){W.playing=false;clearTimeout(W.timer);W.thinking=false;draw()}
+function settle(i){clearTimeout(W.timer);W.thinking=false;W.prog=0;W.manual=false
+ if(i<0){W.step=-1;draw();return}
+ if(i>=N){W.step=N;draw();return}
+ W.step=i;W.beat=STEPS[i].beats.length;draw()}
+function enter(i){clearTimeout(W.timer);W.thinking=false;W.prog=0;W.manual=false
+ if(i>=N){W.step=N;draw();return}
+ if(i<0){W.step=-1;draw();return}
+ W.step=i;W.beat=0;draw();later(tick,180)}
 function leftMode(){
   if(W.step<0||W.step>=N) return 'said'
   const st=STEPS[W.step]
@@ -157,7 +155,7 @@ function chatItems(V){
     return it
   }
   if(mode==='why'){
-    A('why',`<div class="chello"><b>Different definitions, different sources</b><span>That is why the same job returned four numbers.</span></div><div class="src">${SAID.map(a=>`<div class="srcrow">${av(a.ini,a.c)}<b>${a.name}</b><span>${a.rule}</span><em>${a.n}</em></div>`).join('')}</div>`)
+    A('why',`<div class="chello"><b>3 other agents at Northwind answer the same question</b><span>Dana's 35 is the one we just saw.</span></div><div class="src">${SAID.map(a=>`<div class="srcrow${a.seen?' seen':''}">${av(a.ini,a.c)}<div class="srcm"><b>${a.name}</b><span>${a.who}</span><small>${a.rule}</small></div><em>${a.n}</em>${a.seen?'<i class="ccseen">Just seen</i>':''}</div>`).join('')}</div>`)
     return it
   }
   if(mode==='days'){
@@ -170,14 +168,17 @@ function chatItems(V){
     const answered=step>0||V.has('a1')
     A('hello',`<div class="chello"><b>Q4 at-risk agent</b><span>Dana's Claude project</span></div>`)
     if(asked) um('u1',Q)
-    if(answered) am('a1',`<div class="big">35</div>Accounts at risk this quarter.`)
+    if(answered) am('a1',`<div class="big${step===1?' linked':''}">35</div>Accounts at risk this quarter.`)
     if(step===0&&c&&c.t==='reply'&&W.thinking) A('think',`<div class="cm a"><span class="cav">${ic('spark')}</span><div class="cb typing"><span></span><span></span><span></span></div></div>`)
     return it
   }
   return []
 }
+function answerCards(list){
+  return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="cch">${av(a.ini,a.c)}<div class="ccmeta"><b>${a.name}</b><span class="ccwho">${a.who}</span></div></div><div class="ccrule">${a.rule}</div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
+}
 function numberCards(ok){
-  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc ${ok?'ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.name}</b></div></div>`).join('')}</div>`
+  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc ${ok?'ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
 }
 function beItems(V){
   const it=[], step=shownStep()
@@ -185,10 +186,10 @@ function beItems(V){
   if(step===0){
     A('quiet','eye','mut','Nothing from Concord','Dana is just using her agent. The next scan is tonight. Scans are daily by default.')
   }else if(step===1){
-    if(V.has('found')) A('found','eye','ok','New agent found',"Dana's Q4 at-risk agent. Job matched: Customer health.",`<div class="scanlog"><div class="on">Nightly scan · daily by default</div><div class="on">New agent · Dana's Q4 at-risk agent</div><div class="on">Job matched · Customer health</div><div>Answer already given · 35</div></div>`)
+    if(V.has('found')) A('found','eye','ok','New agent found',"Dana's Q4 at-risk agent. Job matched: Customer health.",`<div class="sameq"><div class="samek">Same answer as the last step</div><div class="sameask">${Q}</div><div class="samen">35</div><b>Dana's agent answered 35</b></div><div class="scanlog"><div class="on">Nightly scan · daily by default</div><div class="on">New agent · Dana's Q4 at-risk agent</div><div class="on">Job matched · Customer health</div></div>`)
   }else if(step===2){
     const cards=SAID.filter(a=>V.has(a.id))
-    if(cards.length) A('nums','layers','','Four different answers','Different definitions, different sources.',`<div class="cmp">${cards.map(a=>`<div class="cc"><div class="ccn">${a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.name}</b></div></div>`).join('')}</div>`)
+    if(cards.length) A('nums','layers','','3 other agents at Northwind answer the same question',"Dana's 35 is the one we just saw.",answerCards(cards))
   }else if(step===3){
     if(V.has('slack')) A('sent','alert','','Alert sent to Sara',ALERT)
     if(V.has('inbox')) A('inbox','check','ok','Also waiting in Concord','Sara can open it when she is ready.')
@@ -204,7 +205,7 @@ function sync(el,items){const ch=[...el.children];let i=0;while(i<ch.length&&i<i
  ch.slice(i).forEach(c=>c.remove());items.forEach((it,j)=>{let n=el.children[j];if(n){if(n._h!==it.h){n.innerHTML=it.h;n._h=it.h}}else{n=document.createElement('div');n.dataset.k=it.k;n.className='wi';n.innerHTML=it.h;n._h=it.h;el.appendChild(n);el._new=true}})}
 const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}}
 function caption(){
-  if(W.step<0) return `<div class="wk">Guided story · about a minute</div><div class="wt">Build anything. Concord scans, then alerts.</div><div class="wb">Dana builds a Q4 at-risk agent and gets 35. That night's scan finds four answers, 35, 42, 17, and 28, and alerts Sara. She marks 28. Builders fix their own agents. Later scans check.</div>`
+  if(W.step<0) return `<div class="wk">Walkthrough</div><div class="wt">Build anything. Concord scans, then alerts.</div><div class="wb">Click Next through each step. Dana gets 35. That night's scan alerts Sara. She marks 28, and later scans check.</div>`
   if(W.step>=N) return `<div class="wk">Done</div><div class="wt">Every agent says 28</div><div class="wb">Daily scans are still running. Concord alerts again if something drifts.</div>`
   const st=STEPS[W.step]
   return `<div class="wk">Act ${st.act} · ${ACT[st.act]} · ${st.label}</div><div class="wt">${st.title}</div><div class="wb">${st.body}</div><details class="wknow"><summary>How Concord knows</summary><p>${st.know}</p></details>`
@@ -218,7 +219,9 @@ function draw(){
   const pct=W.step<0?0:W.step>=N?100:((W.step+(st?W.beat/st.beats.length:0))/N*100)
   root.querySelector('.wv-prog span').style.width=pct+'%'
   setH(root.querySelector('.wv-cap'),caption())
-  setH(root.querySelector('.wv-btns'),`<button class="wc" data-w="back" ${W.step<=0?'disabled':''} title="Previous step">${ic('back')}</button><button class="wc main" data-w="toggle" title="${W.playing?'Pause':'Play'}">${W.playing?ic('pause'):ic('play')}<span>${W.playing?'Pause':W.step<0?'Start':W.step>=N?'Replay':'Play'}</span></button><button class="wc" data-w="next" ${W.step>=N?'disabled':''} title="Next step">${ic('next')}</button><button class="wc" data-w="restart" title="Restart">${ic('redo')}</button><button class="wc spd" data-w="speed" title="Playback speed">${W.speed}×</button>`)
+  const atEnd=W.step>=N
+  const nextLabel=W.step<0?'Start the walkthrough':atEnd?'Done':`Next: ${NEXT[W.step]}`
+  setH(root.querySelector('.wv-btns'),`<button class="btn" data-w="back" ${W.step<0?'disabled':''}>Back</button><button class="btn p wnext" data-w="${W.step<0?'start':'next'}" ${atEnd?'disabled':''}>${nextLabel}</button>`)
   const leftTab={n8n:"Tom's workflow",build:'Dana in Claude',alert:"Sara's alert",sara:"Sara's view",days:'Daily scans',why:'Why they differ'}[mode]||'What they said'
   setH(root.querySelector('.wv-tabs'),`<button data-wside="chat" class="${W.side==='chat'?'on':''}">${leftTab}${c&&c.side==='chat'&&W.side!=='chat'?'<i></i>':''}</button><button data-wside="be" class="${W.side==='be'?'on':''}">What Concord sees${c&&c.side==='be'&&W.side!=='be'?'<i></i>':''}</button>`)
   const actN=st?st.act:W.step>=N?3:1
@@ -233,21 +236,21 @@ function draw(){
   const comp=root.querySelector('.ccomp-t'),typing=mode==='build'&&shownStep()===0&&c&&c.t==='type'
   if(comp) comp.innerHTML=typing?c.text.slice(0,W.prog).replace(/</g,'&lt;')+'<span class="caret"></span>':mode==='build'&&shownStep()===0?'<span class="ph">Message Claude…</span>':'<span class="ph">Read-only</span>'
   root.querySelector('.ccomp')?.classList.toggle('active',!!typing)
-  for(const el of [ch,be]){if(el._new||typing){el.scrollTo({top:el.scrollHeight,behavior:W.playing?'smooth':'auto'});el._new=false}}
+  for(const el of [ch,be]){if(el._new||typing){el.scrollTo({top:el.scrollHeight,behavior:'auto'});el._new=false}}
   const bar=root.querySelector('.am-bar')
   const scanning=W.step===1
   bar.hidden=!scanning
-  if(scanning) bar.querySelector('span').style.width=(V.has('found')?100:W.playing?45:0)+'%'
+  if(scanning) bar.querySelector('span').style.width=(V.has('found')?100:0)+'%'
   const head=V.has('agree')||W.step>=N?`<b>Every agent says 28</b>`:W.step===5?`<b>Daily scans</b>`:W.step===4?`<b>Official answer 28</b>`:W.step===3?`<b>Alert sent to Sara</b>`:W.step===2?`<b>Four different answers</b>`:W.step===1?`<b>New agent found</b>`:`<b>No alert yet</b>`
   setH(root.querySelector('.am-t'),head)
   setH(root.querySelector('.am-s'),`Daily`)
   setH(root.querySelector('.wv-over'),W.step<0?intro():W.step>=N?wrap():'')
 }
-function intro(){return `<div class="wcard"><div class="wbadge">${ic('play')} Watch it live</div><h2>Build anything. Concord scans, then alerts.</h2><p>Dana gets 35. That night's scan alerts Sara. She marks 28, and later scans check.</p><div class="wsteps2"><span>1 · Dana uses it</span><span>2 · The scan alerts Sara</span><span>3 · Daily scans check</span></div><button class="btn p big" data-w="toggle">${ic('play')} Start · about a minute</button><div class="dim" style="margin-top:10px;font-size:12px">Pause, step back, or skip anytime.</div></div>`}
-function wrap(){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Every agent says 28</div><h2>Every agent says 28</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav">28</div><div class="bas">This job is 100</div></div></div><p>Dana updated on day 1. Tom updated his workflow on day 3. On day 5 the Account health monitor still said 42, so Concord alerted again. The CS team lead updated it and matched last. Daily scans are still running.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">${ic('redo')} Watch again</button></div></div>`}
+function intro(){return `<div class="wcard"><div class="wbadge">Walkthrough</div><h2>Build anything. Concord scans, then alerts.</h2><p>Dana gets 35. That night's scan alerts Sara. She marks 28, and later scans check.</p><div class="wsteps2"><span>1 · Dana uses it</span><span>2 · The scan alerts Sara</span><span>3 · Daily scans check</span></div><button class="btn p big" data-w="start">Start the walkthrough</button><div class="dim" style="margin-top:10px;font-size:12px">Click Next. Nothing moves on by itself.</div></div>`}
+function wrap(){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Every agent says 28</div><h2>Every agent says 28</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav">28</div><div class="bas">This job is 100</div></div></div><p>Dana updated on day 1. Tom updated his workflow on day 3. On day 5 the Account health monitor still said 42, so Concord alerted again. The CS team lead updated it and matched last. Daily scans are still running.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">Walk through again</button></div></div>`}
 export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="be" data-left="said">
-<div class="wv-head"><div><h1>Watch it live</h1><p class="sub" style="margin:0">Dana uses an agent. That night's scan alerts Sara. Builders fix it themselves. Daily scans keep watching.</p></div><span class="tag">Guided story · demo data</span></div>
+<div class="wv-head"><div><h1>Walkthrough</h1><p class="sub" style="margin:0">Click Next through each step. Dana uses an agent. That night's scan alerts Sara. Builders fix it themselves.</p></div><span class="tag">Click-through · demo data</span></div>
 ${alreadyDecided?'<div class="wbanner">Customer health is already decided in this workspace. This story will not overwrite that decision.</div>':''}
 <div class="wv-steps"></div><div class="wv-prog"><span></span></div>
 <div class="wv-narr"><div class="wv-cap"></div><div class="wv-btns"></div></div>
@@ -255,20 +258,19 @@ ${alreadyDecided?'<div class="wbanner">Customer health is already decided in thi
 <div class="wv-split"><section class="card wchat" data-input="off"><div class="hd wleft-hd"></div><div class="cmsgs"></div><div class="ccomp"><div class="ccomp-t"></div><button class="csend" tabindex="-1">↑</button></div></section>
 <section class="card wbe"><div class="hd">${mark(16)}<h3>What Concord sees</h3><span class="r am-s"></span></div><div class="am"><div class="am-t"></div><div class="am-bar"><span></span></div></div><div class="elog"></div></section>
 <div class="wv-over"></div></div></div></div>`}
-export function mountWatch(opts){onExplore=opts.onExplore||opts;requestAnimationFrame(()=>{draw();if(W.playing)tick()})}
-export function startWatch(){W.playing=true;go(0)}
+export function mountWatch(opts){onExplore=opts.onExplore||opts;requestAnimationFrame(()=>draw())}
+export function startWatch(){enter(0)}
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-w],[data-wgo],[data-wside]')
   if(!t||!document.getElementById('wv'))return
   if(t.dataset.wside){W.side=t.dataset.wside;W.manual=true;draw();return}
-  if(t.dataset.wgo!=null){W.playing=false;clearTimeout(W.timer);go(+t.dataset.wgo);return}
+  if(t.dataset.wgo!=null){settle(+t.dataset.wgo);return}
   const a=t.dataset.w
-  if(a==='toggle') W.playing?pause():play()
-  else if(a==='next'){W.playing=false;clearTimeout(W.timer);go(W.step+1)}
-  else if(a==='back'){W.playing=false;clearTimeout(W.timer);go(W.step-1)}
-  else if(a==='restart'){W.playing=true;go(0)}
-  else if(a==='speed'){const sp=[1,1.5,2,0.75];W.speed=sp[(sp.indexOf(W.speed)+1)%sp.length];draw()}
+  if(a==='start') enter(0)
+  else if(a==='next') enter(W.step+1)
+  else if(a==='back') settle(W.step-1)
+  else if(a==='restart') settle(-1)
   else if(a==='explore') onExplore()
 })
-document.addEventListener('keydown',e=>{if(!document.getElementById('wv')||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key===' '){e.preventDefault();W.playing?pause():play()}else if(e.key==='ArrowRight'){W.playing=false;go(W.step+1)}else if(e.key==='ArrowLeft'){W.playing=false;go(W.step-1)}})
+document.addEventListener('keydown',e=>{if(!document.getElementById('wv')||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')enter(W.step+1);else if(e.key==='ArrowLeft'&&W.step>=0)settle(W.step-1)})
 export const watchState=W
