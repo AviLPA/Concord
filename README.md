@@ -16,21 +16,21 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
 | `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
-| `#/watch` | **Watch it live**: guided story, about a minute. Same numbers as the model (35, 42, 17, 28, then 28; company score 53 → 68; this job 100). |
+| `#/watch` | **Watch it live**: Dana uses an agent, that night's scan alerts Sara, builders fix it themselves, and later daily scans check (35, 42, 17, 28, then 28). |
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Watch it live
-A guided, autoplaying story in three acts and six steps. About a minute. Concord never runs or edits an agent. The left panel is labeled for each act. The right panel is always what Concord sees.
+A guided, autoplaying story in three acts and six steps. About a minute. Concord never runs or edits an agent, and it does not sit in the chat. The right panel is always what Concord sees. Scans are daily by default, and can be set to run more often.
 
-1. **The problem.** Last week four agents said 35, 42, 17, and 28. Concord found that by reading chats and logs.
-2. **The problem, continued.** The four rules, one line each: a personal spreadsheet, a ticket count, a usage drop over 40%, a combined score.
-3. **The fix.** Sara Klein, Head of RevOps, owns the number. She picks the renewal agent’s rule. The official answer is 28. The company score does not move yet.
-4. **It sticks.** Dana starts a new agent. Claude offers 28 before she pastes her spreadsheet.
-5. **It sticks.** Existing builders each get one suggestion and apply it themselves. Day 1 Dana, Day 3 the CS owner, Day 6 Tom. Tom’s Slack step stays unchanged.
-6. **Finale.** Every agent says 28. This job is 100. Company score 53 → 68.
+1. **Dana builds.** She asks how many accounts are at risk in her Claude project and gets 35. Concord does not interrupt. The chat box is on screen only here.
+2. **Night scan.** Concord finds the new agent and matches the job, Customer health.
+3. **Four answers.** The same scan lines up 35, 42, 17, and 28. Different definitions, different sources.
+4. **Sara's alert.** A notification to Sara Klein: Customer health, 4 agents, 4 different answers.
+5. **Sara decides.** In Concord she marks 28, the warehouse score. Concord sends each builder a note. It does not change anyone's agent.
+6. **Daily scans.** Day 1 Dana updates. Day 3 Tom edits his n8n workflow himself. Day 5 one agent is still off, so Concord alerts again. Then every agent says 28. Daily monitoring keeps running.
 
-The chat box is on screen only while Dana is chatting and while Tom is editing. On the other steps the answer cards are fully visible.
+Showing the official answer inside the tool where the next person builds is optional, and only mentioned on How it works. It is not part of this story.
 
 Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health.
 

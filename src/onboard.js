@@ -115,8 +115,8 @@ ${back?`<p class="mut">Also queued to publish back to ${esc(M.SEMANTIC[c.job][R.
 function stage4(c,R,inOB,offAns,plan){
   const js=M.jobScore(c.job,C.S), p=M.companyParts(C.S)
   return `${timelineMarkup(c.id)}<div class="rdone">${C.ic('check',18)}<div><b>This job is ${js==null?'—':js}. The recorded answer on the official definition is ${esc(plan.ans||offAns)}.</b><span>${plan.verifiedNeed.length}/${plan.need.length} builders applied the suggestion. Concord verified by re-reading. It did not edit an agent. Company score is ${p.score}.</span></div></div>
-<p class="mut" style="margin-top:8px">From here, Concord’s org-wide Claude connector offers this definition while someone is building. That is how the next conflict gets prevented. In n8n the same block is an MCP tool the builder adds.</p>
-<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Watch how the next agent is prevented</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
+<p class="mut" style="margin-top:8px">The next daily scans check that the builders applied the change. Concord alerts again if one is still off. It does not edit an agent.</p>
+<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Watch it live</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
 }
 function variantDone(c,inOB){
   const p=M.companyParts(C.S)
@@ -247,46 +247,47 @@ export function landingPage(){
   const cl=M.AGENTS.filter(a=>a.tool==='claude').length
   const defs=[["Dana's agent",'Sales Ops','Claude','35','no login 21d OR &gt; 3 tickets'],['Health monitor','CS','Claude','42','tickets &gt; 5 OR CSAT &lt; 3.5'],["Tom's workflow",'CS','n8n','17','usage drop &gt; 40%, excl. under $10k'],['Renewal radar','Sales','Claude','28','usage + NPS + tickets, score &lt; 60']]
   const steps=[
-    ['01','unknown','Connect read-only',`Link Claude through the Compliance API, a read-only key from the Primary Owner, and n8n through its REST API. ${Brand} reads instructions, knowledge files, and workflow JSON. It says where it is blind: it cannot see which connectors a Claude project uses. No agent is run.`],
-    ['02','conflict','Catch the conflicts',`Group agents doing the same job and compare definitions plus answers already on record. Northwind has ${M.AGENTS.length} agents, ${cl} in Claude and ${M.AGENTS.length-cl} in n8n. A real scope difference, like Tom excluding contracts under $10k, can be marked as a valid variant. A sandboxed test is optional, never the default.`],
-    ['03','sync','Owner signs off, agents follow','The person who owns the number picks one definition, writes their own, or imports it from dbt, Atlan, or Qontext. The block is an org-wide MCP connector in Claude and an MCP tool in n8n, so the next builder sees it before they paste a spreadsheet. Each builder applies a suggested change. Concord re-reads the project or the workflow to verify.'],
+    ['01','unknown','Scan on a schedule',`Link Claude through the Compliance API and n8n through its REST API, both read-only. After an agent is first used, the next scan picks it up. Scans are daily by default, and can run more often. ${Brand} reads the agent list, instructions, and recent answers. It does not run the agent, and it does not sit in the chat.`],
+    ['02','conflict','Alert when they disagree',`When agents doing the same job return different values, ${Brand} alerts the owner. At Northwind: Customer health, 4 agents, 4 different answers (35, 42, 17, and 28). A real scope difference, like Tom excluding contracts under $10k, can be marked as a valid variant.`],
+    ['03','sync','The owner decides, builders fix',`Sara Klein, Head of RevOps, marks the correct answer, writes her own, or imports one. ${Brand} tells each builder what to change. It never edits an agent. The following daily scans check that they did, and alert again if something is still off.`],
   ]
   return marketShell('home', `<section class="lhero"><div class="lht"><h1>Keep every agent<br><span class="em">in sync.</span></h1>
-<p class="lsub">Your teams build agents in Claude and n8n. ${Brand} finds the ones doing the same job that answer differently, and brings them back to one definition their owner signs off. Read-only: it never edits your agents.</p>
+<p class="lsub">Your teams build agents in Claude and n8n. ${Brand} does not sit in the way. It scans on a schedule, alerts the owner when the same job gets different answers, and checks that builders fixed it. It never edits an agent.</p>
 <div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live · 60 s</a></div></div>
 <div class="lcard" id="lcard"><div class="lcardh"><span class="q">“How many accounts are at risk this quarter?”</span><span class="slot" data-off>${status('conflict','Conflict · 4 answers',{big:true})}</span><span class="slot" data-on>${status('sync','4/4 in sync',{big:true})}</span></div>
 ${syncField()}<div class="mcap">Northwind demo workspace (fictional)</div></div></section>
 <div class="lband" data-hero-line><span class="mut">Security tools ask if an agent is safe. </span><b>${Brand} asks if all your agents give the same answer.</b></div>
-<section class="lsec" id="product"><div class="lsh"><span class="eyebrow">The problem</span><h2>Same job. Different answers.</h2><p>Teams build agents wherever they work. Four agents at Northwind answer at-risk accounts. Last week they told people 35, 42, 17, and 28. ${Brand} did not ask them. The numbers were already in Claude chats and an n8n execution log. Tom’s Monday run also posted to #cs-risk. ${Brand} only read the log.</p></div>
+<section class="lsec" id="product"><div class="lsh"><span class="eyebrow">The problem</span><h2>Same job. Different answers.</h2><p>People build agents wherever they work. Dana built a Q4 at-risk agent in Claude and asked how many accounts are at risk. She got 35. ${Brand} did not interrupt her. That night's scan found her agent and three others on the same job: 35, 42, 17, and 28. Sara got the alert.</p></div>
 <div class="l4">${defs.map(r=>`<div class="lc">${status('conflict','Conflict',{subtle:true})}<div class="lcn">${r[3]}</div><b>${r[0]}</b><span>${r[1]} · ${r[2]}</span><code>${r[4]}</code></div>`).join('')}</div>
 <div class="l3">${[[`Nobody sees the whole inventory`,`Agents live in Claude projects and n8n workflows. Northwind has ${M.AGENTS.length}: ${cl} in Claude, ${M.AGENTS.length-cl} in n8n.`],['Definitions drift','Each builder picks a rule and a source. One of them is a March export. One is a personal spreadsheet.'],['The wrong number travels','35, 42, 17, and 28 cannot all brief a customer, a forecast, and the board.']].map(([t,d])=>`<div><b>${t}</b><p>${d}</p></div>`).join('')}</div></section>
 <section class="lsec" id="how"><div class="lsh"><span class="eyebrow">How it works</span><h2>From conflict to one official answer</h2></div>
 <div class="lsteps">${steps.map(s=>`<div class="lstep k-${s[1]}"><div class="lstephead"><span class="lsn">${s[0]}</span>${status(s[1],s[1]==='unknown'?'Not checked':s[1]==='conflict'?'Conflict':'In sync')}</div><b>${s[2]}</b><p>${s[3]}</p></div>`).join('')}</div></section>
 <section class="lsec"><div class="lsh"><span class="eyebrow">Product</span><h2>See what's in sync, and what isn't</h2></div>
 <div class="lprod"><div class="lprodbar">${lockup(14)}<span>Northwind · Conflicts · Customer health</span></div>
-<div class="lbanner"><div><b>Drift detected on 2 agents</b><span>Customer health v2 is official. The health monitor and Tom's workflow still answer with their old definitions.</span></div><span class="act">Send the change</span></div>
+<div class="lbanner"><div><b>Alert to Sara Klein</b><span>Customer health: 4 agents, 4 different answers (35, 42, 17, 28).</span></div><span class="act">Open in Concord</span></div>
 <div class="lsplit"><div class="ljobs">${[['Customer health','drift','Drift detected','2 of 4 adopted'],['ARR','review','Needs sign-off','Owner to decide'],['Lead scoring','conflict','Conflict','65 vs 70'],['Discount approval','risk','At risk','Stale source'],['Refund policy','risk','At risk','Stale source']].map((j,i)=>`<div class="ljob k-${j[1]} ${i===0?'on':''}"><b>${j[0]}</b><span>${status(j[1],j[2])} <span class="mut">${j[3]}</span></span></div>`).join('')}</div>
 <div class="lmain"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:18px">Customer health v2</b>${status('sync','In sync')}</div>
 <div class="mut" style="margin:4px 0 12px">Signed off by Sara Klein, Head of RevOps. “Most complete signal, and it matches what we report to the board.”</div>
-<div class="ldef">score = 0.5·usage + 0.3·nps + 0.2·tickets<br>at_risk = score &lt; 60<br><span class="c"># published over MCP as concord.customer_health</span></div>
+<div class="ldef">score = 0.5·usage + 0.3·nps + 0.2·tickets<br>at_risk = score &lt; 60<br><span class="c"># warehouse score, marked by Sara Klein</span></div>
 ${[['Renewal radar · Claude','sync','28','In sync'],['Dana · Claude','sync','28','In sync'],['Health monitor · Claude','drift','42','Drift detected'],['Tom · n8n','drift','17','Drift detected']].map(a=>`<div class="larow k-${a[1]}"><b>${a[0]}</b><span class="n">${a[2]}</span>${status(a[1],a[3])}</div>`).join('')}
 </div></div></div>
 <div class="mcap">Illustration with Northwind demo data (fictional). ${M.AGENTS.length} agents in the workspace.</div></section>
 <section class="lsec"><div class="lsh"><span class="eyebrow">Built for</span><h2>The people who own the numbers</h2><p>At a company of a few hundred people, that is usually RevOps, Data, or IT.</p></div>
-<div class="l3 cards">${[['RevOps','Sara Klein, Head of RevOps, owns customer health, pipeline, and discount. She picks the official definition.'],['Data','The data team already certifies ARR in dbt, Atlan, or Qontext. Concord pulls that metric in, and can publish a block back. It does not replace the semantic layer.'],['IT','IT connects the Compliance API and the n8n key, and installs Concord as an org-wide MCP connector.']].map(([t,d])=>`<div class="card"><b>${t}</b><p>${d}</p></div>`).join('')}</div>
+<div class="l3 cards">${[['RevOps','Sara Klein, Head of RevOps, owns customer health, pipeline, and discount. She picks the official definition.'],['Data','The data team already certifies ARR in dbt, Atlan, or Qontext. Concord pulls that metric in, and can publish a block back. It does not replace the semantic layer.'],['IT','IT connects the Compliance API and the n8n key so the scheduled scan can read. Concord does not sit in the chat.']].map(([t,d])=>`<div class="card"><b>${t}</b><p>${d}</p></div>`).join('')}</div>
 <div class="ltags">Works with ${tag('Claude · Compliance API')} ${tag('n8n · REST API')} ${tag('dbt, Atlan, Qontext')} ${tag('Coming soon')}</div></section>
 <section class="lclose" id="audit"><div style="display:flex;justify-content:center">${lockup(28)}</div><h2>See where your agents disagree.</h2><p>Connect read-only and get a conflict report for the agents your teams already built. Or watch the Northwind story, about a minute.</p><div class="lcta"><a class="btn p xl" href="#/start">Request a consistency audit</a><a class="btn xl" href="#/watch">Watch it live</a></div></section>`)
 }
 export function howPage(){
   const steps=[
-    ['01','Read','Concord reads the instructions an agent already has, and the answers it already gave. It does not run the agent, and it does not change it.'],
-    ['02','Detect','It lines up agents that do the same job. When they disagree, you see each answer. Last week at Northwind, four agents said 35, 42, 17, and 28.'],
-    ['03','Decide','The person who owns the number picks one official answer. They can write their own, or use a metric the company already trusts.'],
-    ['04','Verify adoption','The next time someone builds, that answer is offered first. People who already have an agent get one suggestion and apply it themselves. Concord checks by reading the agent again.'],
+    ['01','Read','People build and use agents in Claude and n8n. Concord does not sit in the chat. After an agent is first used, the next scheduled scan picks it up. Scans are daily by default, and can be set to run more often. A scan reads the agent list, its instructions, and recent answers. It does not run the agent.'],
+    ['02','Detect','When agents doing the same job return different values, Concord alerts the owner. At Northwind the alert reads: Customer health, 4 agents, 4 different answers (35, 42, 17, 28).'],
+    ['03','Decide','The owner marks the correct answer. They can also mark a valid variant, write their own, or import a metric the company already trusts.'],
+    ['04','Verify adoption','Concord tells each builder what differs and what to change. It never changes an agent. The following daily scans check that they updated, and Concord alerts again if something is still off or drifts later.'],
   ]
-  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Read, detect, decide, then check that it stuck.</h1><p>Concord is a read-only consistency layer for agents your teams already built in Claude and n8n.</p></section>
+  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Build anything. Concord scans daily, then alerts.</h1><p>People keep building in Claude and n8n. Concord does not sit in the way. It scans on a schedule, alerts the owner when answers disagree, and checks that builders fixed it.</p></section>
 <div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}</div>
-<section class="lclose"><h2>See it with the Northwind story.</h2><p>About a minute. Four answers, then one. Or request an audit of a workspace.</p><div class="lcta"><a class="btn p xl" href="#/watch">Watch it live</a><a class="btn xl" href="#/start">Request a consistency audit</a></div></section>`)
+<p class="pricenote">Optional. A team can also show the official answer in the tool where the next person builds. The daily scan does not depend on that, and Concord still does not change an agent.</p>
+<section class="lclose"><h2>See it with the Northwind story.</h2><p>About a minute. Dana uses an agent. That night's scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Watch it live</a><a class="btn xl" href="#/start">Request a consistency audit</a></div></section>`)
 }
 export function pricingPage(){
   const tiers=[
@@ -305,7 +306,7 @@ export function aboutPage(){
 <article class="card"><h2>Principles</h2><ul>
 <li><b>Read-only.</b> Concord reads instructions and answers already given. It does not run an agent, and it does not edit one.</li>
 <li><b>Owners decide.</b> The person who owns the number picks the official answer.</li>
-<li><b>Publish into the tools you already use.</b> The official answer shows up where the next person builds. Existing builders apply the change themselves.</li>
+<li><b>Publish into the tools you already use.</b> Concord tells each builder what to change. They fix their own agent. Concord does not change it.</li>
 </ul></article>
 </div>`)
 }
