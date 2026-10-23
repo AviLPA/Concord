@@ -1,6 +1,6 @@
 import './style.css'
 import {watchPage,mountWatch} from './watch.js'
-import {OB,initOB,landingPage,howPage,pricingPage,aboutPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup,marketShell} from './onboard.js'
+import {OB,initOB,landingPage,howPage,pricingPage,aboutPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup} from './onboard.js'
 import * as M from './model.js'
 import {status, tag, lockup, mark, Brand} from './brand.js'
 
@@ -179,19 +179,19 @@ ${S.semanticConnected?'<div class="ion">'+ic('check',14)+' Read-only preview con
 function render(){
   if(location.hash==='#/live') history.replaceState(null,'','#/watch')
   const raw=location.hash.replace(/^#\/?/,''), h=raw.split('/')
-  const marketing=!raw||raw==='home'||raw==='how'||raw==='pricing'||raw==='about'||h[0]==='watch'
+  const marketing=!raw||raw==='home'||raw==='how'||raw==='pricing'||raw==='about'
   document.body.classList.toggle('lpbody',marketing)
   document.title=Brand+' · Northwind'
   if(!raw||raw==='home'){S.route='home';$('#app').innerHTML=landingPage();mountLanding();return}
   if(raw==='how'){S.route='how';$('#app').innerHTML=howPage();return}
   if(raw==='pricing'){S.route='pricing';$('#app').innerHTML=pricingPage();return}
   if(raw==='about'){S.route='about';$('#app').innerHTML=aboutPage();return}
-  if(h[0]==='watch'){S.route='watch';$('#app').innerHTML=marketShell('watch', watchPage(!!S.resolved.c1), {wide:true});mountWatch({onExplore:exploreAfterWatch,already:()=>!!S.resolved.c1});return}
   if(h[0]==='start'){S.route='start';$('#app').innerHTML=onboardPage();mountOB();return}
   if(h[0]==='search'){S.route='search';S.q=decodeURIComponent(h.slice(1).join('/')||'');$('#app').innerHTML=shell(`<div class="page spage"><h1>Search</h1><p class="sub">Every agent doing a job, in Claude and n8n, with the definition and the answer already on record.</p>${searchBox(S.q)}</div>`);return}
   if(h[0]==='resolve'){S.route='resolve';$('#app').innerHTML=shell(`<div class="page">${resolveView(h[1]||'c1',false)}</div>`);return}
   S.route=NAV.some(n=>n[0]===h[0])?h[0]:'overview'
   S.conflict=S.route==='conflicts'?(h[1]||(innerWidth>=820?CONF.find(c=>M.isOpen(c,S))?.id||CONF[0].id:null)):S.conflict
+  if(S.route==='watch'){$('#app').innerHTML=shell(watchPage(!!S.resolved.c1));mountWatch({onExplore:exploreAfterWatch,already:()=>!!S.resolved.c1});return}
   const pg={overview,agents:agentsPg,jobs,conflicts,blocks,integrations:integ}[S.route]()
   $('#app').innerHTML=shell(pg)
 }

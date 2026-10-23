@@ -233,9 +233,8 @@ function mktLinks(active){return MKT.map(([id,label,href])=>`<a href="${href}" c
 function marketFoot(active){
   return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Read-only by design</span><span>Northwind · ${M.PEOPLE} people · fictional</span><a href="#/overview">Sign in</a><a href="#/start">Request a consistency audit</a><span>© 2026</span><button data-reset>Reset demo</button></div></div></footer>`
 }
-export function marketShell(active, main, opts={}){
-  const wide=opts.wide?' wide':''
-  return `<div class="mkt${wide}"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
+function marketShell(active, main){
+  return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Sign in</a><a class="btn p" href="#/start">Request a consistency audit</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
 }
 let syncTimer=0
 export function mountLanding(){

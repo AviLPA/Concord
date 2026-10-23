@@ -16,7 +16,7 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
 | `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
-| `#/watch` | **Watch it live**: guided story, about a minute, inside the marketing layout. Same numbers as the model (35, 42, 17, 28, then 28; consistency score 53 → 68; this job 100). |
+| `#/watch` | **Watch it live**: guided story, about a minute. Same numbers as the model (35, 42, 17, 28, then 28; company score 53 → 68; this job 100). |
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
@@ -25,10 +25,12 @@ A guided, autoplaying story in three acts and six steps. About a minute. Concord
 
 1. **The problem.** Last week four agents said 35, 42, 17, and 28. Concord found that by reading chats and logs.
 2. **The problem, continued.** The four rules, one line each: a personal spreadsheet, a ticket count, a usage drop over 40%, a combined score.
-3. **The fix.** Sara Klein, Head of RevOps, owns the number. Her screen is on the left: Sara's view in Concord. She picks the renewal agent’s rule. The official answer is 28. The consistency score does not move yet.
-4. **It sticks.** Dana starts a new agent. Claude offers 28 before she pastes her spreadsheet. That offer is for the new agent. The chat input shows only while she is typing.
-5. **It sticks.** The agents already built each get one suggestion. Day 1 Dana's existing agent, Day 3 the CS owner, Day 6 Tom. Tom’s Slack step stays unchanged. The consistency score is how many of your agents agree, so it moves from 53 toward 68 as they apply it.
-6. **Finale.** Every agent says 28. This job is 100. Consistency score 53 → 68. **Explore the full app** opens the product.
+3. **The fix.** Sara Klein, Head of RevOps, owns the number. She picks the renewal agent’s rule. The official answer is 28. The company score does not move yet.
+4. **It sticks.** Dana starts a new agent. Claude offers 28 before she pastes her spreadsheet.
+5. **It sticks.** Existing builders each get one suggestion and apply it themselves. Day 1 Dana, Day 3 the CS owner, Day 6 Tom. Tom’s Slack step stays unchanged.
+6. **Finale.** Every agent says 28. This job is 100. Company score 53 → 68.
+
+The chat box is on screen only while Dana is chatting and while Tom is editing. On the other steps the answer cards are fully visible.
 
 Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health.
 
