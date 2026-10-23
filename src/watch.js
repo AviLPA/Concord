@@ -2,6 +2,7 @@
 // Concord reads history, Sara publishes, Dana is offered the block while she builds,
 // and Tom applies the suggestion himself. Nothing here runs or edits an agent.
 import * as M from './model.js'
+import {status, mark, Brand} from './brand.js'
 const sv=p=>`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`
 const IC={zap:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',file:'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/>',
 layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
@@ -10,13 +11,13 @@ check:'<path d="m5 12 5 5 9-10"/>',flow:'<rect x="3" y="4" width="6" height="6" 
 play:'<path d="M7 4v16l13-8z" fill="currentColor"/>',pause:'<path d="M7 4h3v16H7zM14 4h3v16h-3z" fill="currentColor"/>',next:'<path d="M5 4v16l11-8z" fill="currentColor"/><path d="M19 4v16"/>',
 back:'<path d="M19 4v16L8 12z" fill="currentColor"/><path d="M5 4v16"/>',redo:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>'}
 const ic=n=>sv(IC[n])
-const tag=p=>`<span class="ptag"><i style="background:${p==='Claude'?'#b8643f':'#c23a55'}"></i>Built in ${p}</span>`
+const tag=p=>`<span class="ptag"><i style="background:${p==='Claude'?'#82B9D9':'#58A2CD'}"></i>Built in ${p}</span>`
 const av=(ini,c)=>`<span class="dav" style="background:${c}">${ini}</span>`
 const AG={
-  dana:{k:'dana',i:0,n:'Q4 at-risk accounts',b:'Dana',ini:'DO',d:'Sales Ops',c:'#fb923c',p:'Claude',ans:35,rule:'no login 21d OR > 3 open tickets'},
-  maya:{k:'maya',i:1,n:'Account health monitor',b:'Maya',ini:'MC',d:'CS',c:'#4cc3ff',p:'Claude',ans:42,rule:'tickets > 5 OR CSAT < 3.5'},
-  tom:{k:'tom',i:2,n:'CSM weekly risk digest',b:'Tom',ini:'TR',d:'CS',c:'#4cc3ff',p:'n8n',ans:17,rule:'usage drop > 40%, excl. under $10k'},
-  priya:{k:'priya',i:3,n:'Renewal radar',b:'Priya',ini:'PS',d:'Sales',c:'#f5a524',p:'Claude',ans:28,rule:'0.5·usage + 0.3·NPS + 0.2·tickets < 60'},
+  dana:{k:'dana',i:0,n:'Q4 at-risk accounts',b:'Dana',ini:'DO',d:'Sales Ops',c:'#EAF3F9',p:'Claude',ans:35,rule:'no login 21d OR > 3 open tickets'},
+  maya:{k:'maya',i:1,n:'Account health monitor',b:'Maya',ini:'MC',d:'CS',c:'#82B9D9',p:'Claude',ans:42,rule:'tickets > 5 OR CSAT < 3.5'},
+  tom:{k:'tom',i:2,n:'CSM weekly risk digest',b:'Tom',ini:'TR',d:'CS',c:'#82B9D9',p:'n8n',ans:17,rule:'usage drop > 40%, excl. under $10k'},
+  priya:{k:'priya',i:3,n:'Renewal radar',b:'Priya',ini:'PS',d:'Sales',c:'#58A2CD',p:'Claude',ans:28,rule:'0.5·usage + 0.3·NPS + 0.2·tickets < 60'},
 }
 const ORDER=['dana','maya','tom','priya']
 const Q='How many accounts are at risk this quarter?'
@@ -65,7 +66,7 @@ function scores(n){const s=M.storyState(n);return {company:M.companyParts(s).sco
 
 function chatItems(V){
   const it=[],c=cur(),mode=leftMode(),A=(id,h)=>it.push({k:id,h})
-  const um=(id,txt)=>A(id,`<div class="cm u"><div class="cb">${txt}</div>${av('DO','#fb923c')}</div>`)
+  const um=(id,txt)=>A(id,`<div class="cm u"><div class="cb">${txt}</div>${av('DO','#EAF3F9')}</div>`)
   const am=(id,h)=>A(id,`<div class="cm a"><span class="cav">${ic('spark')}</span><div class="cb">${h}</div></div>`)
   if(mode==='n8n'){
     const applied=V.has('tomapply')||V.has('vtom')||V.has('agree')
@@ -94,7 +95,7 @@ function chatItems(V){
 function compare(V){
   const cols=ORDER.filter(k=>V.has('c_'+k))
   const fixed=k=>k==='priya'?V.has('publish'):k==='dana'?V.has('vdana'):k==='maya'?V.has('vmaya'):k==='tom'?V.has('vtom'):false
-  return `<div class="cmp">${cols.map(k=>{const a=AG[k],f=fixed(k);return `<div class="cc ${f?'ok':''}"><div class="cch">${av(a.ini,a.c)}<div><b>${a.b}</b><span class="mtag"><i style="background:${a.p==='Claude'?'#b8643f':'#c23a55'}"></i>${a.p}</span></div></div><div class="ccn">${f?28:a.ans}</div><div class="ccr">${f?'official · Customer health v2':a.rule}</div></div>`}).join('')}</div>`
+  return `<div class="cmp">${cols.map(k=>{const a=AG[k],f=fixed(k);return `<div class="cc ${f?'ok':''}"><div class="cch">${av(a.ini,a.c)}<div><b>${a.b}</b><span class="mtag"><i style="background:${a.p==='Claude'?'#82B9D9':'#58A2CD'}"></i>${a.p}</span></div></div><div class="ccn">${f?28:a.ans}</div><div class="ccr">${f?'official · Customer health v2':a.rule}</div></div>`}).join('')}</div>`
 }
 function beItems(V){
   const it=[],A=(k,ico,tone,title,sub,card='')=>it.push({k,h:`<div class="ev ${tone}"><span class="evi">${ic(ico)}</span><div class="evb"><div class="evt">${title}</div>${sub?`<div class="evs">${sub}</div>`:''}${card}</div></div>`})
@@ -106,8 +107,8 @@ function beItems(V){
   if(V.has('slack')) A('slack','alert','warn','Tom’s run posted to #cs-risk','That already happened on Monday. Concord never triggers the webhook. n8n has no execute endpoint Concord will call.')
   if(V.has('defs')) A('defs','eye','','Definitions, side by side','Instructions, a knowledge file, and workflow JSON.',`<div class="bc list">${ORDER.map(k=>{const a=AG[k];return `<div class="li">${av(a.ini,a.c)}<div><b>${a.rule}</b><span class="lis">${a.n} · ${a.b} ${tag(a.p)}</span></div></div>`}).join('')}</div>`)
   if(V.has('sheet')) A('sheet','file','warn','Dana’s source is a personal spreadsheet','Q4_accounts_dana.xlsx · not a governed source')
-  if(V.has('flag')) A('flag','alert','bad','Conflict: Customer health, 4 definitions','35 · 42 · 17 · 28. Same job. Not a test run.',`<div class="flagrow"><span class="chip c-bad"><i></i>4 answers on record</span><span class="chip c-mut">$1.9M ARR in disputed accounts</span></div>`)
-  if(V.has('route')) A('route','user','','Routed to Sara Klein','Head of RevOps · owns Customer health',`<div class="bc row">${av('SK','#f59e0b')}<div><b>Sara Klein</b><span>Head of RevOps · “Customer health needs your call.”</span></div><span class="chip c-info"><i></i>Notified</span></div>`)
+  if(V.has('flag')) A('flag','alert','bad','Conflict: Customer health, 4 definitions','35 · 42 · 17 · 28. Same job. Not a test run.',`<div class="flagrow">${status('conflict','Conflict')}<span class="tag">$1.9M ARR in disputed accounts</span></div>`)
+  if(V.has('route')) A('route','user','','Routed to Sara Klein','Head of RevOps · owns Customer health',`<div class="bc row">${av('SK','#ABD1E6')}<div><b>Sara Klein</b><span>Head of RevOps · “Customer health needs your call.”</span></div>${status('review','Needs sign-off')}</div>`)
   if(V.has('pick')) A('pick','check','','Sara compares the versions','She can also write her own, or import the certified metric.',`<div class="bc pick">${['priya','maya','tom','dana'].map(k=>{const a=AG[k],on=k==='priya'&&V.has('picked');return `<div class="po ${on?'on':''}"><span class="rad"></span><div><b>${a.rule}</b><span>${a.n} · ${a.b} · ${a.ans}</span></div></div>`}).join('')}${V.has('picked')?`<div class="pnote">${ic('check')} <b>Made official by Sara Klein</b> · “Most complete signal, and it matches what we report to the board.”</div>`:''}</div>`)
   if(V.has('publish')) A('publish','cube','ok','Published Customer health v2','MCP · owner Sara Klein · nothing in Claude or n8n was edited',`<div class="bcode"><span class="k">concord.customer_health</span>()<br/>&nbsp;&nbsp;→ { score, at_risk } · recorded answer 28<br/><span class="c">// at_risk = score &lt; 60 · usage, NPS, tickets</span></div>`)
   if(V.has('sent')) A('sent','link','','Suggested changes sent · 0/3','Slack and email to Dana, Maya, and Tom. Priya already matches. They apply the change. Concord does not.')
@@ -115,7 +116,7 @@ function beItems(V){
   if(V.has('waiting')) A('waiting','user','','Maya and Tom still have the suggestion','Adoption is a timeline, not a switch. Company score is '+sc.company+'. It moves only when a builder applies the change.')
   if(V.has('vmaya')) A('vmaya','check','ok','Day 3 · Maya verified · 2/3','Maya applied the suggestion in Claude. Concord re-read the project instructions.')
   if(V.has('vtom')) A('vtom','check','ok','Day 6 · Tom verified · 3/3','Tom applied it in n8n. Concord re-read the workflow JSON. The Slack step is unchanged.')
-  if(V.has('agree')) A('agree','check','ok','Customer health is 100','All four definitions now point at the block. The number on record is 28.',`<div class="flagrow"><span class="chip c-ok"><i></i>35 · 42 · 17 · 28 → 28</span><span class="chip c-ok"><i></i>Company ${M.INITIAL.score} → ${sc.company}</span></div>`)
+  if(V.has('agree')) A('agree','check','ok','Customer health is 100','All four definitions now point at the block. The number on record is 28.',`<div class="flagrow">${status('sync','In sync')}<span class="tag">35 · 42 · 17 · 28 → 28</span><span class="tag">Company ${M.INITIAL.score} → ${sc.company}</span></div>`)
   return it
 }
 function sync(el,items){const ch=[...el.children];let i=0;while(i<ch.length&&i<items.length&&ch[i].dataset.k===items[i].k)i++
@@ -134,7 +135,7 @@ function draw(){
   setH(root.querySelector('.wv-tabs'),`<button data-wside="chat" class="${W.side==='chat'?'on':''}">${mode==='n8n'?'Tom in n8n':mode==='build'?'Dana building':'Chat history'}${c&&c.side==='chat'&&W.side!=='chat'?'<i></i>':''}</button><button data-wside="be" class="${W.side==='be'?'on':''}">Concord${c&&c.side==='be'&&W.side!=='be'?'<i></i>':''}</button>`)
   const titles={history:[ic('file'),'Chat history · read-only',tag('Claude')],build:[ic('spark'),'Q4 at-risk accounts',tag('Claude')],n8n:[ic('flow'),'Tom’s workflow',tag('n8n')]}
   const hd=titles[mode]
-  setH(root.querySelector('.wleft-hd'),`<span class="cav">${hd[0]}</span><h3>${hd[1]}</h3>${hd[2]}<span class="r">${mode==='n8n'?av('TR','#4cc3ff'):av('DO','#fb923c')}</span>`)
+  setH(root.querySelector('.wleft-hd'),`<span class="cav">${hd[0]}</span><h3>${hd[1]}</h3>${hd[2]}<span class="r">${mode==='n8n'?av('TR','#82B9D9'):av('DO','#EAF3F9')}</span>`)
   const ch=root.querySelector('.cmsgs'),be=root.querySelector('.elog')
   sync(ch,chatItems(V));sync(be,beItems(V))
   const comp=root.querySelector('.ccomp-t'),typing=mode==='build'&&c&&c.t==='type'
@@ -151,13 +152,13 @@ function intro(){return `<div class="wcard"><div class="wbadge">${ic('play')} Wa
 function wrap(sc){return `<div class="wcard wrapc"><div class="wbadge ok">${ic('check')} Customer health is 100</div><h2>The number on record is 28</h2><div class="ba"><div class="b4"><div class="bal">On record</div><div class="bav">4 answers</div><div class="bas">35 · 42 · 17 · 28</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">After</div><div class="bav">This job is 100</div><div class="bas">Every agent says 28 · company ${M.INITIAL.score} → ${sc.company}</div></div></div><p>Dana took the official definition while she was building. Maya and Tom applied the suggested change. Concord re-read their instructions and Tom’s workflow. It never ran an agent, and it never edited one.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app →</button><button class="btn big" data-w="restart">${ic('redo')} Watch again</button></div></div>`}
 export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="chat" data-left="history">
-<div class="wv-head"><div><h1>Watch it live</h1><p class="sub" style="margin:0">How a conflict gets caught, decided, and prevented the next time someone builds.</p></div><span class="chip c-acc wlive"><i></i>Guided story · demo data</span></div>
+<div class="wv-head"><div><h1>Watch it live</h1><p class="sub" style="margin:0">How a conflict gets caught, decided, and prevented the next time someone builds.</p></div><span class="tag">Guided story · demo data</span></div>
 ${alreadyDecided?'<div class="wbanner">Customer health is already decided in this workspace. This story will not overwrite that decision.</div>':''}
 <div class="wv-steps"></div><div class="wv-prog"><span></span></div>
 <div class="wv-narr"><div class="wv-cap"></div><div class="wv-btns"></div></div>
 <div class="wv-tabs"></div>
 <div class="wv-split"><section class="card wchat"><div class="hd wleft-hd"></div><div class="cmsgs"></div><div class="ccomp"><div class="ccomp-t"></div><button class="csend" tabindex="-1">↑</button></div></section>
-<section class="card wbe"><div class="hd"><span class="logo" style="width:20px;height:20px;font-size:10px">C</span><h3>Concord, behind the scenes</h3><span class="r am-s"></span></div><div class="am"><div class="am-t"></div><div class="am-bar"><span></span></div></div><div class="elog"></div></section>
+<section class="card wbe"><div class="hd">${mark(16)}<h3>${Brand}, behind the scenes</h3><span class="r am-s"></span></div><div class="am"><div class="am-t"></div><div class="am-bar"><span></span></div></div><div class="elog"></div></section>
 <div class="wv-over"></div></div></div></div>`}
 export function mountWatch(opts){onExplore=opts.onExplore||opts;already=opts.already||(()=>false);requestAnimationFrame(()=>{draw();if(W.playing)tick()})}
 export function startWatch(){W.playing=true;go(0)}

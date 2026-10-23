@@ -1,7 +1,8 @@
 import './style.css'
 import {watchPage,mountWatch} from './watch.js'
-import {OB,initOB,landingPage,onboardPage,searchBox,resolveView,checklist,mountOB,timelineMarkup} from './onboard.js'
+import {OB,initOB,landingPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup} from './onboard.js'
 import * as M from './model.js'
+import {status, tag, lockup, mark, Brand} from './brand.js'
 
 const $=s=>document.querySelector(s)
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))
@@ -33,34 +34,28 @@ const TITLES={search:'Search',resolve:'Resolve conflict',start:'Setup'}
 function shell(inner){
   const title=(NAV.find(n=>n[0]===S.route)||[0,TITLES[S.route]||''])[1]
   const p=parts()
-  return `<div class="shell"><aside class="side" id="side"><div class="ws"><div class="logo">N</div><div><b>${esc(OB.company)}</b><small>${M.PEOPLE} people · Claude Enterprise</small></div><span style="margin-left:auto;color:var(--dim)">${ic('chev',14)}</span></div>
+  return `<div class="shell"><aside class="side" id="side"><a class="sidebrand" href="#/">${lockup(18)}</a><div class="ws"><div><b>${esc(OB.company)}</b><small>${M.PEOPLE} people · Claude Enterprise</small></div></div>
 ${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${openN()}</span>`:r==='agents'?`<span class="ct">${AGENTS.length}</span>`:r==='watch'?'<span class="newb">Start here</span>':''}</a>`).join('')}
 <div class="sec">Workspace</div><a class="nav ${S.route==='start'?'on':''}" href="#/start">${ic('check')}Setup guide</a><a class="nav" href="#/integrations">${ic('gear')}Settings</a><button class="nav navbtn" data-reset>${ic('x')}Reset demo</button>
 <div class="sidefoot"><div style="display:flex;align-items:center;gap:8px;color:var(--tx);font-weight:500">${ic('lock',14)}Read-only connections</div><div style="margin-top:4px">Concord never runs or edits an agent. Builders call official blocks over MCP. Concord re-reads projects and workflows to see who adopted them.</div></div></aside>
-<div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><div class="crumb"><span class="x">Concord / </span><b>${title}</b></div><span class="pill-demo">Demo data</span>
+<div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><div class="crumb"><span class="x">${Brand} / </span><b>${title}</b></div>${tag('Demo data')}
 ${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Watch it live</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
 ${S.toast?`<div class="toast">${ic('check')}${esc(S.toast)}</div>`:''}`}
 
-function gauge(v){const r=70,c=Math.PI*r,p=v/100*c;return `<svg viewBox="0 0 180 110" width="100%" style="max-width:260px"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#7c6cff"/><stop offset="1" stop-color="#3fcf8e"/></linearGradient></defs>
-<path d="M20 95 A70 70 0 0 1 160 95" fill="none" stroke="#1f222c" stroke-width="13" stroke-linecap="round"/><path d="M20 95 A70 70 0 0 1 160 95" fill="none" stroke="url(#gg)" stroke-width="13" stroke-linecap="round" stroke-dasharray="${p} ${c}"/>
-<text x="90" y="82" text-anchor="middle" fill="#fff" font-size="34" font-weight="600" id="gnum">${v}</text><text x="90" y="101" text-anchor="middle" fill="#8b90a0" font-size="10">out of 100</text></svg>`}
+function gauge(v){const r=70,c=Math.PI*r,p=v/100*c;return `<svg viewBox="0 0 180 110" width="100%" style="max-width:260px">
+<path d="M20 95 A70 70 0 0 1 160 95" fill="none" stroke="var(--line)" stroke-width="13" stroke-linecap="round"/><path d="M20 95 A70 70 0 0 1 160 95" fill="none" stroke="var(--sync)" stroke-width="13" stroke-linecap="round" stroke-dasharray="${p} ${c}"/>
+<text x="90" y="82" text-anchor="middle" fill="var(--text)" font-size="34" font-weight="700" font-family="Geist Mono, ui-monospace, monospace" id="gnum">${v}</text><text x="90" y="101" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="Geist Mono, ui-monospace, monospace">out of 100</text></svg>`}
 function chart(score){const d=[...M.HIST];if(score!==M.HIST.at(-1))d.push(score);const W=560,H=170,mn=40,mx=100,X=i=>20+i*(W-40)/(d.length-1),Y=v=>H-20-(v-mn)/(mx-mn)*(H-40)
 const pts=d.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');const months=['Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Now']
-return `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="none" style="height:190px"><defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c6cff" stop-opacity=".35"/><stop offset="1" stop-color="#7c6cff" stop-opacity="0"/></linearGradient></defs>
-${[50,60,70,80,90].map(v=>`<line x1="20" x2="${W-20}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1d2029" stroke-dasharray="3 4"/><text x="${W-4}" y="${Y(v)+3}" fill="#5d6272" font-size="9" text-anchor="end">${v}</text>`).join('')}
-<polygon points="20,${H-20} ${pts} ${X(d.length-1)},${H-20}" fill="url(#ar)"/><polyline points="${pts}" fill="none" stroke="#8b7dff" stroke-width="2.2" stroke-linejoin="round"/>
-${d.map((v,i)=>`<text x="${X(i)}" y="${H-4}" fill="#5d6272" font-size="9" text-anchor="middle">${months[i]||''}</text>`).join('')}
-<circle cx="${X(d.length-1)}" cy="${Y(d.at(-1))}" r="4.5" fill="${score>M.INITIAL.score?'#3fcf8e':'#8b7dff'}" stroke="#0b0c10" stroke-width="2"/></svg>`}
+return `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="none" style="height:190px">
+${[50,60,70,80,90].map(v=>`<line x1="20" x2="${W-20}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${W-4}" y="${Y(v)+3}" fill="var(--text-muted)" font-size="9" text-anchor="end" font-family="Geist Mono, ui-monospace, monospace">${v}</text>`).join('')}
+<polyline points="${pts}" fill="none" stroke="var(--agent)" stroke-width="2.2" stroke-linejoin="round"/>
+${d.map((v,i)=>`<text x="${X(i)}" y="${H-4}" fill="var(--text-muted)" font-size="9" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace">${months[i]||''}</text>`).join('')}
+<circle cx="${X(d.length-1)}" cy="${Y(d.at(-1))}" r="4.5" fill="${score>M.INITIAL.score?'var(--sync)':'var(--agent)'}" stroke="var(--bg)" stroke-width="2"/></svg>`}
 
-const statusChip=st=>({
-  ok:'<span class="chip c-ok"><i></i>Consistent</span>',
-  conflict:'<span class="chip c-bad"><i></i>Conflict</span>',
-  stale:'<span class="chip c-warn"><i></i>Stale source</span>',
-  orphan:'<span class="chip c-mut"><i></i>No owner</span>',
-  variant:'<span class="chip c-info"><i></i>Valid variant</span>',
-  suggested:'<span class="chip c-warn"><i></i>Suggestion sent</span>',
-  adopted:'<span class="chip c-ok"><i></i>Verified</span>',
-}[st]||'')
+const STMAP={ok:['sync','In sync'],conflict:['conflict','Conflict'],stale:['risk','At risk'],orphan:['risk','At risk'],variant:['sync','Valid variant'],suggested:['drift','Drift detected'],adopted:['sync','In sync']}
+const rowKind=st=>({ok:'sync',conflict:'conflict',stale:'risk',orphan:'risk',variant:'sync',suggested:'drift',adopted:'sync'}[st]||'unknown')
+const statusChip=(st,opt)=>STMAP[st]?status(STMAP[st][0],STMAP[st][1],opt):''
 
 function acts(){const items=[]
   if(S.resolved.c1==='official'){
@@ -73,7 +68,7 @@ function acts(){const items=[]
     ['ok','✓','<b>Noa Friedman</b> published Discount approval v3. 3 of 4 agents already match it.','3w'],
     ['mut','○','<b>Security questionnaire drafter</b> has no owner.','3w'])
   return items}
-const icc={ok:'background:rgba(63,207,142,.14);color:#6ee7b0',bad:'background:rgba(242,85,90,.14);color:#ff8b8f',warn:'background:rgba(245,165,36,.14);color:#fbbf4b',acc:'background:rgba(124,108,255,.16);color:#c2baff',mut:'background:#1b1e27;color:#8b90a0'}
+const icc={ok:'background:var(--status-in-sync-tint);color:var(--sync-text)',bad:'background:var(--status-conflict-tint);color:var(--status-conflict-text)',warn:'background:var(--status-risk-tint);color:var(--status-risk-text)',acc:'background:var(--raised);color:var(--agent-text)',mut:'background:var(--raised);color:var(--text-muted)'}
 
 function scoreBox(p){
   const delta=p.score-M.INITIAL.score
@@ -81,7 +76,7 @@ function scoreBox(p){
   return `<div class="card"><div class="hd"><h3>Consistency score</h3><button class="scorehow" data-scoreinfo>${S.scoreOpen?'Hide breakdown':'How this is calculated'}</button></div>
 <div class="bd scorewrap" id="scorewrap"><div style="text-align:center">${gauge(p.score)}
 <div class="scoreline" id="scoreline">${p.maj} of ${p.n} agents on shared jobs match</div>
-<div class="chip ${delta>0?'c-ok':'c-warn'}" style="margin-top:6px"><i></i>${delta>0?`+${delta} pts`:'+'+(M.HIST.at(-1)-M.HIST[0])+' pts in 12 months'}${ch&&ch.score===100?' · Customer health is 100':''}</div>
+<div style="margin-top:6px">${tag((delta>0?`+${delta} pts`:'+'+(M.HIST.at(-1)-M.HIST[0])+' pts in 12 months')+(ch&&ch.score===100?' · Customer health is 100':''))}</div>
 ${S.scoreOpen?`<div class="scorepop"><p>${esc(M.SCORE_HELP)}</p>${p.rows.map(r=>`<div class="srow"><span>${r.job}</span><b>${r.score==null?'—':r.score}</b><span class="mut">${r.count<2?'left out':r.majority+' of '+r.count+' agree'}</span></div>`).join('')}<div class="srow tot"><span>Company</span><b>${p.score}</b><span class="mut">${p.maj} of ${p.n}</span></div></div>`:''}
 </div><div>${chart(p.score)}</div></div></div>`}
 
@@ -89,7 +84,7 @@ function overview(){
   const p=parts(), cl=AGENTS.filter(a=>a.tool==='claude').length
   const dep=M.deptConflicts(S), max=Math.max(1,...dep.map(d=>d[1]))
   const jobs=p.rows.filter(r=>r.count>=2).slice(0,4)
-  return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in Claude and n8n. Concord reads both, and never runs or edits an agent.</p><div class="chip c-acc" style="margin-top:8px"><i></i>${AGENTS.length} agents · one inventory</div></div><div class="act"><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
+  return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in Claude and n8n. ${Brand} reads both, and never runs or edits an agent.</p><div style="margin-top:8px">${tag(AGENTS.length+' agents · one inventory')}</div></div><div class="act"><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
 ${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.resolved.c1?'Watch it again':'New here? Start with this'}</span><h2>Watch an employee build an agent, and see what Concord sees</h2><p>Four Customer health agents already told people 35, 42, 17, and 28. Sara publishes one definition. Dana is offered it before she pastes her spreadsheet. Tom applies the change himself. About a minute.</p></div><a class="btn p big" href="#/watch" data-startwatch>${ic('play',14)} Watch it live</a></div>
 <div class="grid g4" style="margin-bottom:14px">
 <div class="card kpi"><div class="l">${ic('bot',14)}Agents monitored</div><div class="v">${AGENTS.length}</div><div class="d">${cl} in Claude · ${AGENTS.length-cl} in n8n</div></div>
@@ -99,7 +94,7 @@ ${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.r
 <div class="grid g2" style="margin-bottom:14px">${scoreBox(p)}
 <div class="card"><div class="hd"><h3>Recent activity</h3><span class="r">All</span></div><ul class="feed">${acts().slice(0,5).map(a=>`<li><span class="ic" style="${icc[a[0]]}">${a[1]==='check'?ic('check',12):a[1]}</span><div>${a[2]}</div><span class="t">${a[3]}</span></li>`).join('')}</ul></div></div>
 <div class="grid g3"><div class="card"><div class="hd"><h3>Open conflicts by owner</h3></div><div class="bd" style="padding-top:6px">${dep.map(([n,v])=>`<div class="dept"><span class="mut">${n}</span><div class="bar"><span style="width:${v/max*100}%"></span></div><b style="text-align:right">${v}</b></div>`).join('')}</div></div>
-<div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd">${jobs.map(j=>{const ok=j.score===100;return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0"><b style="font-weight:500">${j.job}</b><span class="mut">${j.count} agents</span><span style="margin-left:auto">${ok?'<span class="chip c-ok"><i></i>100</span>':`<span class="chip ${j.score>=70?'c-warn':'c-bad'}"><i></i>${j.score}</span>`}</span></div>`}).join('')}</div></div>
+<div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd">${jobs.map(j=>{const c=M.conflictByJob(j.job);const chip=j.score===100?status('sync','In sync'):c&&M.isOpen(c,S)?status('conflict','Conflict'):status('drift','Drift detected');return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0"><b style="font-weight:500">${j.job}</b><span class="mut">${j.count} agents</span><span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center"><b class="mono">${j.score}</b>${chip}</span></div>`}).join('')}</div></div>
 <div class="card"><div class="hd"><h3>Official block adoption</h3><a class="r" href="#/blocks">Library</a></div><div class="bd">${BLOCKS.slice(0,4).map(b=>{const c=M.conflictByJob(b.job);const live=M.blockLive(b,S);const plan=c&&live?M.adoptionPlan(c,S):null;const t=M.tally(b.job,S);const label=plan?`${plan.verifiedNeed.length}/${plan.need.length} suggestions verified`:t.count?`${t.majority}/${t.count} match`:'—';const pct=plan&&plan.need.length?plan.verifiedNeed.length/plan.need.length*100:t.count?t.majority/t.count*100:0;return `<div style="margin:6px 0 12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${b.n} <span class="dim">${b.v}</span></span><span class="mut">${live?label:'Draft'}</span></div><div class="bar"><span style="width:${live?pct:0}%"></span></div></div>`}).join('')}</div></div></div></div>`}
 
 function agentsPg(){
@@ -109,18 +104,18 @@ function agentsPg(){
   return `<div class="page"><div class="hrow"><div><h1>Agents</h1><p class="sub">${AGENTS.length} agents read from Claude and n8n. Names, owners, and departments are the Northwind sandbox.</p></div></div>
 <div class="card" style="overflow:hidden"><div class="filters">${f.map(([k,l])=>`<button class="fbtn ${fl===k?'on':''}" data-f="${k}">${l}</button>`).join('')}</div>
 <div class="tw"><table><thead><tr><th>Agent</th><th>Job</th><th>Built in</th><th>Builder</th><th>Owner</th><th>Source</th><th>Updated</th><th>Status</th></tr></thead><tbody>
-${list.map(({a,i})=>`<tr data-agent="${i}"><td><b style="font-weight:500">${esc(a.n)}</b></td><td class="mut">${esc(a.job)}</td><td>${tool(a.tool)}</td><td>${esc(a.b)}<span class="dim"> · ${esc(a.dept)}</span></td><td class="${a.own==='Unassigned'?'dim':''}">${esc(a.own)}</td><td class="mut">${esc(a.src)}</td><td class="mut">${esc(a.up)} ago</td><td>${statusChip(M.agentStatus(i,S))}</td></tr>`).join('')}
+${list.map(({a,i})=>{const st=M.agentStatus(i,S);return `<tr class="k-${rowKind(st)}" data-agent="${i}"><td><b style="font-weight:500">${esc(a.n)}</b></td><td class="mut">${esc(a.job)}</td><td>${tool(a.tool)}</td><td>${esc(a.b)}<span class="dim"> · ${esc(a.dept)}</span></td><td class="${a.own==='Unassigned'?'dim':''}">${esc(a.own)}</td><td class="mut">${esc(a.src)}</td><td class="mut">${esc(a.up)} ago</td><td>${statusChip(st,{subtle:true})}</td></tr>`}).join('')}
 </tbody></table></div></div></div>${S.agent!=null?drawer(S.agent):''}`}
 function drawer(i){
   const a=AGENTS[i], blk=BLOCKS.find(b=>b.job===a.job), st=M.agentStatus(i,S)
   const on=st==='adopted'||a.onBlock
   const lines=M.effectiveDef(i,S)
-  return `<div class="drawer-bg" data-close></div><div class="drawer"><div class="dh"><span class="tdot" style="background:${TOOLS[a.tool].c};width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px">${TOOLS[a.tool].a}</span><div><h1 style="font-size:17px">${esc(a.n)}</h1><div class="mut">Built by ${esc(a.b)} · ${esc(a.dept)} · in ${TOOLS[a.tool].n}</div></div><button class="iconbtn" style="margin-left:auto" data-close>${ic('x')}</button></div>
+  return `<div class="drawer-bg" data-close></div><div class="drawer"><div class="dh"><span class="tdot" style="background:${TOOLS[a.tool].c};width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;color:var(--on-sync)">${TOOLS[a.tool].a}</span><div><h1 style="font-size:17px">${esc(a.n)}</h1><div class="mut">Built by ${esc(a.b)} · ${esc(a.dept)} · in ${TOOLS[a.tool].n}</div></div><button class="iconbtn" style="margin-left:auto" data-close>${ic('x')}</button></div>
 <section><div class="kv"><span>Status</span><span>${statusChip(st)}</span><span>Job</span><span>${esc(a.job)}</span><span>Owner</span><span>${esc(a.own)}</span><span>Recorded answer</span><span>${esc(M.effectiveAnswer(i,S))}</span><span>Weekly users</span><span>${a.users}</span><span>Last read</span><span>${esc(a.up)} ago</span></div></section>
 <section><div class="lbl">${a.tool==='claude'?'Project instructions · Compliance API':'Workflow JSON · n8n REST API'}</div><div class="code">${esc(lines.join('\n'))}</div>
 ${a.tool==='claude'?`<p class="blind">${ic('alert',14)} ${esc(M.BLIND)}</p>`:`<p class="blind">${ic('alert',14)} ${esc(M.N8N_NOTE)}</p>`}
 <p class="dim" style="margin:8px 0 0">${esc(a.evidence)}</p></section>
-<section><div class="lbl">Official block</div>${blk?`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px">${ic('cube')}<div><b>${esc(blk.n)} ${esc(blk.v)}</b><div class="mut" style="font-size:12px">Owner ${esc(blk.own)} · MCP concord.${M.slug(blk.job)}</div></div><span style="margin-left:auto">${on?'<span class="chip c-ok"><i></i>In the instructions</span>':M.blockLive(blk,S)?'<span class="chip c-warn"><i></i>Not in the instructions yet</span>':'<span class="chip c-mut">Not published</span>'}</span></div>`:'<span class="mut">No official block for this job yet.</span>'}</section></div>`}
+<section><div class="lbl">Official block</div>${blk?`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px">${ic('cube')}<div><b>${esc(blk.n)} ${esc(blk.v)}</b><div class="mut" style="font-size:12px">Owner ${esc(blk.own)} · MCP concord.${M.slug(blk.job)}</div></div><span style="margin-left:auto">${on?status('sync','In sync'):M.blockLive(blk,S)?status('drift','Drift detected'):status('unknown','Not checked')}</span></div>`:'<span class="mut">No official block for this job yet.</span>'}</section></div>`}
 
 function venn(n,col){const pos=n>=4?[[-40,-14],[40,-14],[-40,22],[40,22]]:n===3?[[-34,-12],[34,-12],[0,24]]:[[-28,0],[28,0]]
 return `<svg viewBox="-110 -75 220 150" class="venn" width="100%">${pos.slice(0,Math.max(n,2)).map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="46" fill="${col[i%col.length]||'#64748b'}" fill-opacity=".16" stroke="${col[i%col.length]||'#64748b'}" stroke-opacity=".7"/>`).join('')}<text x="0" y="5" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">${n<2?'one agent':'shared job'}</text></svg>`}
@@ -128,32 +123,32 @@ function jobs(){
   return `<div class="page"><div class="hrow"><div><h1>Jobs & overlap</h1><p class="sub">Agents grouped by the job they do. A job scores 100 when the agents still in it agree. Colors are the builder’s department.</p></div></div>
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">${M.JOB_ORDER.map(job=>{
   const ids=M.jobIds(job), score=M.jobScore(job,S), c=M.conflictByJob(job)
-  const label=c&&S.resolved[c.id]==='variant'?'Valid variant':score==null?'One agent':score===100?'Aligned · 100':`${score} · ${c&&M.isOpen(c,S)?'still open':'adopting'}`
-  const tone=label.startsWith('Aligned')||label==='Valid variant'||label==='One agent'?'c-ok':score>=70?'c-warn':'c-bad'
-  return `<div class="card job"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h4>${esc(job)}</h4><span class="mut">${ids.length} agent${ids.length>1?'s':''}</span><span style="margin-left:auto" class="chip ${tone}"><i></i>${label}</span></div>
+  const kind=c&&S.resolved[c.id]==='variant'?'sync':score==null?'unknown':score===100?'sync':c&&M.isOpen(c,S)?'conflict':'drift'
+  const label=c&&S.resolved[c.id]==='variant'?'Valid variant':score==null?'Not checked':score===100?'In sync':c&&M.isOpen(c,S)?'Conflict':'Drift detected'
+  return `<div class="card job k-${kind}"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h4>${esc(job)}</h4><span class="mut">${ids.length} agent${ids.length>1?'s':''}</span><span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center">${score==null?'':`<b class="mono">${score}</b>`}${status(kind,label)}</span></div>
 ${venn(ids.length, ids.map(i=>DC[AGENTS[i].dept]))}${ids.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #1b1e26">${dav(AGENTS[i])}<span>${esc(AGENTS[i].n)}<span class="dim" style="display:block;font-size:11px">${esc(AGENTS[i].b)} · ${esc(AGENTS[i].dept)} · ${esc(M.effectiveAnswer(i,S))}</span></span><span style="margin-left:auto">${tool(AGENTS[i].tool)}</span></div>`).join('')}</div>`}).join('')}</div></div>`}
 
-const sevc={bad:'#f2555a',warn:'#f5a524',info:'#4cc3ff'}
+const sevc={bad:'var(--status-conflict-fill)',warn:'var(--status-risk-fill)',info:'var(--status-review-fill)'}
 function conflicts(){
   const c=CONF.find(x=>x.id===S.conflict)
   return `<div class="inbox ${c?'has':''}"><div class="ilist"><div style="padding:16px;border-bottom:1px solid var(--line)"><h1 style="font-size:16px">Conflicts</h1><div class="mut">${openN()} open · same job, different definition</div></div>
 ${CONF.map(x=>{const open=M.isOpen(x,S), vars=(S.variants[x.id]||[]).length
-  return `<a class="it ${S.conflict===x.id?'on':''}" href="#/conflicts/${x.id}"><div class="tt"><span class="sev" style="background:${open?sevc[x.sev]:'#3fcf8e'}"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.t)}</span></div><div class="ds">${esc(x.d)}</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="chip c-mut">${esc(x.type)}</span>${S.resolved[x.id]==='official'?'<span class="chip c-ok"><i></i>Decided</span>':''}${S.resolved[x.id]==='variant'?'<span class="chip c-info"><i></i>Valid variant</span>':''}${vars&&S.resolved[x.id]!=='variant'?`<span class="chip c-info"><i></i>${vars} variant</span>`:''}<span class="dim" style="margin-left:auto;font-size:11px">${esc(x.owner)} · ${esc(x.age)}</span></div></a>`}).join('')}</div>
+  return `<a class="it ${S.conflict===x.id?'on':''}" href="#/conflicts/${x.id}"><div class="tt"><span class="sev" style="background:${open?sevc[x.sev]:'var(--sync)'}"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.t)}</span></div><div class="ds">${esc(x.d)}</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${tag(esc(x.type))}${S.resolved[x.id]==='official'?status('sync','In sync'):''}${S.resolved[x.id]==='variant'?status('sync','Valid variant'):''}${vars&&S.resolved[x.id]!=='variant'?status('sync',vars+' variant'):''}<span class="dim" style="margin-left:auto;font-size:11px">${esc(x.owner)} · ${esc(x.age)}</span></div></a>`}).join('')}</div>
 <div class="detail">${c?cdetail(c):'<div class="mut" style="padding:60px;text-align:center">Select a conflict</div>'}</div></div>`}
 function cdetail(c){
   const res=S.resolved[c.id], plan=M.adoptionPlan(c,S)
   const active=c.cols.filter(col=>!M.isVariant(c.id,col.a,S))
   return `<a class="btn" href="#/conflicts" style="margin-bottom:12px;display:${innerWidth<820?'inline-flex':'none'}">← Back</a>
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="chip ${c.sev==='bad'?'c-bad':c.sev==='warn'?'c-warn':'c-info'}"><i></i>${c.sev==='bad'?'High':c.sev==='warn'?'Medium':'Low'} severity</span><span class="chip c-mut">${esc(c.type)}</span><span class="dim">${active.length} definitions still in this conflict${(S.variants[c.id]||[]).length?` · ${(S.variants[c.id]||[]).length} marked as a valid variant`:''}</span></div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${c.sev==='bad'?status('conflict','Conflict'):c.sev==='warn'?status('risk','At risk'):status('review','Needs sign-off')}${tag(esc(c.type))}<span class="dim">${active.length} definitions still in this conflict${(S.variants[c.id]||[]).length?` · ${(S.variants[c.id]||[]).length} marked as a valid variant`:''}</span></div>
 <h1 style="margin-top:10px">${esc(c.t)}</h1>
 <p class="sub" style="margin-top:6px">${esc(c.note)}</p>
 <div class="q">${ic('search',15)}<div><span class="mut">Question already in the logs</span><b>“${esc(c.q)}”</b></div></div>
 <div class="cols" style="grid-template-columns:repeat(${c.cols.length},1fr)">${c.cols.map(col=>{
   const a=AGENTS[col.a], variant=M.isVariant(c.id,col.a,S), ans=M.effectiveAnswer(col.a,S)
   return `<div class="col ${variant?'var':''}"><div class="ch"><b>${esc(a.n)}</b><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><span class="mut">${esc(a.b)} · ${esc(a.dept)}</span>${tool(a.tool)}</div></div>
-<div class="ans"><div class="lbl" style="margin:0 0 2px">Answer on record</div><div class="n" style="color:${variant?'#8b90a0':res==='official'&&ans===plan.ans?'#6ee7b0':'#ffb1b3'}">${esc(ans)}</div><div class="mut">${esc(a.evidence)}</div></div>
+<div class="ans"><div class="lbl" style="margin:0 0 2px">Answer on record</div><div class="n ${variant?'dim':res==='official'&&ans===plan.ans?'ok':''}">${esc(ans)}</div><div class="mut">${esc(a.evidence)}</div></div>
 <div class="lg">${M.effectiveDef(col.a,S).map(l=>`<span>${esc(l)}</span>`).join('')}</div>
-<div class="cf">${variant?'<span class="chip c-info"><i></i>Valid variant</span>':res?`<span class="chip c-mut">${a.ans===plan.ans&&!S.verified.includes(col.a)?'Already matched':M.agentStatus(col.a,S)==='adopted'?'Verified':'Own definition'}</span>`:`<button class="btn" data-variant="${c.id}:${col.a}">Different job / valid variant</button>`}</div></div>`}).join('')}</div>
+<div class="cf">${variant?status('sync','Valid variant'):res?(a.ans===plan.ans&&!S.verified.includes(col.a)?status('sync','In sync'):M.agentStatus(col.a,S)==='adopted'?status('sync','In sync'):status('drift','Drift detected')):`<button class="btn" data-variant="${c.id}:${col.a}">Different job / valid variant</button>`}</div></div>`}).join('')}</div>
 ${res==='official'?`<div class="lbl" style="margin-top:18px">Adoption</div><p class="mut">Builders apply the suggestion. Concord re-reads instructions and workflow JSON. It does not edit the agent.</p>${timelineMarkup(c.id)}`:`<div class="lbl" style="margin-top:20px">Impact estimate</div><div class="impact"><div><span class="mut">Revenue at stake</span><b>${esc(c.impact[0])}</b><span class="dim">${esc(c.impact[1])}</span></div><div><span class="mut">Agents</span><b>${esc(c.imp2[0])}</b><span class="dim">${esc(c.imp2[1])}</span></div><div><span class="mut">On record</span><b>${esc(c.imp3[0])}</b><span class="dim">${esc(c.imp3[1])}</span></div></div>`}
 <div class="actions" style="margin-top:16px">${res?`<a class="btn" href="#/blocks">View the block</a>`:`<button class="btn" data-variant="${c.id}:job">Different job / valid variant</button><a class="btn p" href="#/resolve/${c.id}">${ic('check',13)} Resolve this conflict</a>`}</div>`}
 
@@ -162,7 +157,7 @@ function blocks(){
 <div class="card"><div class="tw" style="max-height:none"><table><thead><tr><th>Block</th><th>Version</th><th>Owner</th><th>MCP</th><th>On this definition</th><th>Suggestions</th><th>Updated</th></tr></thead><tbody>
 ${BLOCKS.map(b=>{const c=M.conflictByJob(b.job), live=M.blockLive(b,S), t=M.tally(b.job,S), plan=c?M.adoptionPlan(c,S):null
   const sugg=plan&&live&&plan.need.length?`${plan.verifiedNeed.length}/${plan.need.length} verified`:'—'
-  return `<tr><td><span style="display:inline-flex;gap:8px;align-items:center">${ic('cube',15)}<b style="font-weight:500">${esc(b.n)}</b></span></td><td><span class="chip ${live?'c-acc':'c-mut'}">${esc(b.v)}${live?'':' · draft'}</span></td><td>${esc(b.own)}</td><td class="mut" style="font-family:ui-monospace,monospace;font-size:11.5px">concord.${M.slug(b.job)}</td>
+  return `<tr class="k-${live?'sync':'unknown'}"><td><span style="display:inline-flex;gap:8px;align-items:center">${ic('cube',15)}<b style="font-weight:500">${esc(b.n)}</b></span></td><td>${tag(esc(b.v)+(live?'':' · draft'))}</td><td>${esc(b.own)}</td><td class="mut" style="font-family:ui-monospace,monospace;font-size:11.5px">concord.${M.slug(b.job)}</td>
 <td class="mut">${t.count?`${t.majority}/${t.count} match`+(M.jobScore(b.job,S)===100?' · 100':''):'—'}</td><td class="mut">${sugg}</td><td class="mut">${live&&b.id==='c1'&&S.resolved.c1?'Just now':esc(b.upd)}</td></tr>`}).join('')}
 </tbody></table></div></div>
 ${CONF.filter(c=>S.resolved[c.id]==='official').map(c=>`<div class="card" style="margin-top:14px"><div class="hd"><h3>${esc(c.job)} · published</h3><span class="r">Verified by re-reading</span></div><div class="bd">${timelineMarkup(c.id)}${c.cols.map(col=>{const a=AGENTS[col.a];return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1b1e26">${dav(a)}<span>${esc(a.n)}</span><span class="dim">${esc(a.b)}</span>${tool(a.tool)}<span style="margin-left:auto">${statusChip(M.agentStatus(col.a,S))}</span></div>`}).join('')}</div></div>`).join('')}
@@ -172,11 +167,11 @@ function integ(){
   const cl=AGENTS.filter(a=>a.tool==='claude').length, n8=AGENTS.length-cl
   return `<div class="page"><div class="hrow"><div><h1>Integrations</h1><p class="sub">Read-only. Concord inventories agents and reads instructions, knowledge files, workflow JSON, and answers already given. It never runs or edits an agent.</p></div></div>
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
-<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot" style="background:${TOOLS.claude.c};display:grid;place-items:center;font-weight:700;color:#fff">C</span><div><b>Claude</b><div class="mut">${cl} projects</div></div><span class="chip c-ok" style="margin-left:auto"><i></i>Connected</span></div>
-<div class="kv"><span>Access</span><span><span class="chip c-mut">${ic('lock',11)} Read-only</span></span><span>Connected via</span><span>Compliance API</span><span>Key</span><span>Read-only key created by the Primary Owner</span><span>Reads</span><span class="mut">Projects, instructions, knowledge files, and chats linked to a project</span><span>Blind spot</span><span class="mut">${esc(M.BLIND)}</span><span>Last sync</span><span>2 min ago</span></div></div>
-<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot" style="background:${TOOLS.n8n.c};display:grid;place-items:center;font-weight:700;color:#fff">n</span><div><b>n8n</b><div class="mut">${n8} workflows</div></div><span class="chip c-ok" style="margin-left:auto"><i></i>Connected</span></div>
-<div class="kv"><span>Access</span><span><span class="chip c-mut">${ic('lock',11)} Read-only</span></span><span>Connected via</span><span>REST API</span><span>Key</span><span>Owner or Admin</span><span>Reads</span><span class="mut">Workflow JSON and execution history (30 days on this Pro plan)</span><span>Does not</span><span class="mut">${esc(M.N8N_NOTE)}</span><span>Last sync</span><span>4 min ago</span></div></div>
-<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot" style="background:#34d399;display:grid;place-items:center;font-weight:700;color:#06281a">S</span><div><b>Semantic layer</b><div class="mut">dbt, Atlan, or Qontext</div></div>${S.semanticConnected?'<span class="chip c-ok" style="margin-left:auto"><i></i>Connected</span>':'<span class="chip c-mut" style="margin-left:auto">Not connected</span>'}</div>
+<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot tile cl" style="background:${TOOLS.claude.c}">C</span><div><b>Claude</b><div class="mut">${cl} projects</div></div><span style="margin-left:auto">${status('sync','In sync')}</span></div>
+<div class="kv"><span>Access</span><span>${tag(ic('lock',11)+' Read-only')}</span><span>Connected via</span><span>Compliance API</span><span>Key</span><span>Read-only key created by the Primary Owner</span><span>Reads</span><span class="mut">Projects, instructions, knowledge files, and chats linked to a project</span><span>Blind spot</span><span class="mut">${esc(M.BLIND)}</span><span>Last sync</span><span>2 min ago</span></div></div>
+<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot tile n8" style="background:${TOOLS.n8n.c}">n</span><div><b>n8n</b><div class="mut">${n8} workflows</div></div><span style="margin-left:auto">${status('sync','In sync')}</span></div>
+<div class="kv"><span>Access</span><span>${tag(ic('lock',11)+' Read-only')}</span><span>Connected via</span><span>REST API</span><span>Key</span><span>Owner or Admin</span><span>Reads</span><span class="mut">Workflow JSON and execution history (30 days on this Pro plan)</span><span>Does not</span><span class="mut">${esc(M.N8N_NOTE)}</span><span>Last sync</span><span>4 min ago</span></div></div>
+<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot tile sem">S</span><div><b>Semantic layer</b><div class="mut">dbt, Atlan, or Qontext</div></div><span style="margin-left:auto">${S.semanticConnected?status('sync','In sync'):status('unknown','Not checked')}</span></div>
 <p class="mut">Pull a certified metric into a conflict, and publish the official block back. Concord does not replace the semantic layer.</p>
 <div class="kv"><span>Direction</span><span>Pull from, and publish into</span><span>Tools</span><span>dbt Semantic Layer · Atlan · Qontext</span></div>
 ${S.semanticConnected?'<div class="ion">'+ic('check',14)+' Read-only preview connected</div>':'<button class="btn p" data-semcon>Connect read-only</button>'}</div>
@@ -186,7 +181,8 @@ function render(){
   if(location.hash==='#/live') history.replaceState(null,'','#/watch')
   const raw=location.hash.replace(/^#\/?/,''), h=raw.split('/')
   document.body.classList.toggle('lpbody',!raw)
-  if(!raw){S.route='home';$('#app').innerHTML=landingPage();return}
+  document.title=Brand+' · Northwind'
+  if(!raw){S.route='home';$('#app').innerHTML=landingPage();mountLanding();return}
   if(h[0]==='start'){S.route='start';$('#app').innerHTML=onboardPage();mountOB();return}
   if(h[0]==='search'){S.route='search';S.q=decodeURIComponent(h.slice(1).join('/')||'');$('#app').innerHTML=shell(`<div class="page spage"><h1>Search</h1><p class="sub">Every agent doing a job, in Claude and n8n, with the definition and the answer already on record.</p>${searchBox(S.q)}</div>`);return}
   if(h[0]==='resolve'){S.route='resolve';$('#app').innerHTML=shell(`<div class="page">${resolveView(h[1]||'c1',false)}</div>`);return}

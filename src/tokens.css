@@ -1,0 +1,102 @@
+/* In Sync brand tokens. Dark is the default. data-theme="light" switches semantics.
+   Fonts are self-hosted (SIL OFL). No CDN. */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("./fonts/manrope-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("./fonts/geist-mono-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --tide-50: #EAF3F9; --tide-100: #D5E8F2; --tide-200: #ABD1E6; --tide-300: #82B9D9; --tide-400: #58A2CD;
+  --tide-500: #2E8BC0; --tide-600: #2776A3; --tide-700: #206287; --tide-800: #184D6A; --tide-900: #11384E;
+  --sync-50: #ECFCF6; --sync-100: #D9F9EC; --sync-200: #B2F3D9; --sync-300: #8CECC7; --sync-400: #65E6B4;
+  --sync-500: #3FE0A1; --sync-600: #35BC8A; --sync-700: #2A9873; --sync-800: #20745C; --sync-900: #165045;
+
+  --bg: #061821;
+  --surface: #0C2430;
+  --raised: #12303E;
+  --line: #18394A;
+  --control: #4A7486;
+  --text: #E4F0EE;
+  --text-muted: #7F9BA6;
+  --agent: var(--tide-500);
+  --agent-text: var(--tide-300);
+  --sync: var(--sync-500);
+  --sync-text: var(--sync-500);
+  --on-sync: #061821;
+  --danger: var(--status-conflict-fill);
+
+  --status-in-sync-fill: #3FE0A1; --status-in-sync-on: #061821; --status-in-sync-text: #3FE0A1; --status-in-sync-tint: #103C38; --status-in-sync-border: transparent;
+  --status-review-fill: #5BB4F5; --status-review-on: #061821; --status-review-text: #7CC3F7; --status-review-tint: #153447; --status-review-border: transparent;
+  --status-risk-fill: #FFD23F; --status-risk-on: #061821; --status-risk-text: #FFD23F; --status-risk-tint: #333926; --status-risk-border: transparent;
+  --status-drift-fill: #F57A1F; --status-drift-on: #061821; --status-drift-text: #FF9A4D; --status-drift-tint: #312A21; --status-drift-border: transparent;
+  --status-conflict-fill: #D42F26; --status-conflict-on: #FFFFFF; --status-conflict-text: #FF7A72; --status-conflict-tint: #2B1C22; --status-conflict-border: transparent;
+  --status-unknown-fill: #62747D; --status-unknown-on: #FFFFFF; --status-unknown-text: #9AABB3; --status-unknown-tint: #172932; --status-unknown-border: transparent;
+  --status-row-border: 4px;
+
+  --font-sans: "Manrope", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --text-display: 700 72px/1.0 var(--font-sans);   --tracking-display: -0.04em;
+  --text-h1: 700 48px/1.05 var(--font-sans);       --tracking-h1: -0.03em;
+  --text-h2: 700 32px/1.15 var(--font-sans);       --tracking-h2: -0.02em;
+  --text-h3: 600 22px/1.3 var(--font-sans);        --tracking-h3: -0.01em;
+  --text-body-lg: 400 18px/1.55 var(--font-sans);
+  --text-body: 400 15px/1.55 var(--font-sans);
+  --text-small: 500 13px/1.45 var(--font-sans);
+  --text-label: 500 12px/1.4 var(--font-mono);     --tracking-label: 0.04em;
+  --text-data: 600 14px/1.4 var(--font-mono);
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px;
+
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-pill: 999px;
+  --border: 1px solid var(--line);
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--agent);
+
+  --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur-status: 240ms;
+  --dur-color: 600ms;
+  --dur-snap: 900ms;
+  --stagger: 80ms;
+  --hold-drift: 2600ms;
+}
+
+[data-theme="light"] {
+  --bg: #F5F9F8;
+  --surface: #FFFFFF;
+  --raised: #EAF1F1;
+  --line: #D4E1E3;
+  --control: #748E97;
+  --text: #071E29;
+  --text-muted: #4D6773;
+  --agent: var(--tide-500);
+  --agent-text: var(--tide-700);
+  --sync: var(--sync-500);
+  --sync-text: var(--sync-800);
+  --on-sync: #071E29;
+  --danger: var(--status-conflict-fill);
+
+  --status-in-sync-fill: #3FE0A1; --status-in-sync-on: #061821; --status-in-sync-text: #1B6B53; --status-in-sync-tint: #E4FBF2; --status-in-sync-border: #1B6B53;
+  --status-review-fill: #5BB4F5; --status-review-on: #061821; --status-review-text: #1D5F8F; --status-review-tint: #E8F4FE; --status-review-border: #1D5F8F;
+  --status-risk-fill: #FFD23F; --status-risk-on: #061821; --status-risk-text: #7A5B00; --status-risk-tint: #FFF9E4; --status-risk-border: #7A5B00;
+  --status-drift-fill: #F57A1F; --status-drift-on: #061821; --status-drift-text: #A34A00; --status-drift-tint: #FEECE0; --status-drift-border: #A34A00;
+  --status-conflict-fill: #D42F26; --status-conflict-on: #FFFFFF; --status-conflict-text: #B42318; --status-conflict-tint: #F9E2E1; --status-conflict-border: #B42318;
+  --status-unknown-fill: #62747D; --status-unknown-on: #FFFFFF; --status-unknown-text: #56676F; --status-unknown-tint: #E9ECED; --status-unknown-border: #56676F;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-snap: 0ms; --dur-color: 150ms; --stagger: 0ms; }
+}

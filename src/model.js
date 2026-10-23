@@ -6,13 +6,13 @@ export const SARA_ROLE = 'Head of RevOps'
 export const LS_KEY = 'concord-demo-v2'
 
 export const TOOLS = {
-  claude: {n:'Claude', a:'C', c:'#b8643f', via:'Compliance API'},
-  n8n: {n:'n8n', a:'n', c:'#c23a55', via:'REST API'},
+  claude: {n:'Claude', a:'C', c:'#82B9D9', via:'Compliance API'},
+  n8n: {n:'n8n', a:'n', c:'#58A2CD', via:'REST API'},
 }
 export const DC = {
-  CS:'#4cc3ff', Sales:'#f5a524', Finance:'#3fcf8e', RevOps:'#a78bfa', Exec:'#f472b6',
-  Support:'#fb7185', Marketing:'#22d3ee', 'Sales Ops':'#fb923c', People:'#facc15',
-  Eng:'#94a3b8', Legal:'#c084fc', Data:'#34d399',
+  CS:'#82B9D9', Sales:'#58A2CD', Finance:'#8CECC7', RevOps:'#ABD1E6', Exec:'#D5E8F2',
+  Support:'#B2F3D9', Marketing:'#65E6B4', 'Sales Ops':'#EAF3F9', People:'#ECFCF6',
+  Eng:'#9AABB3', Legal:'#C5D8E0', Data:'#3FE0A1',
 }
 export const BLIND = 'The Compliance API cannot see which connectors or MCP servers a Claude project uses.'
 export const N8N_NOTE = 'n8n has no execute endpoint. Triggering a webhook would run the workflow, including its Slack post, so Concord never does.'
