@@ -282,14 +282,14 @@ ${[['Renewal radar · Claude','sync','28','In sync'],["Dana's agent · Claude",'
 }
 export function howPage(){
   const steps=[
-    ['01','Read','People build and use agents in Claude and n8n. Concord does not sit in the chat. After an agent is first used, the next scheduled scan picks it up. Scans run daily. A scan reads the agent list, its instructions, and recent answers. It does not run the agent.'],
-    ['02','Detect','When agents doing the same job return different values, Concord alerts the owner. At Northwind the alert reads: Customer health, 4 agents, 4 different answers (35, 42, 17, 28).'],
-    ['03','Decide','The owner marks the correct answer. They can also mark a valid variant, write their own, or import a metric the company already trusts.'],
-    ['04','Verify adoption','Concord tells each builder what differs and what to change. It never changes an agent. The following daily scans check that they updated, and Concord alerts again if something is still off or drifts later.'],
+    ['01','Read',`Connect Claude through its Compliance API, on Claude Enterprise, and n8n through its REST API. Concord scans daily. A new agent shows up on the first scan after someone uses it. A scan reads each agent's instructions and recent answers.`],
+    ['02','Detect',`When agents give different answers to the same question, Concord alerts the person who owns that number. At Northwind the alert reads: customer health, 4 agents, 4 different answers (35, 42, 17, 28). Dana's agent says 35. Tom's workflow says 17.`],
+    ['03','Decide',`The owner signs off one official answer. They can pick an existing answer or write their own. If a difference is intentional, for example a team that only counts contracts over $10k, the owner can allow it and Concord stops flagging it.`],
+    ['04','Verify adoption',`Concord tells each builder what to change, and builders update their own agents. The following daily scans check Dana's agent and Tom's workflow. If an agent still gives a different answer, Concord shows it as Not updated yet and alerts again.`],
   ]
-  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Build anything. Concord scans daily, then alerts.</h1><p>People keep building in Claude and n8n. Concord does not sit in the way. It scans on a schedule, alerts the owner when answers disagree, and checks that builders fixed it.</p></section>
+  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Build anything. Concord scans daily, then alerts.</h1><p>People keep building in Claude and n8n. Concord tells the owner when two agents give different answers to the same question, and confirms the fix landed.</p></section>
 <div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}</div>
-<section class="lclose"><h2>See it with the Northwind story.</h2><p>Click through it. Dana uses an agent. That night's scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Start the walkthrough</a><a class="btn xl" href="#/start">Try it with sample data</a></div></section>`)
+<section class="lclose"><h2>See it with the Northwind story.</h2><p>Click through it. Dana's agent gets 35. That night's daily scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Take the walkthrough</a><a class="btn xl" href="#/start">Try it with sample data</a></div></section>`)
 }
 export function pricingPage(){
   const tiers=[
@@ -302,13 +302,13 @@ export function pricingPage(){
 <p class="pricenote">Placeholder prices only. Nothing here is a quote, and this demo does not bill anyone.</p>`)
 }
 export function aboutPage(){
-  return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Agents doing the same job should give the same answer.</h1><p>Concord is a demo of that idea. Northwind, the company in the product, is fictional.</p></section>
+  return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Agents answering the same question should give the same answer.</h1><p>Concord is a demo of that idea. Northwind, the company in the product, is fictional.</p></section>
 <div class="abouts">
-<article class="card"><h2>Why now</h2><p>People build agents where they already work, in Claude and in n8n. Two agents can be asked the same business question and answer with different numbers. That number then shows up in a forecast, a customer note, or a board update.</p></article>
+<article class="card"><h2>Why now</h2><p>People build agents where they already work, in Claude and in n8n. Two agents can be asked the same question and give different answers. That number then shows up in a forecast, a customer note, or a board update.</p></article>
 <article class="card"><h2>Principles</h2><ul>
-<li><b>Read-only.</b> Concord reads instructions and answers already given. It does not run an agent, and it does not edit one.</li>
-<li><b>Owners decide.</b> The person who owns the number picks the official answer.</li>
-<li><b>Publish into the tools you already use.</b> Concord tells each builder what to change. They fix their own agent. Concord does not change it.</li>
+<li><b>Read-only.</b> Concord reads instructions and answers already given. It's read-only, so it never changes an agent.</li>
+<li><b>Owners decide.</b> The person who owns the number signs off the official answer.</li>
+<li><b>Publish into the tools you already use.</b> Concord tells each builder what to change. They update their own agents, such as Dana's agent and Tom's workflow. Official metrics from dbt and Atlan are coming next.</li>
 </ul></article>
 </div>`)
 }
