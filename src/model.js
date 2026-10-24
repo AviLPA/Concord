@@ -231,18 +231,56 @@ export function effectiveDef(i, state){
   return a.def
 }
 
+// Number answers match after rounding. Everything else matches as text.
+export function answerKey(ans){
+  const s=String(ans??'').trim()
+  if(/^[+-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)$/.test(s)){
+    const n=Number(s)
+    if(Number.isFinite(n)) return 'n:'+Math.round(n)
+  }
+  return 's:'+s
+}
+function jobAgents(job, state){
+  return jobIds(job).filter(i=>{const c=conflictByAgent(i); return !(c && isVariant(c.id, i, state))})
+}
+function modeKey(keys){
+  const freq=new Map()
+  let best=keys[0]??'', n=0
+  for(const k of keys){
+    const c=(freq.get(k)||0)+1
+    freq.set(k, c)
+    if(c>n){n=c; best=k}
+  }
+  return best
+}
+// One scorer. A job score is the share of agents on that job whose answer matches
+// the official answer, or the most common answer when none is picked. A job with
+// fewer than two agents is unscored. The consistency score is the average of the
+// job scores, weighted by how many agents each scored job has.
+export function scores(state){
+  const rows=JOB_ORDER.map(job=>{
+    const ids=jobAgents(job, state)
+    const count=ids.length
+    if(count<2) return {job, majority:0, count, score:null}
+    const keys=ids.map(i=>answerKey(effectiveAnswer(i, state)))
+    const c=conflictByJob(job)
+    const target=c&&state.resolved[c.id]==='official' ? answerKey(officialAnswer(c, state)) : modeKey(keys)
+    const majority=keys.filter(k=>k===target).length
+    return {job, majority, count, score:Math.round(100*majority/count)}
+  })
+  const scored=rows.filter(r=>r.score!=null)
+  const n=scored.reduce((s,r)=>s+r.count,0)
+  const maj=scored.reduce((s,r)=>s+r.majority,0)
+  const score=n?Math.round(scored.reduce((s,r)=>s+r.score*r.count,0)/n):100
+  return {maj, n, score, rows}
+}
 export function tally(job, state){
-  const ids=jobIds(job).filter(i=>{const c=conflictByAgent(i); return !(c && isVariant(c.id, i, state))})
-  if(!ids.length) return {majority:0, count:0}
-  const answers=ids.map(i=>effectiveAnswer(i, state))
-  const freq={}
-  for(const ans of answers) freq[ans]=(freq[ans]||0)+1
-  return {majority:Math.max(...Object.values(freq)), count:ids.length}
+  const row=scores(state).rows.find(r=>r.job===job)
+  return row?{majority:row.majority, count:row.count}:{majority:0, count:0}
 }
 export function jobScore(job, state){
-  const t=tally(job, state)
-  if(t.count<2) return null
-  return Math.round(100*t.majority/t.count)
+  const row=scores(state).rows.find(r=>r.job===job)
+  return row?row.score:null
 }
 // How a shared job reads in the status system. Counts do not change.
 // 100 is In sync. An open high-severity job is Conflict. Medium is At risk.
@@ -261,16 +299,7 @@ export function jobPresentation(job, state){
   }
   return {kind:'drift', label:'Drift detected', score}
 }
-export function companyParts(state){
-  let maj=0, n=0
-  const rows=JOB_ORDER.map(job=>{
-    const t=tally(job, state)
-    const score=t.count<2?null:Math.round(100*t.majority/t.count)
-    if(t.count>=2){maj+=t.majority; n+=t.count}
-    return {job, ...t, score}
-  })
-  return {maj, n, score:n?Math.round(100*maj/n):100, rows}
-}
+export function companyParts(state){return scores(state)}
 
 export function isOpen(c, state){
   if(state.resolved[c.id]==='official' || state.resolved[c.id]==='variant') return false
@@ -324,5 +353,7 @@ export function storyState(verifiedCount){
   return state
 }
 
-export const SCORE_HELP = 'The company score is the share of agents on shared jobs whose answer matches the most common answer for that job. A job scores 100 when everyone still in it agrees. Valid variants are left out. A job with one agent is not scored. Concord does not run agents to compute this.'
+export const SCORE_COMPANY = 'How many of your agents agree, out of 100. Bigger jobs count more. 100 means every job is in sync.'
+export const SCORE_JOB = 'How many agents doing this job match the official answer, out of 100. 100 means they all agree.'
+export const SCORE_HELP = SCORE_COMPANY
 export const INITIAL = companyParts(emptyState())

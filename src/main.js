@@ -77,8 +77,9 @@ function scoreBox(p){
   return `<div class="card"><div class="hd"><h3>Consistency score</h3><button class="scorehow" data-scoreinfo>${S.scoreOpen?'Hide breakdown':'How this is calculated'}</button></div>
 <div class="bd scorewrap" id="scorewrap"><div style="text-align:center">${gauge(p.score)}
 <div class="scoreline" id="scoreline">${p.maj} of ${p.n} agents on shared jobs match</div>
+<p class="scorewhy">${esc(M.SCORE_COMPANY)}</p>
 <div style="margin-top:6px">${tag((delta>0?`+${delta} pts`:'+'+(M.HIST.at(-1)-M.HIST[0])+' pts in 12 months')+(ch&&ch.score===100?' · Customer health is 100':''))}</div>
-${S.scoreOpen?`<div class="scorepop"><p>${esc(M.SCORE_HELP)}</p>${p.rows.map(r=>`<div class="srow"><span>${r.job}</span><b>${r.score==null?'—':r.score}</b><span class="mut">${r.count<2?'left out':r.majority+' of '+r.count+' agree'}</span></div>`).join('')}<div class="srow tot"><span>Company</span><b>${p.score}</b><span class="mut">${p.maj} of ${p.n}</span></div></div>`:''}
+${S.scoreOpen?`<div class="scorepop"><p>${esc(M.SCORE_COMPANY)}</p><p class="scorewhy">${esc(M.SCORE_JOB)}</p>${p.rows.map(r=>`<div class="srow"><span>${r.job}</span><b>${r.score==null?'—':r.score}</b><span class="mut">${r.count<2?'left out':r.majority+' of '+r.count+' agree'}</span></div>`).join('')}<div class="srow tot"><span>Company</span><b>${p.score}</b><span class="mut">${p.maj} of ${p.n}</span></div></div>`:''}
 </div><div>${chart(p.score)}</div></div></div>`}
 
 function overview(){
@@ -95,7 +96,7 @@ ${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.r
 <div class="grid g2" style="margin-bottom:14px">${scoreBox(p)}
 <div class="card"><div class="hd"><h3>Recent activity</h3><span class="r">All</span></div><ul class="feed">${acts().slice(0,5).map(a=>`<li><span class="ic" style="${icc[a[0]]}">${a[1]==='check'?ic('check',12):a[1]}</span><div>${a[2]}</div><span class="t">${a[3]}</span></li>`).join('')}</ul></div></div>
 <div class="grid dash3"><div class="card"><div class="hd"><h3>Open conflicts by owner</h3></div><div class="bd" style="padding-top:6px">${dep.map(([n,v])=>`<div class="dept"><span class="mut">${n}</span><div class="bar"><span style="width:${v/max*100}%"></span></div><b style="text-align:right">${v}</b></div>`).join('')}</div></div>
-<div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd sjbd">${jobs.map(j=>{const pres=M.jobPresentation(j.job,S);return `<div class="sj"><b>${esc(j.job)}</b><span class="n">${j.count} agents</span><span class="end"><b class="mono">${j.score}</b>${status(pres.kind,pres.label)}</span></div>`}).join('')}</div></div>
+<div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd sjbd"><p class="scorewhy">${esc(M.SCORE_JOB)}</p>${jobs.map(j=>{const pres=M.jobPresentation(j.job,S);return `<div class="sj"><b>${esc(j.job)}</b><span class="n">${j.count} agents</span><span class="end"><b class="mono">${j.score}</b>${status(pres.kind,pres.label)}</span></div>`}).join('')}</div></div>
 <div class="card"><div class="hd"><h3>Official block adoption</h3><a class="r" href="#/blocks">Library</a></div><div class="bd">${BLOCKS.slice(0,4).map(b=>{const c=M.conflictByJob(b.job);const live=M.blockLive(b,S);const plan=c&&live?M.adoptionPlan(c,S):null;const t=M.tally(b.job,S);const label=plan?`${plan.verifiedNeed.length}/${plan.need.length} suggestions verified`:t.count?`${t.majority}/${t.count} match`:'—';const pct=plan&&plan.need.length?plan.verifiedNeed.length/plan.need.length*100:t.count?t.majority/t.count*100:0;return `<div style="margin:6px 0 12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${b.n} <span class="dim">${b.v}</span></span><span class="mut">${live?label:'Draft'}</span></div><div class="bar"><span style="width:${live?pct:0}%"></span></div></div>`}).join('')}</div></div></div></div>`}
 
 function agentsPg(){
@@ -126,6 +127,7 @@ function jobs(){
   const ids=M.jobIds(job), score=M.jobScore(job,S)
   const pres=M.jobPresentation(job,S), kind=pres.kind, label=pres.label
   return `<div class="card job k-${kind}"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h4>${esc(job)}</h4><span class="mut">${ids.length} agent${ids.length>1?'s':''}</span><span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center">${score==null?'':`<b class="mono">${score}</b>`}${status(kind,label)}</span></div>
+${score==null?'':`<p class="scorewhy">${esc(M.SCORE_JOB)}</p>`}
 ${venn(ids.length, ids.map(i=>DC[AGENTS[i].dept]))}${ids.map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)">${dav(AGENTS[i])}<span>${esc(AGENTS[i].n)}<span class="dim" style="display:block;font-size:11px">${esc(AGENTS[i].b)} · ${esc(AGENTS[i].dept)} · ${esc(M.effectiveAnswer(i,S))}</span></span><span style="margin-left:auto">${tool(AGENTS[i].tool)}</span></div>`).join('')}</div>`}).join('')}</div></div>`}
 
 const sevc={bad:'var(--status-conflict-fill)',warn:'var(--status-risk-fill)',info:'var(--status-review-fill)'}

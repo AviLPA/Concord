@@ -78,7 +78,7 @@ export function resolveView(cid,inOB){
   if(C.S.resolved[cid]==='variant'&&st===4) return variantDone(c,inOB)
   return `<div class="rv" data-cid="${cid}"><div class="rvh"><div><div class="lbl" style="margin:0 0 4px">Resolve as owner · ${esc(OB.name)} · ${esc(OB.role)}</div><h2>${esc(c.t)}</h2>
 <div class="mut">${esc(c.note)} Question already in the logs: <b class="tx">“${esc(c.q)}”</b></div></div>
-<div class="rvm"><div><span class="mut">This job</span><b data-jobscore>${js==null?'—':js}</b></div><div><span class="mut">Company</span><b data-coscore>${p.score}</b></div><div><span class="mut">Suggestions</span><b data-adopt>${C.S.suggested.includes(cid)?plan.verifiedNeed.length:0}/${plan.need.length}</b></div></div></div>
+<div class="rvm"><div><span class="mut">This job</span><b data-jobscore>${js==null?'—':js}</b><span class="scorewhy">${esc(M.SCORE_JOB)}</span></div><div><span class="mut">Company</span><b data-coscore>${p.score}</b><span class="scorewhy">${esc(M.SCORE_COMPANY)}</span></div><div><span class="mut">Suggestions</span><b data-adopt>${C.S.suggested.includes(cid)?plan.verifiedNeed.length:0}/${plan.need.length}</b></div></div></div>
 <div class="rsteps">${['Compare & decide','Reason & publish','Suggest & track'].map((s,i)=>{const d=i===0?st>=1:i===1?st>=2:st===4,on=i===0?st===0:i===1?st===1:st>=2&&st<4;return `<span class="${d?'done':on?'on':''}"><i>${d?'✓':i+1}</i>${s}</span>`}).join('<b></b>')}</div>
 <div class="rcards" style="--n:${c.cols.length}">${c.cols.map((col,i)=>{const a=M.AGENTS[col.a], variant=M.isVariant(c.id,col.a,C.S), isOff=R.mode==='agent'&&R.pick===i
   const shown=C.S.verified.includes(col.a)?M.effectiveAnswer(col.a,C.S):a.ans
@@ -117,7 +117,7 @@ function stage4(c,R,inOB,offAns,plan){
 }
 function variantDone(c,inOB){
   const p=M.companyParts(C.S)
-  return `<div class="rv" data-cid="${c.id}"><div class="rvh"><div><div class="lbl">Resolve as owner · ${esc(OB.name)}</div><h2>${esc(c.t)}</h2></div><div class="rvm"><div><span class="mut">Company</span><b data-coscore>${p.score}</b></div><div><span class="mut">Open conflicts</span><b>${M.openConflicts(C.S).length}</b></div></div></div>
+  return `<div class="rv" data-cid="${c.id}"><div class="rvh"><div><div class="lbl">Resolve as owner · ${esc(OB.name)}</div><h2>${esc(c.t)}</h2></div><div class="rvm"><div><span class="mut">Company</span><b data-coscore>${p.score}</b><span class="scorewhy">${esc(M.SCORE_COMPANY)}</span></div><div><span class="mut">Open conflicts</span><b>${M.openConflicts(C.S).length}</b></div></div></div>
 <div class="rdone">${C.ic('check',18)}<div><b>Marked as a different job / valid variant</b><span>Removed from the conflict count. No definition was changed, and no agent was edited. Company score is ${p.score}, with this job left out where it no longer counts as the same job.</span></div></div>
 <div class="rrow" style="margin-top:12px">${inOB?'<button class="btn p" data-obfinish>Go to dashboard →</button>':'<a class="btn p" href="#/conflicts">Back to conflicts</a>'}</div></div>`
 }
