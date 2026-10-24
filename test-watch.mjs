@@ -153,7 +153,14 @@ async function run(name,vp){
  await p.click('[data-wgo="5"]')
  const adopt=await p.$eval('.elog',e=>e.textContent)
  assert(adopt.includes('Day 1')&&adopt.indexOf('Day 1')<adopt.indexOf('Day 3')&&adopt.indexOf('Day 3')<adopt.indexOf('Day 5')&&!/Maya/.test(adopt), name+' day order '+adopt)
- assert((await p.$eval('.wb',e=>e.textContent)).includes('Day 1 Dana updates'), name+' step 6 header')
+ assert((await p.$eval('.wb',e=>e.textContent)).trim()==='Builders update their agents. Daily scans confirm all four now say 28.', name+' step 6 header')
+ const syncCards=await p.evaluate(()=>{
+  const cards=[...document.querySelectorAll('.elog .cmp.settle .cc')]
+  const flat=c=>c.replace(/\s/g,'')
+  const red=/212,47,38|180,35,24|d42f26|b42318/i
+  return {n:cards.length,nums:cards.map(el=>el.querySelector('.ccn').textContent.trim()),ok:cards.filter(el=>el.classList.contains('ok')).length,tops:cards.map(el=>flat(getComputedStyle(el).borderTopColor)),reds:cards.filter(el=>{const s=getComputedStyle(el);const n=getComputedStyle(el.querySelector('.ccn'));return [s.borderTopColor,s.borderRightColor,s.borderBottomColor,s.borderLeftColor,s.backgroundColor,n.color].some(c=>red.test(flat(c)))}).length}
+ })
+ assert(syncCards.n===4&&syncCards.ok===4&&syncCards.nums.every(n=>n==='28')&&syncCards.reds===0&&syncCards.tops.every(t=>t.includes('63,224,161')), name+' step 6 in-sync cards '+JSON.stringify(syncCards))
  assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes("Tom's n8n workflow"), name+' tom label')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('In sync'), name+' finale agreement')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('28'), name+' finale answer')

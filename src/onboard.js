@@ -241,8 +241,9 @@ export function mountLanding(){
   clearInterval(syncTimer);clearTimeout(syncTimer)
   const el=document.getElementById('lcard');if(!el)return
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const narrow=window.matchMedia&&window.matchMedia('(max-width:820px)').matches
-  if(reduce){el.classList.add('is-reduce');return}
+  const narrow=window.matchMedia&&window.matchMedia('(max-width:1023px)').matches
+  if(reduce){el.classList.add('is-reduce');el.classList.remove('is-sync');return}
+  el.classList.remove('is-sync')
   if(narrow){syncTimer=setTimeout(()=>el.classList.add('is-sync'),1500);return}
   syncTimer=setInterval(()=>{const card=document.getElementById('lcard');if(!card){clearInterval(syncTimer);return}card.classList.toggle('is-sync')},2600)
 }

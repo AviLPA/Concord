@@ -63,7 +63,7 @@ const STEPS=[
  ]},
 {label:'Daily scans', left:'days',
  title:'Daily scans check',
- body:'Day 1 Dana updates. Day 3 Tom updates. Day 5 still 42.',
+ body:'Builders update their agents. Daily scans confirm all four now say 28.',
  dwell:5600,
  beats:[
   {t:'ev', id:'d1', side:'be', wait:800},
@@ -98,7 +98,9 @@ function settle(i){clearTimeout(W.timer);W.thinking=false;W.prog=0;W.manual=fals
 function enter(i){clearTimeout(W.timer);W.thinking=false;W.prog=0;W.manual=false
  if(i>=N){W.step=N;draw();return}
  if(i<0){W.step=-1;draw();return}
- W.step=i;W.beat=0;draw();later(tick,180)}
+ W.step=i
+ if(payoffNow(i)){W.beat=STEPS[i].beats.length;draw();return}
+ W.beat=0;draw();later(tick,180)}
 function leftMode(){
   if(W.step<0||W.step>=N) return 'said'
   const st=STEPS[W.step]
@@ -167,7 +169,7 @@ function answerCards(list){
   return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="ccline"><b>${a.short||a.name}</b> <span class="ccwho">${a.who}${a.id==='n28'?' · '+a.rule:''}</span></div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
 }
 function numberCards(ok){
-  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok&&a.id==='n28'?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
+  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
 }
 function beItems(V){
   const it=[], step=shownStep()
@@ -200,6 +202,8 @@ function caption(){
   return `<div class="wk">Step ${W.step+1} of 6 · ${st.label}</div><div class="wt">${st.title}</div><div class="wb">${st.body}</div>`
 }
 function phone(){return !!(window.matchMedia&&window.matchMedia('(max-width:820px)').matches)}
+function reduceMotion(){return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)}
+function payoffNow(i){return (phone()||reduceMotion())&&(i===0||i===5)}
 function draw(){
   root=document.getElementById('wv');if(!root)return
   const V=localVis(),c=cur(),st=STEPS[W.step],mode=leftMode()

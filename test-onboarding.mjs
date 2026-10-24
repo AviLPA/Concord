@@ -46,6 +46,14 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(!/Setup is two read-only connections/.test(land), 'built-for footer trim')
  const landWords=(await p.$eval('.lp',e=>e.innerText)).trim().split(/\s+/).filter(Boolean).length
  log(n,'landing words',landWords)
+ const heroLay=await p.evaluate(()=>{
+  const cols=getComputedStyle(document.querySelector('.lhero')).gridTemplateColumns.split(' ').filter(Boolean)
+  const text=document.querySelector('.lht').getBoundingClientRect()
+  const card=document.querySelector('.lcard').getBoundingClientRect()
+  return {n:cols.length,sideBySide:card.left>=text.right-1&&card.top<text.bottom,stacked:card.top>=text.bottom-1}
+ })
+ if(vp.width>=1024) assert(heroLay.n===2&&heroLay.sideBySide, 'desktop two-column hero '+JSON.stringify(heroLay))
+ else assert(heroLay.n===1&&heroLay.stacked, 'stacked hero '+JSON.stringify(heroLay))
  await shot('01-landing')
  await p.evaluate(()=>scrollTo(0,document.body.scrollHeight));await p.waitForTimeout(200);await honesty(p,'landing bottom')
  await p.evaluate(()=>scrollTo(0,0))

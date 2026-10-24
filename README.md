@@ -28,7 +28,7 @@ A click-through story in six steps. The user clicks Next and Back, or a step in 
 3. **Four answers.** Dana's 35 sits with 42, 17, and 28. Renewal radar (RevOps · Claude, warehouse score) is 28. The left panel keeps Dana's chat, faded, with the note that her agent is one of four.
 4. **Sara's alert.** Sara Klein gets the four answers: 35, 42, 17, and 28.
 5. **Sara decides.** She signs off 28 as the official answer. Notes go to each builder.
-6. **Daily scans.** Day 1 Dana updates. Day 3 Tom updates. Day 5 the Account health monitor still says 42. The CS team lead updates it. All 4 agents agree: 28.
+6. **Daily scans.** Builders update their agents. Daily scans confirm all four now say 28.
 
 Controls: Next, Back, and clickable step markers. Back is disabled on the first step. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
 
