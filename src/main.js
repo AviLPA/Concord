@@ -30,7 +30,7 @@ const parts=()=>M.companyParts(S)
 const openN=()=>M.openConflicts(S).length
 const highN=()=>M.openConflicts(S).filter(c=>c.sev==='bad').length
 
-const NAV=[['watch','Walkthrough','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official blocks','cube'],['integrations','Integrations','plug']]
+const NAV=[['watch','Walkthrough','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official answers','cube'],['integrations','Integrations','plug']]
 const TITLES={search:'Search',resolve:'Resolve conflict',start:'Setup'}
 function shell(inner){
   const title=(NAV.find(n=>n[0]===S.route)||[0,TITLES[S.route]||''])[1]
@@ -97,7 +97,7 @@ ${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.r
 <div class="card"><div class="hd"><h3>Recent activity</h3><span class="r">All</span></div><ul class="feed">${acts().slice(0,5).map(a=>`<li><span class="ic" style="${icc[a[0]]}">${a[1]==='check'?ic('check',12):a[1]}</span><div>${a[2]}</div><span class="t">${a[3]}</span></li>`).join('')}</ul></div></div>
 <div class="grid dash3"><div class="card"><div class="hd"><h3>Open conflicts by owner</h3></div><div class="bd" style="padding-top:6px">${dep.map(([n,v])=>`<div class="dept"><span class="mut">${n}</span><div class="bar"><span style="width:${v/max*100}%"></span></div><b style="text-align:right">${v}</b></div>`).join('')}</div></div>
 <div class="card"><div class="hd"><h3>Shared jobs</h3><a class="r" href="#/jobs">View all</a></div><div class="bd sjbd"><p class="scorewhy">${esc(M.SCORE_JOB)}</p>${jobs.map(j=>{const pres=M.jobPresentation(j.job,S);return `<div class="sj"><b>${esc(j.job)}</b><span class="n">${j.count} agents</span><span class="end"><b class="mono">${j.score}</b>${status(pres.kind,pres.label)}</span></div>`}).join('')}</div></div>
-<div class="card"><div class="hd"><h3>Official block adoption</h3><a class="r" href="#/blocks">Library</a></div><div class="bd">${BLOCKS.slice(0,4).map(b=>{const c=M.conflictByJob(b.job);const live=M.blockLive(b,S);const plan=c&&live?M.adoptionPlan(c,S):null;const t=M.tally(b.job,S);const label=plan?`${plan.verifiedNeed.length}/${plan.need.length} suggestions verified`:t.count?`${t.majority}/${t.count} match`:'—';const pct=plan&&plan.need.length?plan.verifiedNeed.length/plan.need.length*100:t.count?t.majority/t.count*100:0;return `<div style="margin:6px 0 12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${b.n} <span class="dim">${b.v}</span></span><span class="mut">${live?label:'Draft'}</span></div><div class="bar"><span style="width:${live?pct:0}%"></span></div></div>`}).join('')}</div></div></div></div>`}
+<div class="card"><div class="hd"><h3>Official answers</h3><a class="r" href="#/blocks">Library</a></div><div class="bd">${BLOCKS.slice(0,4).map(b=>{const c=M.conflictByJob(b.job);const live=M.blockLive(b,S);const plan=c&&live?M.adoptionPlan(c,S):null;const t=M.tally(b.job,S);const label=plan?`${plan.verifiedNeed.length}/${plan.need.length} suggestions verified`:t.count?`${t.majority}/${t.count} match`:'—';const pct=plan&&plan.need.length?plan.verifiedNeed.length/plan.need.length*100:t.count?t.majority/t.count*100:0;return `<div style="margin:6px 0 12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${b.n} <span class="dim">${b.v}</span></span><span class="mut">${live?label:'Draft'}</span></div><div class="bar"><span style="width:${live?pct:0}%"></span></div></div>`}).join('')}</div></div></div></div>`}
 
 function agentsPg(){
   const fl=S.filter
@@ -117,7 +117,7 @@ function drawer(i){
 <section><div class="lbl">${a.tool==='claude'?'Project instructions · Compliance API':'Workflow JSON · n8n REST API'}</div><div class="code">${esc(lines.join('\n'))}</div>
 ${a.tool==='claude'?`<p class="blind">${ic('alert',14)} ${esc(M.BLIND)}</p>`:`<p class="blind">${ic('alert',14)} ${esc(M.N8N_NOTE)}</p>`}
 <p class="dim" style="margin:8px 0 0">${esc(a.evidence)}</p></section>
-<section><div class="lbl">Official block</div>${blk?`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px">${ic('cube')}<div><b>${esc(blk.n)} ${esc(blk.v)}</b><div class="mut" style="font-size:12px">Owner ${esc(blk.own)} · MCP concord.${M.slug(blk.job)}</div></div><span style="margin-left:auto">${on?status('sync','In sync'):M.blockLive(blk,S)?status('drift','Drift detected'):status('unknown','Not checked')}</span></div>`:'<span class="mut">No official block for this job yet.</span>'}</section></div>`}
+<section><div class="lbl">Official answer</div>${blk?`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px">${ic('cube')}<div><b>${esc(blk.n)} ${esc(blk.v)}</b><div class="mut" style="font-size:12px">Owner ${esc(blk.own)}</div></div><span style="margin-left:auto">${on?status('sync','In sync'):M.blockLive(blk,S)?status('drift','Drift detected'):status('unknown','Not checked')}</span></div>`:'<span class="mut">No official answer for this job yet.</span>'}</section></div>`}
 
 function venn(n,col){const pos=n>=4?[[-40,-14],[40,-14],[-40,22],[40,22]]:n===3?[[-34,-12],[34,-12],[0,24]]:[[-28,0],[28,0]]
 return `<svg viewBox="-110 -75 220 150" class="venn" width="100%">${pos.slice(0,Math.max(n,2)).map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="46" fill="${col[i%col.length]||'#9AABB3'}" fill-opacity=".28" stroke="${col[i%col.length]||'#9AABB3'}" stroke-opacity=".9"/>`).join('')}<text x="0" y="5" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">${n<2?'one agent':'shared job'}</text></svg>`}
@@ -152,14 +152,14 @@ function cdetail(c){
 <div class="lg">${M.effectiveDef(col.a,S).map(l=>`<span>${esc(l)}</span>`).join('')}</div>
 <div class="cf">${variant?status('sync','Valid variant'):res?(a.ans===plan.ans&&!S.verified.includes(col.a)?status('sync','In sync'):M.agentStatus(col.a,S)==='adopted'?status('sync','In sync'):status('drift','Drift detected')):`<button class="btn" data-variant="${c.id}:${col.a}">Different job / valid variant</button>`}</div></div>`}).join('')}</div>
 ${res==='official'?`<div class="lbl" style="margin-top:18px">Adoption</div><p class="mut">Builders apply the suggestion. Concord re-reads instructions and workflow JSON. It does not edit the agent.</p>${timelineMarkup(c.id)}`:`<div class="lbl" style="margin-top:20px">Impact estimate</div><div class="impact"><div><span class="mut">Revenue at stake</span><b>${esc(c.impact[0])}</b><span class="dim">${esc(c.impact[1])}</span></div><div><span class="mut">Agents</span><b>${esc(c.imp2[0])}</b><span class="dim">${esc(c.imp2[1])}</span></div><div><span class="mut">On record</span><b>${esc(c.imp3[0])}</b><span class="dim">${esc(c.imp3[1])}</span></div></div>`}
-<div class="actions" style="margin-top:16px">${res?`<a class="btn" href="#/blocks">View the block</a>`:`<button class="btn" data-variant="${c.id}:job">Different job / valid variant</button><a class="btn p" href="#/resolve/${c.id}">${ic('check',13)} Resolve this conflict</a>`}</div>`}
+<div class="actions" style="margin-top:16px">${res?`<a class="btn" href="#/blocks">View official answers</a>`:`<button class="btn" data-variant="${c.id}:job">Different job / valid variant</button><a class="btn p" href="#/resolve/${c.id}">${ic('check',13)} Resolve this conflict</a>`}</div>`}
 
 function blocks(){
-  return `<div class="page"><div class="hrow"><div><h1>Official blocks</h1><p class="sub">Owner-approved definitions, published over MCP. Concord can pull the metric from a semantic layer, or publish the block back. It does not replace dbt, Atlan, or Qontext.</p></div></div>
-<div class="card"><div class="tw" style="max-height:none"><table><thead><tr><th>Block</th><th>Version</th><th>Owner</th><th>MCP</th><th>On this definition</th><th>Suggestions</th><th>Updated</th></tr></thead><tbody>
+  return `<div class="page"><div class="hrow"><div><h1>Official answers</h1><p class="sub">Owner-approved definitions. Connecting dbt or Atlan is coming next.</p></div></div>
+<div class="card"><div class="tw" style="max-height:none"><table><thead><tr><th>Answer</th><th>Version</th><th>Owner</th><th>On this definition</th><th>Suggestions</th><th>Updated</th></tr></thead><tbody>
 ${BLOCKS.map(b=>{const c=M.conflictByJob(b.job), live=M.blockLive(b,S), t=M.tally(b.job,S), plan=c?M.adoptionPlan(c,S):null
   const sugg=plan&&live&&plan.need.length?`${plan.verifiedNeed.length}/${plan.need.length} verified`:'—'
-  return `<tr class="k-${live?'sync':'unknown'}"><td><span style="display:inline-flex;gap:8px;align-items:center">${ic('cube',15)}<b style="font-weight:500">${esc(b.n)}</b></span></td><td>${tag(esc(b.v)+(live?'':' · draft'))}</td><td>${esc(b.own)}</td><td class="mut" style="font-family:ui-monospace,monospace;font-size:11.5px">concord.${M.slug(b.job)}</td>
+  return `<tr class="k-${live?'sync':'unknown'}"><td><span style="display:inline-flex;gap:8px;align-items:center">${ic('cube',15)}<b style="font-weight:500">${esc(b.n)}</b></span></td><td>${tag(esc(b.v)+(live?'':' · draft'))}</td><td>${esc(b.own)}</td>
 <td class="mut">${t.count?`${t.majority}/${t.count} match`+(M.jobScore(b.job,S)===100?' · 100':''):'—'}</td><td class="mut">${sugg}</td><td class="mut">${live&&b.id==='c1'&&S.resolved.c1?'Just now':esc(b.upd)}</td></tr>`}).join('')}
 </tbody></table></div></div>
 ${CONF.filter(c=>S.resolved[c.id]==='official').map(c=>`<div class="card" style="margin-top:14px"><div class="hd"><h3>${esc(c.job)} · published</h3><span class="r">Verified by re-reading</span></div><div class="bd">${timelineMarkup(c.id)}${c.cols.map(col=>{const a=AGENTS[col.a];return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">${dav(a)}<span>${esc(a.n)}</span><span class="dim">${esc(a.b)}</span>${tool(a.tool)}<span style="margin-left:auto">${statusChip(M.agentStatus(col.a,S))}</span></div>`}).join('')}</div></div>`).join('')}
@@ -173,16 +173,14 @@ function integ(){
 <div class="kv"><span>Access</span><span>${tag(ic('lock',11)+' Read-only')}</span><span>Connected via</span><span>Compliance API</span><span>Key</span><span>Read-only key created by the Primary Owner</span><span>Reads</span><span class="mut">Projects, instructions, knowledge files, and chats linked to a project</span><span>Blind spot</span><span class="mut">${esc(M.BLIND)}</span><span>Last sync</span><span>2 min ago</span></div></div>
 <div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot tile n8" style="background:${TOOLS.n8n.c}">n</span><div><b>n8n</b><div class="mut">${n8} workflows</div></div><span style="margin-left:auto">${status('sync','In sync')}</span></div>
 <div class="kv"><span>Access</span><span>${tag(ic('lock',11)+' Read-only')}</span><span>Connected via</span><span>REST API</span><span>Key</span><span>Owner or Admin</span><span>Reads</span><span class="mut">Workflow JSON and execution history (30 days on this Pro plan)</span><span>Does not</span><span class="mut">${esc(M.N8N_NOTE)}</span><span>Last sync</span><span>4 min ago</span></div></div>
-<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot tile sem">S</span><div><b>Semantic layer</b><div class="mut">dbt, Atlan, or Qontext</div></div><span style="margin-left:auto">${S.semanticConnected?status('sync','In sync'):status('unknown','Not checked')}</span></div>
-<p class="mut">Pull a certified metric into a conflict, and publish the official block back. Concord does not replace the semantic layer.</p>
-<div class="kv"><span>Direction</span><span>Pull from, and publish into</span><span>Tools</span><span>dbt Semantic Layer · Atlan · Qontext</span></div>
-${S.semanticConnected?'<div class="ion">'+ic('check',14)+' Read-only preview connected</div>':'<button class="btn p" data-semcon>Connect read-only</button>'}</div>
+<div class="card integ"><div style="display:flex;gap:12px;align-items:center"><span class="tdot tile sem">S</span><div><b>dbt or Atlan · Coming next</b></div></div></div>
+<p class="mut">Connecting the semantic layer you already use is coming next.</p>
 </div></div>`}
 
 function docTitle(raw){
   const key=(raw||'home').split('/')[0]||'home'
   if(key==='home') return "Your people are building the same agents. They're getting different answers."
-  const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official blocks',integrations:'Integrations'}
+  const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official answers',integrations:'Integrations'}
   return 'Concord · '+(names[key]||'Overview')
 }
 function renderPage(){

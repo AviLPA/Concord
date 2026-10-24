@@ -53,9 +53,9 @@ async function run(name,vp){
  await p.waitForSelector('.wrapc',{timeout:8000})
  await p.waitForTimeout(200);await p.screenshot({path:`/tmp/t-${name}-7-wrap.png`})
  const wrap=await p.$eval('.wrapc',e=>e.innerText)
- assert(wrap.includes('28')&&wrap.includes('35')&&/All 4 agents agree/i.test(wrap)&&/daily/i.test(wrap)&&wrap.includes('CS team lead'), name+' wrap '+wrap.slice(0,180))
+ assert(wrap.includes('28')&&wrap.includes('35')&&wrap.includes('42')&&/All 4 agents agree/i.test(wrap)&&/daily/i.test(wrap)&&/re-alerts/.test(wrap)&&/day 6/i.test(wrap)&&/in sync/i.test(wrap), name+' wrap '+wrap.slice(0,220))
  assert(!/rewir/i.test(wrap)&&!/asked all/i.test(wrap)&&!/offered|paste/i.test(wrap), name+' wrap claims a run or edit')
- assert(wrap.includes('Tom'), name+' wrap names Tom')
+ assert(!/Dana|Tom|Account health monitor/.test(wrap), name+' wrap drops the old day names')
  const bad=/Maya|Priya|Compliance API|REST API|workflow JSON|MCP|re-read|block v2/i
  for(let i=0;i<6;i++){
   await p.click(`[data-wgo="${i}"]`);await p.waitForTimeout(80)
@@ -136,7 +136,7 @@ async function run(name,vp){
  assert(scan.includes('Customer health'), name+' scan matches the job')
  assert(scan.includes('How many accounts are at risk?'), name+' scan repeats the question')
  assert(scan.includes("Dana's agent answered 35"), name+' scan repeats 35 '+scan.slice(0,220))
- assert(scan.includes('Same answer as the last step'), name+' scan links to step 1')
+ assert(scan.includes('No change since the last step'), name+' scan links to step 1')
  await p.click('[data-wgo="2"]')
  const four=await p.$eval('.elog',e=>e.innerText)
  assert(four.includes('Four answers'), name+' other agents heading')
@@ -162,9 +162,10 @@ async function run(name,vp){
  assert(!/does not|doesn't|never/i.test(await p.$eval('.wchat',e=>e.textContent)), name+' no defensive line')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('CS team lead'), name+' notes name a role')
  await p.click('[data-wgo="5"]')
- const adopt=await p.$eval('.elog',e=>e.textContent)
- assert(adopt.includes('Day 1')&&adopt.indexOf('Day 1')<adopt.indexOf('Day 3')&&adopt.indexOf('Day 3')<adopt.indexOf('Day 5')&&!/Maya/.test(adopt), name+' day order '+adopt)
- assert((await p.$eval('.wb',e=>e.textContent)).trim()==='Builders update their agents. Daily scans confirm all four now say 28.', name+' step 6 header')
+ const adopt=await p.$eval('.tl4',e=>e.textContent)
+ assert(adopt.includes('one agent now says 28')&&adopt.includes('still says 42')&&/re-alerts/.test(adopt)&&adopt.includes('Day 6')&&/in sync/i.test(adopt), name+' day story '+adopt)
+ assert(!/Dana|Tom|Account health|CS team lead/.test(adopt), name+' timeline names '+adopt)
+ assert((await p.$eval('.wb',e=>e.textContent)).trim()==='One agent says 28. One still says 42. Day 6, in sync.', name+' step 6 header')
  const syncCards=await p.evaluate(()=>{
   const cards=[...document.querySelectorAll('.elog .cmp.settle .cc')]
   const flat=c=>c.replace(/\s/g,'')
@@ -172,11 +173,9 @@ async function run(name,vp){
   return {n:cards.length,nums:cards.map(el=>el.querySelector('.ccn').textContent.trim()),ok:cards.filter(el=>el.classList.contains('ok')).length,tops:cards.map(el=>flat(getComputedStyle(el).borderTopColor)),reds:cards.filter(el=>{const s=getComputedStyle(el);const n=getComputedStyle(el.querySelector('.ccn'));return [s.borderTopColor,s.borderRightColor,s.borderBottomColor,s.borderLeftColor,s.backgroundColor,n.color].some(c=>red.test(flat(c)))}).length}
  })
  assert(syncCards.n===4&&syncCards.ok===4&&syncCards.nums.every(n=>n==='28')&&syncCards.reds===0&&syncCards.tops.every(t=>t.includes('63,224,161')), name+' step 6 in-sync cards '+JSON.stringify(syncCards))
- assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes("Tom's n8n workflow"), name+' tom label')
+ assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes('Daily scans'), name+' daily scans label')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('In sync'), name+' finale agreement')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('28'), name+' finale answer')
- assert((await p.$eval('.elog',e=>e.textContent)).includes('Account health monitor'), name+' day 5 names the agent')
- assert((await p.$eval('.elog',e=>e.textContent)).includes('CS team lead'), name+' owner updated after the alert')
  await p.click('[data-w=next]');await p.waitForSelector('.wrapc');await p.click('[data-w=restart]');await p.waitForTimeout(200)
  assert(await p.locator('.wcard [data-w=start]').count()===1, name+' restart returns to the intro')
  await p.click('.wcard [data-w=start]')

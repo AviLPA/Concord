@@ -1,5 +1,5 @@
-// Lead form. No endpoint: CTAs still open the form, and a valid submit logs the payload and shows success.
-// Endpoint set: the same CTAs POST JSON, and the thank-you appears only after a successful response.
+// Lead form. No endpoint: every CTA is a disabled Coming soon button and the form never opens.
+// Endpoint set: the same CTAs open the form. Thank-you only after a real 2xx. Any other result is an error.
 import {spawn} from 'node:child_process'
 import {chromium} from 'playwright'
 import {fileURLToPath} from 'node:url'
@@ -64,6 +64,22 @@ async function assertNoAudit(page){
   assert(!/Start with a free consistency audit/.test(text), 'free audit phrase still on the page')
 }
 
+async function assertComingSoon(page, where){
+  const n = await page.locator('[data-lead-cta]').count()
+  assert(await page.locator('[data-lead]').count() === 0, where + ' still has a form opener')
+  for(let i = 0; i < n; i++){
+    const btn = page.locator('[data-lead-cta]').nth(i)
+    assert((await btn.innerText()).trim() === 'Coming soon', where + ' CTA ' + await btn.innerText())
+    assert(await btn.isDisabled(), where + ' CTA is enabled')
+  }
+  if(n) await page.locator('[data-lead-cta]').first().evaluate(el => el.click())
+  await page.waitForTimeout(50)
+  const text = await page.evaluate(() => document.body.innerText)
+  assert(await page.locator('#lead-form').count() === 0, where + ' form opened')
+  assert(await page.locator('.lead-ok').count() === 0, where + ' fake success')
+  assert(!text.includes("Thanks, we got it."), where + ' thank-you without a request')
+}
+
 async function unsetMode(browser){
   const {child, ready} = startVite(4175, '')
   try{
@@ -75,57 +91,19 @@ async function unsetMode(browser){
     page.on('console', m => {if(m.type() === 'log') logs.push(m.text())})
     page.on('request', req => {if(req.method() === 'POST') posts.push(req.url())})
     page.on('pageerror', e => fail('unset desktop ' + e.message))
-    for(const hash of ['#/', '#/pricing']){
+    for(const hash of ['#/', '#/pricing', '#/how', '#/about', '#/watch']){
       await page.goto(base + hash)
-      await page.waitForSelector('[data-lead-cta]')
+      await page.waitForTimeout(200)
       await assertNoAudit(page)
-      await openFromEveryCta(page)
+      await assertComingSoon(page, 'unset ' + hash)
+      assert(await overflow(page) <= 1, 'unset desktop overflow ' + hash + ' ' + await overflow(page))
     }
+    await page.goto(base + '#/')
+    assert(await page.locator('[data-lead-cta]').count() === 1, 'landing CTA count')
     await page.goto(base + '#/pricing')
-    await page.click('[data-lead]')
-    await page.waitForSelector('#lead-form')
-    const modal = await box(page, '.modal.lead')
-    assert(modal && modal.width < 1280 - 40 && modal.x > 20, 'desktop modal ' + JSON.stringify(modal))
-    assert(await page.locator('#lead-form [name=website]').count() === 1, 'honeypot')
-    assert(await page.locator('#lead-form input[type=checkbox]').count() === 3, 'platform checkboxes')
-
-    await page.click('#lead-form button[type=submit]')
-    await page.waitForSelector('#lead-err')
-    assert(/required/i.test(await page.locator('#lead-err').innerText()), 'empty validation')
-    assert(posts.length === 0, 'empty submit posted')
-    assert(await page.locator('.lead-ok').count() === 0, 'empty success')
-
-    await page.fill('[name=name]', 'Ada Lovelace')
-    await page.fill('[name=email]', 'not-an-email')
-    await page.fill('[name=company]', 'Northwind')
-    await page.click('#lead-form button[type=submit]')
-    await page.waitForFunction(() => /valid work email/i.test(document.querySelector('#lead-err')?.textContent || ''))
-    assert(posts.length === 0, 'invalid email posted')
-    assert(await page.locator('.lead-ok').count() === 0, 'invalid email success')
-
-    await page.locator('[name=website]').evaluate(el => {el.value = 'https://spam.example'})
-    await page.fill('[name=email]', 'ada@northwind.example')
-    await page.click('#lead-form button[type=submit]')
-    await page.waitForFunction(() => /try again/i.test(document.querySelector('#lead-err')?.textContent || ''))
-    assert(posts.length === 0, 'honeypot posted')
-    assert(await page.locator('.lead-ok').count() === 0, 'honeypot success')
-    assert(!logs.some(l => l.includes('ada@northwind.example')), 'honeypot logged')
-
-    await page.fill('[name=role]', 'Head of RevOps')
-    await page.check('[name=platform][value="Claude"]')
-    await page.check('[name=platform][value="n8n"]')
-    await page.fill('[name=note]', 'One number for customer health')
-    await page.click('#lead-form button[type=submit]')
-    await page.waitForSelector('.lead-ok')
-    assert((await page.locator('.lead-ok').innerText()).trim() === "Thanks, we got it. We'll be in touch soon.", 'unset success copy')
-    assert(await page.locator('#lead-form').count() === 0, 'form still open after unset success')
-    assert(posts.length === 0, 'unset success posted')
-    const logged = logs.find(l => l.includes('ada@northwind.example'))
-    assert(logged, 'payload not logged')
-    const body = JSON.parse(logged)
-    assert(JSON.stringify(Object.keys(body).sort()) === JSON.stringify(['company','email','name','note','platforms','role']), 'logged keys ' + Object.keys(body))
-    assert(body.role === 'Head of RevOps' && body.note === 'One number for customer health', 'logged optionals')
-    assert(JSON.stringify(body.platforms) === JSON.stringify(['Claude','n8n']), 'logged platforms ' + JSON.stringify(body.platforms))
+    assert(await page.locator('[data-lead-cta]').count() === 3, 'pricing CTA count')
+    assert(posts.length === 0, 'unset mode posted')
+    assert(!logs.some(l => /@/.test(l)), 'unset mode logged a payload')
     await desktop.close()
 
     const phone = await browser.newContext({viewport:{width:390, height:844}})
@@ -133,25 +111,9 @@ async function unsetMode(browser){
     p.on('pageerror', e => fail('unset phone ' + e.message))
     await p.goto(base + '#/')
     await p.waitForSelector('[data-lead-cta]')
-    await openFromEveryCta(p)
+    await assertComingSoon(p, 'unset phone home')
     await p.goto(base + '#/pricing')
-    await openFromEveryCta(p)
-    await p.click('[data-lead]')
-    await p.waitForSelector('.modal.lead')
-    const full = await box(p, '.modal.lead')
-    assert(full && full.x <= 1 && full.y <= 1 && full.width >= 389 && full.height >= 843, 'phone fullscreen ' + JSON.stringify(full))
-    await p.click('#lead-form button[type=submit]')
-    await p.waitForSelector('#lead-err')
-    assert(await overflow(p) <= 1, '390 form overflow ' + await overflow(p))
-    await p.fill('[name=name]', 'Ada Lovelace')
-    await p.fill('[name=email]', 'ada@northwind.example')
-    await p.fill('[name=company]', 'Northwind')
-    await p.click('#lead-form button[type=submit]')
-    await p.waitForSelector('.lead-ok')
-    assert((await p.locator('.lead-ok').innerText()).trim() === "Thanks, we got it. We'll be in touch soon.", 'phone success')
-    assert(await overflow(p) <= 1, '390 success overflow ' + await overflow(p))
-    await p.click('button[data-lead-close]')
-    await p.waitForSelector('.modal.lead', {state:'detached'})
+    await assertComingSoon(p, 'unset phone pricing')
     assert(await overflow(p) <= 1, '390 page overflow ' + await overflow(p))
     await phone.close()
   }finally{stop(child)}
@@ -181,11 +143,39 @@ async function setMode(browser){
       await page.waitForSelector('[data-lead-cta]')
       await openFromEveryCta(page)
     }
+    await page.goto(base + '#/')
+    assert(await page.locator('[data-lead-cta]').count() === 1, 'set landing CTA count')
+    await page.goto(base + '#/pricing')
+    assert(await page.locator('[data-lead-cta]').count() === 3, 'set pricing CTA count')
     await page.click('[data-lead]')
     await page.waitForSelector('#lead-form')
+    const modal = await box(page, '.modal.lead')
+    assert(modal && modal.width < 1280 - 40 && modal.x > 20, 'desktop modal ' + JSON.stringify(modal))
+    assert(await page.locator('#lead-form [name=website]').count() === 1, 'honeypot')
+    assert(await page.locator('#lead-form input[type=checkbox]').count() === 3, 'platform checkboxes')
+
+    await page.click('#lead-form button[type=submit]')
+    await page.waitForSelector('#lead-err')
+    assert(/required/i.test(await page.locator('#lead-err').innerText()), 'empty validation')
+    assert(posts.length === 0, 'empty submit posted')
+    assert(await page.locator('.lead-ok').count() === 0, 'empty success')
+
     await page.fill('[name=name]', 'Ada Lovelace')
-    await page.fill('[name=email]', 'ada@northwind.example')
+    await page.fill('[name=email]', 'not-an-email')
     await page.fill('[name=company]', 'Northwind')
+    await page.click('#lead-form button[type=submit]')
+    await page.waitForFunction(() => /valid work email/i.test(document.querySelector('#lead-err')?.textContent || ''))
+    assert(posts.length === 0, 'invalid email posted')
+    assert(await page.locator('.lead-ok').count() === 0, 'invalid email success')
+
+    await page.locator('[name=website]').evaluate(el => {el.value = 'https://spam.example'})
+    await page.fill('[name=email]', 'ada@northwind.example')
+    await page.click('#lead-form button[type=submit]')
+    await page.waitForFunction(() => /try again/i.test(document.querySelector('#lead-err')?.textContent || ''))
+    assert(posts.length === 0, 'honeypot posted')
+    assert(await page.locator('.lead-ok').count() === 0, 'honeypot success')
+    await page.locator('[name=website]').evaluate(el => {el.value = ''})
+
     await page.fill('[name=role]', 'Head of RevOps')
     await page.check('[name=platform][value="Other"]')
     await page.fill('[name=note]', 'Comparing refund answers next')
@@ -194,7 +184,7 @@ async function setMode(browser){
     assert(posts.length === 1, 'request not sent ' + posts.length)
     assert(await page.locator('.lead-ok').count() === 0, 'success before the response')
     release()
-    await page.waitForSelector('#lead-err')
+    await page.waitForFunction(() => /try again/i.test(document.querySelector('#lead-err')?.textContent || ''))
     assert(/try again/i.test(await page.locator('#lead-err').innerText()), 'failure asks to try again')
     assert(await page.locator('.lead-ok').count() === 0, 'failure still thanks the visitor')
     assert(await page.inputValue('[name=name]') === 'Ada Lovelace', 'fields kept for retry')

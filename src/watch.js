@@ -63,11 +63,11 @@ const STEPS=[
  ]},
 {label:'Daily scans', left:'days',
  title:'Daily scans check',
- body:'Builders update their agents. Daily scans confirm all four now say 28.',
+ body:'One agent says 28. One still says 42. Day 6, in sync.',
  dwell:5600,
  beats:[
   {t:'ev', id:'d1', side:'be', wait:800},
-  {t:'ev', id:'d3', side:'chat', left:'n8n', wait:900},
+  {t:'ev', id:'d3', side:'be', wait:900},
   {t:'ev', id:'d5', side:'be', wait:900},
   {t:'ev', id:'agree', side:'be', wait:800},
  ]},
@@ -115,10 +115,10 @@ function alertCard(){
 }
 function timeline(V){
   const rows=[
-    ['Day 1 · Dana',V.has('d1')],
-    ['Day 3 · Tom',V.has('d3')],
-    ['Day 5 · Account health monitor',V.has('d5')],
-    ['CS team lead',V.has('agree')],
+    ['Next daily scan · one agent now says 28',V.has('d1')],
+    ['One agent still says 42. Concord re-alerts',V.has('d5')],
+    ['Day 6 · the builder fixes it',V.has('agree')],
+    ['The job is in sync',V.has('agree')],
   ]
   return `<div class="tl4">${rows.map(([t,on])=>`<span class="${on?'on':''}"><i></i>${t}</span>`).join('')}</div>`
 }
@@ -169,7 +169,7 @@ function answerCards(list){
   return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="ccline"><b>${a.short||a.name}</b> <span class="ccwho">${a.who}${a.id==='n28'?' · '+a.rule:''}</span></div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
 }
 function numberCards(ok){
-  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
+  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}${ok?'':`<b>${a.short||a.name}</b>`}</div></div>`).join('')}</div>`
 }
 function beItems(V){
   const it=[], step=shownStep()
@@ -177,7 +177,7 @@ function beItems(V){
   if(step===0){
     A('quiet','eye','','Next scan is tonight','The scan runs daily.')
   }else if(step===1){
-    if(V.has('found')) A('found','eye','','New agent found','Customer health.',`<div class="sameq"><div class="samek">Same answer as the last step</div><div class="sameask">${Q}</div><div class="samen">35</div><b>Dana's agent answered 35</b></div>`)
+    if(V.has('found')) A('found','eye','','New agent found','Customer health.',`<div class="sameq"><div class="samek">No change since the last step</div><div class="sameask">${Q}</div><div class="samen">35</div><b>Dana's agent answered 35</b></div>`)
   }else if(step===2){
     const cards=SAID.filter(a=>V.has(a.id))
     if(cards.length) A('nums','layers','','Four answers','',answerCards(cards))
@@ -244,7 +244,7 @@ function draw(){
   setH(root.querySelector('.wv-over'),W.step<0?intro():W.step>=N?wrap():'')
 }
 function intro(){return `<div class="wcard"><h2>Dana gets 35.</h2><p>A nightly scan alerts Sara. Later every agent says 28.</p><button class="btn p big" data-w="start">Start the walkthrough</button></div>`}
-function wrap(){return `<div class="wcard wrapc"><h2>All 4 agents agree: 28.</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav numok">28</div><div class="bas">All 4 agents agree</div></div></div><p>Dana on day 1. Tom on day 3. On day 5 the Account health monitor still said 42. The CS team lead updated it. Daily scans continue.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app</button><button class="btn big" data-w="restart">Walk through again</button></div></div>`}
+function wrap(){return `<div class="wcard wrapc"><h2>All 4 agents agree: 28.</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav numok">28</div><div class="bas">All 4 agents agree</div></div></div><p>The next daily scan shows one agent at 28 and one still at 42, so Concord re-alerts. On day 6 the builder fixes it. The job is in sync. Daily scans continue.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app</button><button class="btn big" data-w="restart">Walk through again</button></div></div>`}
 export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="be" data-left="said">
 <div class="wv-head"><div><h1>Walkthrough</h1><p class="sub" style="margin:0">Dana gets 35. A scan alerts Sara.</p></div></div>

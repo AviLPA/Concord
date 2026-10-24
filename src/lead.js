@@ -1,5 +1,4 @@
-// Contact form. POSTs JSON to VITE_LEAD_ENDPOINT when that is set.
-// TODO: persist the lead when VITE_LEAD_ENDPOINT is unset. Storage is wired separately; until then, log the payload and show success.
+// Contact form. Shown only when VITE_LEAD_ENDPOINT is set. No endpoint, no form, no success message.
 const raw = import.meta.env.VITE_LEAD_ENDPOINT
 export const LEAD_ENDPOINT = typeof raw === 'string' ? raw.trim() : ''
 export const leadReady = () => LEAD_ENDPOINT.length > 0
@@ -26,6 +25,7 @@ export function closeLead(){
 
 export function leadCta(extra = ''){
   const cls = ['btn', extra].filter(Boolean).join(' ')
+  if(!leadReady()) return `<button type="button" class="${cls}" data-lead-cta disabled>Coming soon</button>`
   return `<button type="button" class="${cls}" data-lead data-lead-cta>Want to hear more?</button>`
 }
 
@@ -56,7 +56,7 @@ function html(){
 }
 
 export function paintLead(root){
-  if(!open || !root) return
+  if(!leadReady() || !open || !root) return
   root.insertAdjacentHTML('beforeend', html())
 }
 
@@ -78,6 +78,7 @@ export function bindLead(render){
   document.addEventListener('click', e => {
     if(e.target.closest('[data-lead]')){
       e.preventDefault()
+      if(!leadReady()) return
       open = true
       done = false
       sending = false
@@ -93,7 +94,7 @@ export function bindLead(render){
     const form = e.target
     if(!form || form.id !== 'lead-form') return
     e.preventDefault()
-    if(sending || done) return
+    if(!leadReady() || sending || done) return
     const fd = new FormData(form)
     fields = {
       name: String(fd.get('name') || '').trim(),
@@ -122,14 +123,6 @@ export function bindLead(render){
     const gen = sendGen
     const payload = payloadOf(fields)
     error = ''
-    if(!leadReady()){
-      // TODO: persist the lead when VITE_LEAD_ENDPOINT is unset.
-      console.log(JSON.stringify(payload))
-      if(gen !== sendGen) return
-      done = true
-      render()
-      return
-    }
     sending = true
     render()
     try{

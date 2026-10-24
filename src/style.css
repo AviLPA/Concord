@@ -849,7 +849,7 @@ tbody tr:hover{background:var(--raised)}
 @media (min-width:1024px){
   .lp{font-size:15px;line-height:1.5}
   .lhero{grid-template-columns:1.05fr .95fr;align-items:center;gap:48px;padding:clamp(36px,7vw,88px) 0}
-  .lhero h1{font-size:clamp(34px,8vw,72px);line-height:1;letter-spacing:-.04em;max-width:none;margin:0 0 18px;font-weight:700}
+  .lhero h1{font-size:40px;line-height:1.08;letter-spacing:-.03em;max-width:none;margin:0 0 18px;font-weight:700}
   .lsub{font-size:18px;line-height:1.55;max-width:46ch}
   .lcard{max-width:none;border-top:4px solid var(--status-conflict-fill);padding:18px;transition:border-color var(--dur-status)}
   .lcard.is-sync{border-top-color:var(--status-in-sync-fill)}
@@ -859,7 +859,7 @@ tbody tr:hover{background:var(--raised)}
   .syncfield{height:200px;margin-top:0}
   .sfline{top:50%}
   .lcard.is-sync .sfline{background:var(--sync)}
-  .sfmove{display:contents;position:static;transform:none}
+  .sfmove,.lcard.is-sync .sfmove,.sfcol.official .sfmove{display:contents;position:static;transform:none}
   .sfn{position:absolute;top:4px;left:0;right:0;font-size:15px;font-weight:700;letter-spacing:0;line-height:1.2;color:var(--status-conflict-text);text-align:center}
   .lcard.is-sync .sfn,.sfcol.official .sfn{color:var(--sync-text)}
   .sfdot{position:absolute;left:50%;width:18px;height:18px;margin-left:-9px;top:calc(50% - 9px);border-radius:999px;background:var(--agent);display:block;transform:translateY(calc(var(--off) * 1px));transition:transform var(--dur-snap) var(--ease-snap) calc(var(--i) * var(--stagger)),background var(--dur-color) var(--ease-standard) calc(300ms + var(--i) * var(--stagger))}

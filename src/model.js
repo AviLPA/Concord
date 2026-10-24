@@ -136,60 +136,7 @@ export const BLOCKS = [
   {id:'b-onboard', n:'Onboarding FAQ', v:'v5', job:'Onboarding FAQ', own:'Leo Park', pub:true, calls:'2.4k / wk', upd:'Oct 11'},
 ]
 
-const sem = (tool, metric, ans, lines) => ({tool, metric, ans, lines})
-export const SEMANTIC = {
-  'Customer health': {
-    dbt: sem('dbt Semantic Layer','customer_health.at_risk_accounts','28',[
-      'score = 0.5·usage_health + 0.3·nps + 0.2·ticket_health',
-      'at_risk = score < 60',
-      'window = trailing 30 days',
-      'certified by Data · grain = account']),
-    atlan: sem('Atlan','Glossary · At-risk customer','28',[
-      'certified: health score below 60',
-      'score = 0.5·usage + 0.3·nps + 0.2·tickets',
-      'domain: Customer · owner: Data']),
-    qontext: sem('Qontext','context.customer_health.at_risk','28',[
-      'at_risk = health_score < 60',
-      'health_score uses usage, nps, and tickets',
-      'linked metric: customer_health.at_risk_accounts']),
-  },
-  'ARR': {
-    dbt: sem('dbt Semantic Layer','finance.arr_net','$4.8M',[
-      'arr = sum(active_subscriptions)','minus churned_this_month','excludes signed_not_started','certified by Finance']),
-    atlan: sem('Atlan','Glossary · ARR (net)','$4.8M',[
-      'net of churn, live subscriptions only','excludes signed-not-started','owner: Finance']),
-    qontext: sem('Qontext','context.finance.arr_net','$4.8M',[
-      'arr_net excludes churn and unstarted contracts','source metric: finance.arr_net']),
-  },
-  'Discount approval': {
-    dbt: sem('dbt Semantic Layer','pricing.auto_approve_cap','Needs VP',[
-      'auto_approve if discount <= 15%','else route to VP Sales','policy version 2026.3']),
-    atlan: sem('Atlan','Glossary · Discount cap','Needs VP',[
-      'auto-approval cap = 15%','above that, VP Sales','owner: RevOps']),
-    qontext: sem('Qontext','context.pricing.discount_cap','Needs VP',[
-      'cap = 15% for auto-approval','links to Pricing policy v3']),
-  },
-  'Refund policy': {
-    dbt: sem('dbt Semantic Layer','support.refund_window','No',[
-      'refund_window = 30 days','source = Refund policy 2026','owner: Support']),
-    atlan: sem('Atlan','Glossary · Refund window','No',[
-      '30 days from invoice','2024 window of 60 days is retired']),
-    qontext: sem('Qontext','context.support.refund_window','No',[
-      'refund_window_days = 30','policy year 2026']),
-  },
-  'Lead scoring': {
-    dbt: sem('dbt Semantic Layer','marketing.mql_threshold','65',[
-      'mql = hubspot_score >= 65','certified by Marketing']),
-    atlan: sem('Atlan','Glossary · MQL','65',['MQL threshold = 65','owner: Marketing']),
-    qontext: sem('Qontext','context.marketing.mql','65',['mql_threshold = 65']),
-  },
-  'Pipeline coverage': {
-    dbt: sem('dbt Semantic Layer','sales.coverage_target','3×',[
-      'covered = pipeline / quota >= 3','company target, not a team overlay']),
-    atlan: sem('Atlan','Glossary · Coverage target','3×',['company coverage target = 3×','owner: RevOps']),
-    qontext: sem('Qontext','context.sales.coverage','3×',['coverage_target = 3']),
-  },
-}
+export const SEMANTIC = {}
 
 export const ADOPT_DAYS = [1, 3, 6]
 export const HIST = [46, 47, 48, 47, 49, 50, 51, 50, 52, 52, 53, 53]
