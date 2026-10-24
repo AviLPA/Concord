@@ -9,10 +9,10 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the drift-then-snap chart (35, 42, 17, then 28). The centered line under it: security tools check whether an agent is safe; Concord checks whether your agents give the same answer. |
-| `#/how` | How it works, in three steps: Scan, Alert, Fix. |
-| `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. Prices are placeholders. No checkout. |
-| `#/about` | The same answer, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
+| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the drift-then-snap chart (35, 42, 17, then 28) for “How many accounts are at risk this quarter?” Below it: the problem, from conflict to one official answer, the product illustration, and who it is built for. |
+| `#/how` | How it works: Read, Detect, Decide, and Verify adoption. The $10k intentional-difference example lives here. |
+| `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. The semantic layer is marked coming next. Prices are placeholders. No checkout. |
+| `#/about` | Agents answering the same question should give the same answer. Why now, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
 | `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
 | `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |

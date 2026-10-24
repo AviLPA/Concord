@@ -1,7 +1,7 @@
 // Click-through walkthrough. Three acts, same numbers as the shared model.
 // Concord reads chats and logs. Sara picks one answer. Builders apply it.
 // Nothing here runs or edits an agent.
-import {mark} from './brand.js'
+import {mark, status} from './brand.js'
 const sv=p=>`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`
 const IC={zap:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',file:'<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/>',
 layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
@@ -111,14 +111,14 @@ function shownStep(){return W.step>=N?N-1:Math.max(0,W.step)}
 function alertCard(){
   return `<div class="alertc"><div class="alertk">Notification to Sara Klein</div><div class="alertfrom">Slack · #revops</div><b>${ALERT}</b><span>From Concord · nightly scan</span></div>`
 }
-function dayList(V){
+function timeline(V){
   const rows=[
-    ['Day 1','Dana updated her agent',V.has('d1'),''],
-    ['Day 3','Tom updated his workflow himself',V.has('d3'),''],
-    ['Day 5','Account health monitor still says 42. Concord alerted again.',V.has('d5'),'off'],
-    ['Next scan',V.has('agree')?'The CS team lead updated it. Every agent says 28.':'Waiting on the next scan.',V.has('agree'),''],
+    ['Day 1 · Dana',V.has('d1')],
+    ['Day 3 · Tom',V.has('d3')],
+    ['Day 5 · Account health monitor',V.has('d5')],
+    ['CS team lead',V.has('agree')],
   ]
-  return `<div class="days">${rows.map(([d,w,on,k])=>`<div class="day ${on?'on':''} ${on&&k==='off'&&!V.has('agree')?'off':''}"><b>${d}</b><span>${w}</span></div>`).join('')}</div>`
+  return `<div class="tl4">${rows.map(([t,on])=>`<span class="${on?'on':''}"><i></i>${t}</span>`).join('')}</div>`
 }
 function chatItems(V){
   const it=[], c=cur(), mode=leftMode(), step=shownStep()
@@ -127,11 +127,11 @@ function chatItems(V){
   const am=(id,h)=>A(id,`<div class="cm a"><span class="cav">${ic('spark')}</span><div class="cb">${h}</div></div>`)
   if(mode==='n8n'){
     const applied=V.has('d3')||V.has('agree')
-    A('n8nhead',`<div class="chello"><b>CSM weekly risk digest</b><span>Tom's n8n workflow · he edits it himself</span></div>`)
-    A('suggest',`<div class="cnote">${ic('link')}<span>Note from Sara: use the warehouse score, 28. Tom makes the edit.</span></div>`)
-    const nodes=[['Every Monday',''],['Get usage',''],[applied?'Warehouse score · 28':'Usage drop over 40%',applied?'ok':'hot'],['Post to #cs-risk','stay']]
+    A('n8nhead',`<div class="chello"><b>Tom's n8n workflow</b><span>He edits it himself.</span></div>`)
+    A('suggest',`<div class="cnote">${ic('link')}<span>Note from Sara: warehouse score, 28.</span></div>`)
+    const nodes=[['Monday',''],['Get usage',''],[applied?'Warehouse score · 28':'Usage drop over 40%',applied?'ok':'hot'],['#cs-risk','stay']]
     A('flow',`<div class="flow">${nodes.map(([s,cl],i)=>`<div class="fn ${cl}">${s}${cl==='stay'?'<small>unchanged</small>':''}</div>${i<nodes.length-1?'<span class="fa">→</span>':''}`).join('')}</div>`)
-    if(applied) A('applied',`<div class="cnote">${ic('check')}<span>Tom updated it on day 3. The Slack post is unchanged.</span></div>`)
+    if(applied) A('applied',`<div class="cnote">${ic('check')}<span>Tom updated it on day 3.</span></div>`)
     return it
   }
   if(mode==='alert'){
@@ -142,14 +142,13 @@ function chatItems(V){
   if(mode==='sara'){
     const picked=V.has('picked')
     const opts=SAID.map(a=>`<div class="opt ${picked&&a.id==='n28'?'on':''}"><span class="rad"></span><b>${a.rule}</b><em>${a.n}</em></div>`).join('')
-    A('hello',`<div class="chello"><b>Sara Klein · Head of RevOps</b><span>She signs off the official answer.</span></div>`)
+    A('hello',`<div class="chello"><b>Sara Klein · Head of RevOps</b></div>`)
     A('pick',`<div class="opts">${opts}</div>${picked?'<div class="picked28"><div class="numxl ok">28</div><span>Warehouse score</span></div>':''}`)
     if(V.has('noted')) A('noted',`<div class="cnote">${ic('check')}<span>Notes sent to each builder.</span></div>`)
     return it
   }
   if(mode==='days'){
-    A('hello',`<div class="chello"><b>After Sara marked 28</b><span>The following scans watch for who updated.</span></div>`)
-    A('days',dayList(V))
+    A('days',timeline(V))
     return it
   }
   if(mode==='build'){
@@ -157,7 +156,7 @@ function chatItems(V){
     const answered=step>0||V.has('a1')
     A('hello',`<div class="chello"><b>Q4 at-risk agent</b><span>Dana's Claude project</span></div>`)
     if(asked) um('u1',Q)
-    if(answered) am('a1',`<div class="big${step===1?' linked':''}">35</div>Accounts at risk this quarter.`)
+    if(answered) am('a1',`<div class="big${step===1?' linked':''}">35</div>Accounts at risk.`)
     if(step===2) A('fournote',`<div class="cnote">Dana's agent is one of four.</div>`)
     if(step===0&&c&&c.t==='reply'&&W.thinking) A('think',`<div class="cm a"><span class="cav">${ic('spark')}</span><div class="cb typing"><span></span><span></span><span></span></div></div>`)
     return it
@@ -165,7 +164,7 @@ function chatItems(V){
   return []
 }
 function answerCards(list){
-  return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="cch">${av(a.ini,a.c)}<div class="ccmeta"><b>${a.name}</b><span class="ccwho">${a.who}</span></div></div><div class="ccrule">${a.rule}</div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
+  return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="ccline"><b>${a.short||a.name}</b> <span class="ccwho">${a.who}${a.id==='n28'?' · '+a.rule:''}</span></div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
 }
 function numberCards(ok){
   return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok&&a.id==='n28'?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
@@ -174,20 +173,20 @@ function beItems(V){
   const it=[], step=shownStep()
   const A=(k,ico,tone,title,sub,card='')=>it.push({k,h:`<div class="ev ${tone}"><span class="evi">${ic(ico)}</span><div class="evb"><div class="evt">${title}</div>${sub?`<div class="evs">${sub}</div>`:''}${card}</div></div>`})
   if(step===0){
-    A('quiet','eye','','Next scan is tonight','Dana asked her agent. The scan runs daily.')
+    A('quiet','eye','','Next scan is tonight','The scan runs daily.')
   }else if(step===1){
-    if(V.has('found')) A('found','eye','','New agent found',"Dana's agent. Question matched: Customer health.",`<div class="sameq"><div class="samek">Same answer as the last step</div><div class="sameask">${Q}</div><div class="samen">35</div><b>Dana's agent answered 35</b></div>`)
+    if(V.has('found')) A('found','eye','','New agent found','Customer health.',`<div class="sameq"><div class="samek">Same answer as the last step</div><div class="sameask">${Q}</div><div class="samen">35</div><b>Dana's agent answered 35</b></div>`)
   }else if(step===2){
     const cards=SAID.filter(a=>V.has(a.id))
-    if(cards.length) A('nums','layers','','Four answers',"",answerCards(cards))
+    if(cards.length) A('nums','layers','','Four answers','',answerCards(cards))
   }else if(step===3){
     if(V.has('slack')) A('sent','alert','','Alert sent to Sara',ALERT)
-    if(V.has('inbox')) A('inbox','check','','Waiting in Concord','Sara can open it.')
+    if(V.has('inbox')) A('inbox','check','','In Concord','Sara can open it.')
   }else if(step===4){
-    if(V.has('picked')) A('marked','check','','Official answer is 28','The warehouse score.')
-    if(V.has('noted')) A('notes','link','','Notes sent to Dana, Tom, and the CS team lead','They update their agents.')
+    if(V.has('picked')) A('marked','check','','Official answer is 28','Warehouse score.')
+    if(V.has('noted')) A('notes','link','','Notes sent','Dana, Tom, and the CS team lead.')
   }else if(step===5){
-    if(V.has('d1')) A('days','eye','','Daily scans',V.has('agree')?'All 4 agents agree: 28.':'Checking who updated.',dayList(V)+(V.has('agree')?numberCards(true):''))
+    if(V.has('d1')) A('days','eye','','',V.has('agree')?'':'Checking who updated.',timeline(V)+(V.has('agree')?numberCards(true)+`<div class="tlchip">${status('sync','In sync')}</div>`:''))
   }
   return it
 }
@@ -205,7 +204,7 @@ function draw(){
   root=document.getElementById('wv');if(!root)return
   const V=localVis(),c=cur(),st=STEPS[W.step],mode=leftMode()
   if(!W.manual){
-    if(phone()) W.side='be'
+    if(phone()) W.side=W.step<=1?'chat':'be'
     else {const last=c||(st&&st.beats[st.beats.length-1]);if(last&&last.side)W.side=last.side;else W.side=mode==='build'||mode==='n8n'||mode==='alert'||mode==='sara'?'chat':'be'}
   }
   root.dataset.side=W.side;root.dataset.left=mode;root.dataset.state=W.step<0?'intro':W.step>=N?'done':'run'
@@ -214,8 +213,9 @@ function draw(){
   root.querySelector('.wv-prog span').style.width=pct+'%'
   setH(root.querySelector('.wv-cap'),caption())
   const atEnd=W.step>=N
-  const nextLabel=W.step<0?'Start the walkthrough':atEnd?'Done':`Next: ${NEXT[W.step]}`
-  setH(root.querySelector('.wv-btns'),`<button class="btn" data-w="back" ${W.step<=0?'disabled':''}>Back</button><button class="btn p wnext" data-w="${W.step<0?'start':'next'}" ${atEnd?'disabled':''}>${nextLabel}</button>`)
+  const nextTitle=W.step>=0&&!atEnd?NEXT[W.step]:''
+  const nextLabel=W.step<0?'Start the walkthrough':atEnd?'Done':phone()?'Next':`Next: ${NEXT[W.step]}`
+  setH(root.querySelector('.wv-btns'),`<button class="btn" data-w="back" ${W.step<=0?'disabled':''}>Back</button><button class="btn p wnext" data-w="${W.step<0?'start':'next'}" ${atEnd?'disabled':''} ${nextTitle?`title="${nextTitle}"`:''}>${nextLabel}</button>`)
   const leftTab='Agent view'
   setH(root.querySelector('.wv-tabs'),`<button data-wside="be" class="${W.side==='be'?'on':''}">What Concord sees</button><button data-wside="chat" class="${W.side==='chat'?'on':''}">${leftTab}</button>`)
   const titles={said:[ic('layers'),'What the agents said'],build:[ic('spark'),"Dana's Claude project"],alert:[ic('alert'),"Sara's alert"],sara:[ic('user'),"Sara's view in Concord"],days:[ic('eye'),'Daily scans'],n8n:[ic('flow'),"Tom's n8n workflow"]}
@@ -234,7 +234,7 @@ function draw(){
   const scanning=W.step===1
   bar.hidden=!scanning
   if(scanning) bar.querySelector('span').style.width=(V.has('found')?100:0)+'%'
-  const head=V.has('agree')||W.step>=N?`<b>All 4 agents agree: 28</b>`:W.step===5?`<b>Daily scans</b>`:W.step===4?`<b>Official answer 28</b>`:W.step===3?`<b>Alert sent to Sara</b>`:W.step===2?`<b>Four answers</b>`:W.step===1?`<b>New agent found</b>`:`<b>Next scan is tonight</b>`
+  const head=V.has('agree')||W.step>=N?`<b>Builders update. Daily scans confirm all four match.</b>`:W.step===5?`<b>Daily scans</b>`:W.step===4?`<b>Official answer 28</b>`:W.step===3?`<b>Alert sent to Sara</b>`:W.step===2?`<b>Four answers</b>`:W.step===1?`<b>New agent found</b>`:`<b>Next scan is tonight</b>`
   setH(root.querySelector('.am-t'),head)
   setH(root.querySelector('.am-s'),'')
   setH(root.querySelector('.wv-over'),W.step<0?intro():W.step>=N?wrap():'')
@@ -245,9 +245,9 @@ export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="be" data-left="said">
 <div class="wv-head"><div><h1>Walkthrough</h1><p class="sub" style="margin:0">Dana gets 35. A scan alerts Sara.</p></div></div>
 ${alreadyDecided?'<div class="wbanner">Customer health is already decided in this workspace. This story will not overwrite that decision.</div>':''}
-<div class="wv-steps"></div><div class="wv-prog"><span></span></div>
-<div class="wv-narr"><div class="wv-cap"></div><div class="wv-btns"></div></div>
+<div class="wv-cap"></div>
 <div class="wv-tabs"></div>
+<div class="wv-dock"><div class="wv-steps"></div><div class="wv-prog"><span></span></div><div class="wv-btns"></div></div>
 <div class="wv-split"><section class="card wchat" data-input="off"><div class="hd wleft-hd"></div><div class="cmsgs"></div><div class="ccomp"><div class="ccomp-t"></div><button class="csend" tabindex="-1">↑</button></div></section>
 <section class="card wbe"><div class="hd">${mark(16)}<h3>What Concord sees</h3><span class="r am-s"></span></div><div class="am"><div class="am-t"></div><div class="am-bar"><span></span></div></div><div class="elog"></div></section>
 <div class="wv-over"></div></div></div></div>`}

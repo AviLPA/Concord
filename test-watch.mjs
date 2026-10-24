@@ -21,6 +21,7 @@ async function run(name,vp){
  assert(!/employee build an agent/i.test(introText), name+' intro promise')
  assert(!/offered|paste/i.test(introText), name+' intro still offers while building')
  assert(introText.includes('35')&&introText.includes('Sara')&&introText.includes('Dana')&&introText.includes('28')&&/scan/i.test(introText)&&/alert/i.test(introText), name+' intro copy')
+ assert(!/What you'll see/.test(introText), name+' intro card skipped')
  const introWords=(await p.$eval('.wcard p',e=>e.textContent.trim())).split(/\s+/).length
  assert(introWords<=25, name+' intro length '+introWords)
  assert(await p.locator('.ws-i').count()===6, name+' six steps')
@@ -28,7 +29,7 @@ async function run(name,vp){
  await p.waitForFunction(()=>(document.querySelector('.wk')?.textContent||'').includes('Dana builds'),{timeout:8000})
  await p.waitForTimeout(3200)
  const stuck=await p.$eval('.wk',e=>e.textContent)
- const nxt=await p.$eval('[data-w=next]',e=>e.textContent)
+ const nxt=await p.$eval('[data-w=next]',e=>`${e.textContent} ${e.getAttribute('title')||''}`)
  assert(/Dana builds/.test(stuck), name+' auto-advanced '+stuck)
  assert(/nightly scan/i.test(nxt), name+' next label '+nxt)
  const back0=await p.$eval('[data-w=back]',e=>({d:e.disabled,o:getComputedStyle(e).opacity}))
@@ -58,7 +59,7 @@ async function run(name,vp){
  const bad=/Maya|Priya|Compliance API|REST API|workflow JSON|MCP|re-read|block v2/i
  for(let i=0;i<6;i++){
   await p.click(`[data-wgo="${i}"]`);await p.waitForTimeout(80)
-  const blob=await p.evaluate(()=>{const t=s=>document.querySelector(s)?.innerText||'';return [t('.wt'),t('.wb'),t('.wchat'),t('.elog'),t('.wleft-hd')].join('\n')})
+  const blob=await p.evaluate(()=>{const t=s=>document.querySelector(s)?.textContent||'';return [t('.wt'),t('.wb'),t('.wchat'),t('.elog'),t('.wleft-hd')].join('\n')})
   assert(!bad.test(blob), name+' step '+i+' jargon '+blob.slice(0,180))
   assert(!/the moment|instantly|real-time|real time/i.test(blob), name+' step '+i+' instant claim')
   assert(!/does not|doesn't|never/i.test(blob), name+' step '+i+' defensive line')
@@ -70,6 +71,36 @@ async function run(name,vp){
   const ovStep=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)
   assert(ovStep<=1, name+' step '+i+' overflow '+ovStep)
   if(vp.width<820){
+    const phoneFit=await p.evaluate(()=>{
+      const side=document.querySelector('.wv').dataset.side
+      const dock=document.querySelector('.wv-dock').getBoundingClientRect()
+      const panel=document.querySelector(side==='chat'?'.wchat':'.wbe')
+      const scroller=document.querySelector(side==='chat'?'.cmsgs':'.elog')
+      const last=scroller?.lastElementChild
+      const cap=document.querySelector('.wv-cap')?.innerText||''
+      const words=(cap+' '+(panel?.innerText||'')).trim().split(/\s+/).filter(Boolean).length
+      const page=document.documentElement.scrollHeight-innerHeight
+      const inner=scroller?scroller.scrollHeight-scroller.clientHeight:0
+      const contentBottom=last?last.getBoundingClientRect().bottom:(panel?panel.getBoundingClientRect().bottom:0)
+      return {side,words,page,inner,dockH:Math.round(dock.height),dockTop:dock.top,contentBottom}
+    })
+    assert(phoneFit.side===(i<=1?'chat':'be'), name+' step '+i+' side '+phoneFit.side)
+    assert(phoneFit.page<=2, name+' step '+i+' page scroll '+phoneFit.page)
+    assert(phoneFit.inner<=2, name+' step '+i+' panel scroll '+phoneFit.inner)
+    assert(phoneFit.contentBottom<=phoneFit.dockTop+1, name+' step '+i+' content below the bar '+Math.round(phoneFit.contentBottom)+'>'+Math.round(phoneFit.dockTop))
+    assert(phoneFit.dockH>=68&&phoneFit.dockH<=80, name+' dock '+phoneFit.dockH)
+    assert(phoneFit.words<=55, name+' step '+i+' words '+phoneFit.words)
+    if(i===2||i===5){
+      const cards=await p.evaluate(step=>{
+        const dock=document.querySelector('.wv-dock').getBoundingClientRect().top
+        const nodes=[...document.querySelectorAll(step===5?'.elog .cmp.settle .cc':'.elog .cc')]
+        const chip=document.querySelector('.elog .st-sync')
+        const box=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,h:r.height,text:el.innerText}}
+        return {dock,cards:nodes.map(box),chip:chip?box(chip):null}
+      },i)
+      assert(cards.cards.length>=4&&cards.cards.every(c=>c.h>16&&c.top>=48&&c.bottom<=cards.dock+1), name+' step '+i+' cards in view '+JSON.stringify(cards.cards.map(c=>Math.round(c.bottom))))
+      if(i===5) assert(cards.chip&&cards.chip.h>10&&cards.chip.top>=48&&cards.chip.bottom<=cards.dock+1&&/In sync/.test(cards.chip.text), name+' in sync in view')
+    }
     for(const side of ['chat','be']){
       await p.click(`[data-wside=${side}]`);await p.waitForTimeout(40)
       const ovSide=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)
@@ -90,7 +121,7 @@ async function run(name,vp){
  assert((await p.$eval('.wbe h3',e=>e.textContent)).trim()==='What Concord sees', name+' right label')
  await p.click('[data-wgo="1"]')
  assert(!(await p.$eval('.am-bar',e=>e.hidden)), name+' scan bar during the scan')
- const scan=await p.$eval('.elog',e=>e.innerText)
+ const scan=await p.$eval('.elog',e=>e.textContent)
  assert(scan.includes('Customer health'), name+' scan matches the job')
  assert(scan.includes('How many accounts are at risk?'), name+' scan repeats the question')
  assert(scan.includes("Dana's agent answered 35"), name+' scan repeats 35 '+scan.slice(0,220))
@@ -113,20 +144,21 @@ async function run(name,vp){
  assert((await p.locator('.elog .cc.seen').innerText()).includes('35'), name+' seen card is 35')
  await p.click('[data-wgo="3"]')
  assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes("Sara's alert"), name+' alert label')
- assert((await p.$eval('.wchat',e=>e.innerText)).includes('Notification to Sara Klein'), name+' alert card')
+ assert((await p.$eval('.wchat',e=>e.textContent)).includes('Notification to Sara Klein'), name+' alert card')
  await p.click('[data-wgo="4"]')
  assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes("Sara's view in Concord"), name+' sara label')
- assert((await p.$eval('.wchat',e=>e.innerText)).includes('28'), name+' sara marks 28')
- assert(!/does not|doesn't|never/i.test(await p.$eval('.wchat',e=>e.innerText)), name+' no defensive line')
- assert((await p.$eval('.elog',e=>e.innerText)).includes('CS team lead'), name+' notes name a role')
+ assert((await p.$eval('.wchat',e=>e.textContent)).includes('28'), name+' sara marks 28')
+ assert(!/does not|doesn't|never/i.test(await p.$eval('.wchat',e=>e.textContent)), name+' no defensive line')
+ assert((await p.$eval('.elog',e=>e.textContent)).includes('CS team lead'), name+' notes name a role')
  await p.click('[data-wgo="5"]')
- const adopt=await p.$eval('.wb',e=>e.textContent)
+ const adopt=await p.$eval('.elog',e=>e.textContent)
  assert(adopt.includes('Day 1')&&adopt.indexOf('Day 1')<adopt.indexOf('Day 3')&&adopt.indexOf('Day 3')<adopt.indexOf('Day 5')&&!/Maya/.test(adopt), name+' day order '+adopt)
+ assert((await p.$eval('.wb',e=>e.textContent)).includes('Day 1 Dana updates'), name+' step 6 header')
  assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes("Tom's n8n workflow"), name+' tom label')
- assert((await p.$eval('.elog',e=>e.innerText)).includes('All 4 agents agree'), name+' finale agreement')
- assert((await p.$eval('.elog',e=>e.innerText)).includes('28'), name+' finale answer')
- assert((await p.$eval('.elog',e=>e.innerText)).includes('Account health monitor'), name+' day 5 names the agent')
- assert((await p.$eval('.elog',e=>e.innerText)).includes('CS team lead'), name+' owner updated after the alert')
+ assert((await p.$eval('.elog',e=>e.textContent)).includes('In sync'), name+' finale agreement')
+ assert((await p.$eval('.elog',e=>e.textContent)).includes('28'), name+' finale answer')
+ assert((await p.$eval('.elog',e=>e.textContent)).includes('Account health monitor'), name+' day 5 names the agent')
+ assert((await p.$eval('.elog',e=>e.textContent)).includes('CS team lead'), name+' owner updated after the alert')
  await p.click('[data-w=next]');await p.waitForSelector('.wrapc');await p.click('[data-w=restart]');await p.waitForTimeout(200)
  assert(await p.locator('.wcard [data-w=start]').count()===1, name+' restart returns to the intro')
  await p.click('.wcard [data-w=start]')
