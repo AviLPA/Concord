@@ -1,6 +1,7 @@
 // Landing, hands-on onboarding, search, and the owner resolve flow.
 import * as M from './model.js'
 import {lockup, status, tag, Brand} from './brand.js'
+import {leadCta} from './lead.js'
 let C=null
 export const OB={step:'workspace',company:'Northwind',name:'Sara Klein',role:M.SARA_ROLE,size:'301–1,000 people',conn:{claude:false,n8n:false},scanned:false,searched:false,resolved:false,cid:'c1',q:'',dismissed:false}
 export function initOB(ctx){C=ctx}
@@ -327,7 +328,7 @@ export function pricingPage(){
     ['Enterprise','Contact us','For a wider rollout across workspaces. Coming next: including the semantic layer you already use. Same read-only rule: owners decide, builders apply.','Contact us','#/start',false],
   ]
   return marketShell('pricing', `<section class="mhero"><span class="eyebrow">Pricing</span><h1>Start with a consistency audit.</h1><p>The audit is free in this demo. Team and Enterprise prices are placeholders. There is no checkout.</p></section>
-<div class="prices">${tiers.map(t=>`<article class="price card ${t[5]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p><a class="btn ${t[5]?'p':''}" href="${t[4]}">${t[3]}</a></article>`).join('')}</div>
+<div class="prices">${tiers.map(t=>{const action=t[3]==='Contact us'?leadCta():`<a class="btn ${t[5]?'p':''}" href="${t[4]}">${t[3]}</a>`;return `<article class="price card ${t[5]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p>${action}</article>`}).join('')}</div>
 <p class="pricenote">Placeholder prices only. Nothing here is a quote, and this demo does not bill anyone.</p>`)
 }
 export function aboutPage(){

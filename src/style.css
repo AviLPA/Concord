@@ -884,4 +884,13 @@ tbody tr:hover{background:var(--raised)}
   .wacts{justify-content:center}
   .bal{text-transform:uppercase;letter-spacing:.07em}
 }
+.lead .hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.lead textarea{width:100%;max-width:100%;background:var(--raised);border:1px solid var(--line2);border-radius:8px;padding:9px 11px;font-size:13.5px;color:var(--tx);outline:none;resize:vertical}
+.lead textarea:focus{border-color:var(--agent);box-shadow:var(--focus-ring)}
+.lead-err{color:var(--status-conflict-text);font-size:13px;margin:0 0 8px;line-height:1.45}
+.lead-ok{margin:0;line-height:1.5}
+.modal.lead{overflow-x:hidden}
+@media (max-width:1023px){
+  .modal.lead{left:0;top:0;transform:none;width:100%;height:100%;max-height:none;border:0;border-radius:0;animation:none}
+}
 @media (max-width:1023px){.sfpl{display:none}}

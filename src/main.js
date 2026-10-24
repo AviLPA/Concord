@@ -1,6 +1,7 @@
 import './style.css'
 import {watchPage,mountWatch} from './watch.js'
 import {OB,initOB,landingPage,howPage,pricingPage,aboutPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup,marketShell} from './onboard.js'
+import {bindLead, paintLead, closeLead} from './lead.js'
 import * as M from './model.js'
 import {status, tag, lockup, mark, Brand} from './brand.js'
 
@@ -182,7 +183,7 @@ function docTitle(raw){
   const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official blocks',integrations:'Integrations'}
   return 'Concord · '+(names[key]||'Overview')
 }
-function render(){
+function renderPage(){
   if(location.hash==='#/live') history.replaceState(null,'','#/watch')
   const raw=location.hash.replace(/^#\/?/,''), h=raw.split('/')
   const marketing=!raw||raw==='home'||raw==='how'||raw==='pricing'||raw==='about'||raw==='watch'
@@ -201,7 +202,11 @@ function render(){
   const pg={overview,agents:agentsPg,jobs,conflicts,blocks,integrations:integ}[S.route]()
   $('#app').innerHTML=shell(pg)
 }
-window.addEventListener('hashchange',()=>{S.agent=null;render();scrollTo(0,0)})
+function render(){
+  try{renderPage()}
+  finally{const app=document.getElementById('app');if(app)paintLead(app)}
+}
+window.addEventListener('hashchange',()=>{S.agent=null;closeLead();render();scrollTo(0,0)})
 function toast(t){S.toast=t;render();clearTimeout(toast._t);toast._t=setTimeout(()=>{S.toast=null;const el=$('.toast');if(el)el.remove()},2600)}
 
 function publish(id, opts){
@@ -262,6 +267,7 @@ document.addEventListener('click',e=>{
     toast(who==='job'?'Marked as a different job. Removed from the conflict count.':'Marked as a valid variant. It no longer counts toward this conflict.')
   }
 })
+bindLead(render)
 initOB({S,ic,tool,dav,save,reset,render,publish,markVariant,verify,toast})
 load()
 render()
