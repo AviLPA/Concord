@@ -99,7 +99,7 @@ async function unsetMode(browser){
       assert(await overflow(page) <= 1, 'unset desktop overflow ' + hash + ' ' + await overflow(page))
     }
     await page.goto(base + '#/')
-    assert(await page.locator('[data-lead-cta]').count() === 1, 'landing CTA count')
+    assert(await page.locator('[data-lead-cta]').count() === 3, 'landing CTA count')
     await page.goto(base + '#/pricing')
     assert(await page.locator('[data-lead-cta]').count() === 3, 'pricing CTA count')
     assert(posts.length === 0, 'unset mode posted')
@@ -144,7 +144,7 @@ async function setMode(browser){
       await openFromEveryCta(page)
     }
     await page.goto(base + '#/')
-    assert(await page.locator('[data-lead-cta]').count() === 1, 'set landing CTA count')
+    assert(await page.locator('[data-lead-cta]').count() === 3, 'set landing CTA count')
     await page.goto(base + '#/pricing')
     assert(await page.locator('[data-lead-cta]').count() === 3, 'set pricing CTA count')
     await page.click('[data-lead]')
