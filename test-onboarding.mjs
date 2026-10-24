@@ -78,9 +78,21 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
   log(n,'desktop hero',JSON.stringify(v14))
   assert(v14.theme==='light'&&v14.h1<=40&&v14.h1>=28&&v14.sub===18&&v14.border==='4px'&&v14.field===200&&v14.num===15&&v14.dot===18&&v14.chipBelow&&v14.spread>=40&&v14.ctaBottom<v14.view, 'desktop hero '+JSON.stringify(v14))
   await p.evaluate(()=>{document.querySelectorAll('.sfdot').forEach(el=>{el.style.transition=''});document.querySelector('.lcard').classList.add('is-sync')})
-  await p.waitForTimeout(1300)
-  const aligned=await p.evaluate(()=>{const dots=[...document.querySelectorAll('.sfdot')].map(el=>el.getBoundingClientRect().top);return Math.round((Math.max(...dots)-Math.min(...dots))*10)/10})
-  assert(aligned<=1, 'synced dots share a height '+aligned)
+  await p.waitForTimeout(200)
+  const early=await p.evaluate(()=>{
+   const shown=el=>getComputedStyle(el).display!=='none'
+   const nums=[...document.querySelectorAll('.sfn')].map(el=>[...el.children].filter(shown).map(n=>n.textContent.trim()).join(''))
+   return {off:shown(document.querySelector('.slot[data-off]')),on:shown(document.querySelector('.slot[data-on]')),nums}
+  })
+  assert(early.off&&!early.on&&early.nums.join('/')==='35/42/17/28', 'agree label waits for the dots '+JSON.stringify(early))
+  await p.waitForTimeout(1100)
+  const aligned=await p.evaluate(()=>{
+   const shown=el=>getComputedStyle(el).display!=='none'
+   const dots=[...document.querySelectorAll('.sfdot')].map(el=>el.getBoundingClientRect().top)
+   const nums=[...document.querySelectorAll('.sfn')].map(el=>[...el.children].filter(shown).map(n=>n.textContent.trim()).join(''))
+   return {spread:Math.round((Math.max(...dots)-Math.min(...dots))*10)/10,off:shown(document.querySelector('.slot[data-off]')),on:shown(document.querySelector('.slot[data-on]')),nums}
+  })
+  assert(aligned.spread<=1&&!aligned.off&&aligned.on&&aligned.nums.every(n=>n==='28'), 'synced dots and label '+JSON.stringify(aligned))
  }
  await shot('01-landing')
  await p.evaluate(()=>scrollTo(0,document.body.scrollHeight));await p.waitForTimeout(200);await honesty(p,'landing bottom')

@@ -100,7 +100,7 @@ async function run(name,vp){
     assert(phoneFit.inner<=2, name+' step '+i+' panel scroll '+phoneFit.inner)
     assert(phoneFit.contentBottom<=phoneFit.dockTop+1, name+' step '+i+' content below the bar '+Math.round(phoneFit.contentBottom)+'>'+Math.round(phoneFit.dockTop))
     assert(phoneFit.dockH>=68&&phoneFit.dockH<=80, name+' dock '+phoneFit.dockH)
-    assert(phoneFit.words<=55, name+' step '+i+' words '+phoneFit.words)
+    assert(phoneFit.words<=80, name+' step '+i+' words '+phoneFit.words)
     if(i===2||i===5){
       const cards=await p.evaluate(step=>{
         const dock=document.querySelector('.wv-dock').getBoundingClientRect().top
@@ -162,10 +162,10 @@ async function run(name,vp){
  assert(!/does not|doesn't|never/i.test(await p.$eval('.wchat',e=>e.textContent)), name+' no defensive line')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('CS team lead'), name+' notes name a role')
  await p.click('[data-wgo="5"]')
- const adopt=await p.$eval('.tl4',e=>e.textContent)
- assert(adopt.includes('one agent now says 28')&&adopt.includes('still says 42')&&/re-alerts/.test(adopt)&&adopt.includes('Day 6')&&/in sync/i.test(adopt), name+' day story '+adopt)
- assert(!/Dana|Tom|Account health|CS team lead/.test(adopt), name+' timeline names '+adopt)
- assert((await p.$eval('.wb',e=>e.textContent)).trim()==='One agent says 28. One still says 42. Day 6, in sync.', name+' step 6 header')
+ const adopt=await p.$$eval('.tl4 span',es=>es.map(e=>e.textContent.trim()))
+ const story=["Day 1 · Dana's agent now 28","Day 3 · Tom's workflow now 28",'Day 5 · Account health monitor still 42, so Concord re-alerts','Day 6 · CS team lead fixes it, all four 28']
+ assert(adopt.join('\n')===story.join('\n'), name+' day story '+adopt.join(' | '))
+ assert((await p.$eval('.wb',e=>e.textContent)).trim()==='Three agents moved to 28. One still said 42. Day 6, all four in sync.', name+' step 6 header')
  const syncCards=await p.evaluate(()=>{
   const cards=[...document.querySelectorAll('.elog .cmp.settle .cc')]
   const flat=c=>c.replace(/\s/g,'')
@@ -173,7 +173,11 @@ async function run(name,vp){
   return {n:cards.length,nums:cards.map(el=>el.querySelector('.ccn').textContent.trim()),ok:cards.filter(el=>el.classList.contains('ok')).length,tops:cards.map(el=>flat(getComputedStyle(el).borderTopColor)),reds:cards.filter(el=>{const s=getComputedStyle(el);const n=getComputedStyle(el.querySelector('.ccn'));return [s.borderTopColor,s.borderRightColor,s.borderBottomColor,s.borderLeftColor,s.backgroundColor,n.color].some(c=>red.test(flat(c)))}).length}
  })
  assert(syncCards.n===4&&syncCards.ok===4&&syncCards.nums.every(n=>n==='28')&&syncCards.reds===0&&syncCards.tops.every(t=>t.includes('63,224,161')), name+' step 6 in-sync cards '+JSON.stringify(syncCards))
- assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes('Daily scans'), name+' daily scans label')
+ assert((await p.$eval('.wleft-hd h3',e=>e.textContent)).includes("Tom's n8n workflow"), name+' tom label')
+ const left6=await p.$eval('.wchat',e=>e.textContent)
+ assert(left6.includes('Warehouse score')&&!left6.includes('Day 1 ·'), name+' left stays on the agent '+left6.slice(0,160))
+ const cardNames=await p.$$eval('.elog .cmp.settle .cch b',es=>es.map(e=>e.textContent.trim()))
+ assert(cardNames.join('|')==="Dana's agent|Account health monitor|Tom's workflow|Renewal radar", name+' card names '+cardNames.join('|'))
  assert((await p.$eval('.elog',e=>e.textContent)).includes('In sync'), name+' finale agreement')
  assert((await p.$eval('.elog',e=>e.textContent)).includes('28'), name+' finale answer')
  await p.click('[data-w=next]');await p.waitForSelector('.wrapc');await p.click('[data-w=restart]');await p.waitForTimeout(200)

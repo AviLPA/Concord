@@ -232,14 +232,34 @@ function marketFoot(active){
 export function marketShell(active, main){
   return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Open the demo</a><a class="btn p" href="#/start">Try it with sample data</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Open the demo</a><a class="btn p" href="#/start">Try it with sample data</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
 }
-let syncTimer=0
+let syncTimer=0, readTimer=0, syncObs=null
+function readDelay(){
+  const cs=getComputedStyle(document.documentElement)
+  const ms=name=>parseFloat(cs.getPropertyValue(name))||0
+  return ms('--dur-snap')+2*ms('--stagger')
+}
+function watchSyncRead(el){
+  if(syncObs) syncObs.disconnect()
+  let synced=el.classList.contains('is-sync')
+  syncObs=new MutationObserver(()=>{
+    const on=el.classList.contains('is-sync')
+    if(on===synced) return
+    synced=on
+    clearTimeout(readTimer)
+    if(el.classList.contains('is-read')) el.classList.remove('is-read')
+    if(!on) return
+    readTimer=setTimeout(()=>{if(el.isConnected&&el.classList.contains('is-sync')) el.classList.add('is-read')}, readDelay())
+  })
+  syncObs.observe(el,{attributes:true, attributeFilter:['class']})
+}
 export function mountLanding(){
-  clearInterval(syncTimer);clearTimeout(syncTimer)
+  clearInterval(syncTimer);clearTimeout(syncTimer);clearTimeout(readTimer)
   const el=document.getElementById('lcard');if(!el)return
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const narrow=window.matchMedia&&window.matchMedia('(max-width:1023px)').matches
-  if(reduce){el.classList.add('is-reduce');el.classList.remove('is-sync');return}
-  el.classList.remove('is-sync')
+  el.classList.remove('is-sync','is-read')
+  watchSyncRead(el)
+  if(reduce){el.classList.add('is-reduce');return}
   if(narrow){syncTimer=setTimeout(()=>el.classList.add('is-sync'),1500);return}
   syncTimer=setInterval(()=>{const card=document.getElementById('lcard');if(!card){clearInterval(syncTimer);return}card.classList.toggle('is-sync')},2600)
 }

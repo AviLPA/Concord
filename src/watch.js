@@ -61,13 +61,13 @@ const STEPS=[
   {t:'ev', id:'picked', side:'chat', wait:700},
   {t:'ev', id:'noted', side:'chat', wait:600},
  ]},
-{label:'Daily scans', left:'days',
+{label:'Daily scans', left:'n8n',
  title:'Daily scans check',
- body:'One agent says 28. One still says 42. Day 6, in sync.',
+ body:'Three agents moved to 28. One still said 42. Day 6, all four in sync.',
  dwell:5600,
  beats:[
   {t:'ev', id:'d1', side:'be', wait:800},
-  {t:'ev', id:'d3', side:'be', wait:900},
+  {t:'ev', id:'d3', side:'chat', left:'n8n', wait:900},
   {t:'ev', id:'d5', side:'be', wait:900},
   {t:'ev', id:'agree', side:'be', wait:800},
  ]},
@@ -115,10 +115,10 @@ function alertCard(){
 }
 function timeline(V){
   const rows=[
-    ['Next daily scan · one agent now says 28',V.has('d1')],
-    ['One agent still says 42. Concord re-alerts',V.has('d5')],
-    ['Day 6 · the builder fixes it',V.has('agree')],
-    ['The job is in sync',V.has('agree')],
+    ["Day 1 · Dana's agent now 28",V.has('d1')],
+    ["Day 3 · Tom's workflow now 28",V.has('d3')],
+    ['Day 5 · Account health monitor still 42, so Concord re-alerts',V.has('d5')],
+    ['Day 6 · CS team lead fixes it, all four 28',V.has('agree')],
   ]
   return `<div class="tl4">${rows.map(([t,on])=>`<span class="${on?'on':''}"><i></i>${t}</span>`).join('')}</div>`
 }
@@ -169,7 +169,7 @@ function answerCards(list){
   return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="ccline"><b>${a.short||a.name}</b> <span class="ccwho">${a.who}${a.id==='n28'?' · '+a.rule:''}</span></div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
 }
 function numberCards(ok){
-  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}${ok?'':`<b>${a.short||a.name}</b>`}</div></div>`).join('')}</div>`
+  return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
 }
 function beItems(V){
   const it=[], step=shownStep()
