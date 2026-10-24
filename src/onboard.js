@@ -235,7 +235,12 @@ export function marketShell(active, main){
 let syncTimer=0, readTimer=0, syncObs=null
 function readDelay(){
   const cs=getComputedStyle(document.documentElement)
-  const ms=name=>parseFloat(cs.getPropertyValue(name))||0
+  const ms=name=>{
+    const raw=cs.getPropertyValue(name).trim()
+    const n=parseFloat(raw)
+    if(!raw||Number.isNaN(n)) return 0
+    return /ms$/.test(raw)?n:n*1000
+  }
   return ms('--dur-snap')+2*ms('--stagger')
 }
 function watchSyncRead(el){
