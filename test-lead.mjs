@@ -49,7 +49,7 @@ async function openFromEveryCta(page){
     assert(await btn.isEnabled(), 'CTA disabled')
     await btn.click()
     await page.waitForSelector('#lead-form')
-    const formText = await page.locator('#lead-form').innerText()
+    const formText = await page.locator('.modal.lead').innerText()
     assert(formText.includes("Tell us a little about your team and we'll be in touch."), 'intro')
     assert(formText.includes('Where your teams build agents'), 'platforms')
     assert(formText.includes("Anything you'd like us to know?"), 'note')
