@@ -30,6 +30,9 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(!/Maya|Priya|Ravi/.test(land), 'landing names stay with the watch story')
  assert(land.includes('Renewal radar')&&!/RevOps warehouse score/.test(land), 'landing names the 28 agent once')
  assert(!/the moment|instantly|real-time|real time/i.test(land), 'landing is not instant')
+ const subWords=(await p.$eval('.lsub',e=>e.textContent.trim())).split(/\s+/).filter(Boolean).length
+ assert(subWords<=15, 'hero subline '+subWords)
+ assert(land.includes('Scan')&&land.includes("Reads every agent's answers daily."), 'landing scan step')
  await shot('01-landing')
  await p.evaluate(()=>scrollTo(0,document.body.scrollHeight));await p.waitForTimeout(200);await honesty(p,'landing bottom')
  await p.evaluate(()=>scrollTo(0,0))
@@ -56,7 +59,8 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(!/the moment|instantly|real-time|real time/i.test(about), 'about is not instant')
  await mktClick('#/how')
  const how=await p.locator('.msteps').innerText()
- assert(how.includes('Read')&&how.includes('Detect')&&how.includes('Decide')&&how.includes('Verify adoption'), 'how steps')
+ assert(how.includes('Scan')&&how.includes('Alert')&&how.includes('Fix'), 'how steps')
+ assert(how.includes("Reads every agent's answers daily.")&&how.includes('Tells the owner when answers differ.')&&how.includes('Builders update their agents.'), 'how lines')
  assert(!/the moment|instantly|real-time|real time/i.test(how), 'how is not instant')
  await p.goBack();await p.waitForTimeout(200)
  assert(await p.evaluate(()=>location.hash)==='#/about', 'back from how '+await p.evaluate(()=>location.hash))
@@ -167,7 +171,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  await p.waitForSelector('.wrapc',{timeout:8000})
  log(n,'walkthrough wrap',((Date.now()-w0)/1000).toFixed(1)+'s')
  const wrap=await p.$eval('.wrapc',e=>e.innerText)
- assert(wrap.includes('28')&&wrap.includes('35')&&wrap.includes('100')&&/daily/i.test(wrap)&&wrap.includes('CS team lead'), 'wrap numbers '+wrap)
+ assert(wrap.includes('28')&&wrap.includes('35')&&/agree/i.test(wrap)&&/daily/i.test(wrap)&&wrap.includes('CS team lead'), 'wrap numbers '+wrap)
  assert(!/offered|paste/i.test(wrap), 'wrap still offers while building')
  assert(!/rewir/i.test(wrap), 'wrap rewires')
  await p.click('.wrapc [data-w=explore]');await p.waitForTimeout(500)
@@ -185,6 +189,15 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  await ctx.close()}
 function locationHash(h){return h}
 await run('desktop',{width:1280,height:800});await run('phone',{width:390,height:844})
+{const ctx=await b.newContext({viewport:{width:360,height:740},deviceScaleFactor:1});const p=await ctx.newPage()
+ p.on('pageerror',e=>fail('slim page '+e.message))
+ await p.goto(BASE);await p.evaluate(()=>localStorage.clear());await p.reload();await p.waitForTimeout(300)
+ for(const hash of ['#/','#/how','#/about','#/pricing','#/start','#/overview']){
+  await p.goto(BASE+hash);await p.waitForTimeout(250)
+  const o=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)
+  if(o>1) fail('360 '+hash+' overflow '+o)
+ }
+ await ctx.close()}
 log('ERRORS:',errs.length?errs:'none')
 await b.close()
 if(errs.length) process.exit(1)

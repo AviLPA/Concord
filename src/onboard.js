@@ -223,8 +223,8 @@ function stopScan(){SC.timers.forEach(clearTimeout);SC.timers=[];SC.running=fals
 function searchStep(){return `<div class="obwide"><h1>Search across every agent</h1><p class="sub">Type a business term or a question. You get every agent on that job, the definition Concord read, and the answer already on record.</p>${searchBox(OB.q)}</div>`}
 
 function syncField(){
-  const cols=[["Dana's agent",'Claude','35',-52],['Account health monitor','Claude','42',44],["Tom's workflow",'n8n','17',-20],['Renewal radar','Claude','28',0]]
-  return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' always':''}" style="--off:${c[3]};--i:${i}"><span class="sfn"><span class="off">${c[2]}</span><span class="on">28</span></span><span class="sfdot"></span><span class="sfl"><span class="sfnm">${c[0]}</span><span class="sfpl"> · ${c[1]}</span></span></div>`).join('')}</div>`
+  const cols=[["Dana's agent",'35',20],['Account health monitor','42',-28],["Tom's workflow",'17',16],['Renewal radar','28',0]]
+  return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' official':''}" style="--off:${c[2]};--i:${i}"><div class="sfmove"><span class="sfn"><span class="off">${c[1]}</span><span class="on">28</span></span><span class="sfdot"></span></div><span class="sfl">${c[0]}</span></div>`).join('')}</div>`
 }
 const BURGER=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`
 const CLOSE=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`
@@ -238,77 +238,64 @@ export function marketShell(active, main){
 }
 let syncTimer=0
 export function mountLanding(){
-  clearInterval(syncTimer)
+  clearInterval(syncTimer);clearTimeout(syncTimer)
+  const el=document.getElementById('lcard');if(!el)return
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if(reduce){document.getElementById('lcard')?.classList.add('is-sync');return}
-  syncTimer=setInterval(()=>{const el=document.getElementById('lcard');if(!el){clearInterval(syncTimer);return}el.classList.toggle('is-sync')},2600)
+  const narrow=window.matchMedia&&window.matchMedia('(max-width:820px)').matches
+  if(reduce){el.classList.add('is-sync');return}
+  if(narrow){syncTimer=setTimeout(()=>el.classList.add('is-sync'),700);return}
+  syncTimer=setInterval(()=>{const card=document.getElementById('lcard');if(!card){clearInterval(syncTimer);return}card.classList.toggle('is-sync')},2600)
 }
 export function landingPage(){
-  const cl=M.AGENTS.filter(a=>a.tool==='claude').length
-  const defs=[["Dana's agent",'Sales Ops','Claude','35','no login 21d OR &gt; 3 tickets'],['Account health monitor','CS','Claude','42','tickets &gt; 5 OR CSAT &lt; 3.5'],["Tom's workflow",'CS','n8n','17','usage drop &gt; 40%, excl. under $10k'],['Renewal radar','RevOps','Claude','28','usage + NPS + tickets, score &lt; 60']]
   const steps=[
-    ['01','unknown','Scanning','Scan on a schedule',`Connect Claude (through its Compliance API, on Claude Enterprise) and n8n (through its REST API). ${Brand} scans daily and reads each agent's instructions and recent answers. A new agent shows up on the first scan after someone uses it.`],
-    ['02','conflict','Conflict','Alert when they disagree',`When agents give different answers to the same question, ${Brand} alerts the person who owns that number. At Northwind: customer health, 4 agents, 4 answers (35, 42, 17, 28). If a difference is intentional, for example a team that only counts contracts over $10k, the owner can allow it and ${Brand} stops flagging it.`],
-    ['03','sync','In sync','The owner decides, builders fix',`Sara Klein, Head of RevOps, signs off one official answer. She can pick an existing answer or write her own. ${Brand} tells each builder what to change, and builders update their own agents. Each scan after that confirms the fix landed and alerts Sara again if an agent is still off.`],
+    ['Scan',"Reads every agent's answers daily."],
+    ['Alert','Tells the owner when answers differ.'],
+    ['Fix','Builders update their agents. Concord confirms they match.'],
+  ]
+  const who=[
+    ['Finance','The owner sees where answers differ.'],
+    ['RevOps','The Head of RevOps signs off the official answer.'],
+    ['Data','Concord checks agents against the official answer.'],
   ]
   return marketShell('home', `<section class="lhero"><div class="lht"><h1>Keep every agent<br><span class="em">in sync.</span></h1>
-<p class="lsub">Works alongside the agents you already have. Your teams keep building agents in Claude and n8n. ${Brand} checks their answers on a schedule, tells the owner when two agents give different answers to the same question, and confirms the fix landed. It's read-only, so it never changes an agent.</p>
+<p class="lsub">Concord checks one question across agents and tells the owner when answers differ.</p>
 <div class="lcta"><a class="btn p xl" href="#/start">Try it with sample data</a><a class="btn xl" href="#/watch">Take the walkthrough</a></div></div>
-<div class="lcard" id="lcard"><div class="lcardh"><span class="q">“How many accounts are at risk this quarter?”</span><span class="slot" data-off>${status('conflict','Conflict · 4 answers',{big:true})}</span><span class="slot" data-on>${status('sync','4 of 4 agree',{big:true})}</span></div>
-${syncField()}<div class="mcap">Example: Northwind, a fictional company</div></div></section>
+<div class="lcard" id="lcard"><div class="lcardh"><span class="q">How many accounts are at risk?</span></div>
+${syncField()}<p class="mcap">Northwind · 20 agents</p></div></section>
 <div class="lband" data-hero-line><span class="mut">Security tools check whether an agent is safe. </span><b>${Brand} checks whether your agents give the same answer.</b></div>
-<section class="lsec" id="product"><div class="lsh"><span class="eyebrow">The problem</span><h2>Same question. Different answers.</h2><p>Anyone can build an agent in an afternoon. At Northwind, a fictional company, Dana built one in Claude and asked how many accounts are at risk this quarter. It said 35. Three other agents already answer the same question, with 42, 17 and 28. That night's scan caught the mismatch, and Sara Klein, Head of RevOps, got the alert.</p></div>
-<p class="lanswers"><b>4 different answers</b></p>
-<div class="l4">${defs.map(r=>`<div class="lc"><div class="lcn">${r[3]}</div><b>${r[0]}</b><span>${r[1]} · ${r[2]}</span><code>${r[4]}</code></div>`).join('')}</div>
-<div class="l3">${[[`No one has the full list`,`Agents are spread across Claude projects and n8n workflows. Northwind has ${M.AGENTS.length}: ${cl} in Claude, ${M.AGENTS.length-cl} in n8n.`],[`Everyone picks their own definition`,`Each builder chooses a rule and a data source. At Northwind, one agent counts tickets, one reads a personal spreadsheet, and one uses the warehouse score.`],[`Wrong numbers spread`,`35, 42, 17 and 28 can't all be right, but any of them can end up in a customer call, a forecast or a board deck.`]].map(([t,d])=>`<div><b>${t}</b><p>${d}</p></div>`).join('')}</div></section>
-<section class="lsec" id="how"><div class="lsh"><span class="eyebrow">How it works</span><h2>From conflict to one official answer</h2></div>
-<div class="lsteps">${steps.map(s=>`<div class="lstep k-${s[1]}"><div class="lstephead"><span class="lsn">${s[0]}</span>${status(s[1],s[2])}</div><b>${s[3]}</b><p>${s[4]}</p></div>`).join('')}</div></section>
-<section class="lsec"><div class="lsh"><span class="eyebrow">Product</span><h2>See what's in sync, and what isn't</h2></div>
-<div class="lprod"><div class="lprodbar">${lockup(14)}<span>Northwind · Conflicts · Customer health</span></div>
-<div class="lbanner"><div><b>Reminder to Sara Klein</b><span>Customer health: 2 of 4 agents still give a different answer (42, 17).</span></div><span class="act">Open in Concord</span></div>
-<div class="lsplit"><div class="ljobs">${[['Customer health','review','Fixing','2 of 4 updated'],['ARR','review','Needs sign-off','Owner to decide'],['Lead scoring','conflict','Conflict','65 vs 70'],['Discount approval','risk','At risk','Uses a 2024 policy file'],['Refund policy','risk','At risk','Uses a 2024 policy file']].map((j,i)=>`<div class="ljob k-${j[1]} ${i===0?'on':''}"><b>${j[0]}</b><span>${status(j[1],j[2])} <span class="mut">${j[3]}</span></span></div>`).join('')}</div>
-<div class="lmain"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:18px">Customer health v2</b>${status('review','2 of 4 updated')}</div>
-<div class="mut" style="margin:4px 0 12px">Official answer: warehouse score, signed off by Sara Klein (demo)</div>
-<div class="ldef">score = 0.5·usage + 0.3·nps + 0.2·tickets<br>at_risk = score &lt; 60<br><span class="c"># warehouse score, signed off by Sara Klein</span></div>
-${[['Renewal radar · Claude','sync','28','In sync'],["Dana's agent · Claude",'sync','28','In sync'],['Account health monitor · Claude','drift','42','Not updated yet'],["Tom's workflow · n8n",'drift','17','Not updated yet']].map(a=>`<div class="larow k-${a[1]}"><b>${a[0]}</b><span class="n">${a[2]}</span>${status(a[1],a[3])}</div>`).join('')}
-</div></div></div>
-<div class="mcap">Illustration using demo data from Northwind, a fictional company with ${M.AGENTS.length} agents.</div></section>
-<section class="lsec"><div class="lsh"><span class="eyebrow">Built for</span><h2>The people who own the numbers</h2><p>The CFO, the head of RevOps, and the ops leaders whose numbers your agents are quoting.</p></div>
-<div class="l3 cards">${[['Finance','ARR, churn and forecast numbers now come out of agents too. Concord shows the CFO where they disagree before a number reaches the board.'],['RevOps','The head of RevOps owns customer health, pipeline and discount approval. They sign off the official answer, and Concord tells them when an agent stops matching it.'],['Data',"If your team already certifies a metric like ARR, that's the official answer Concord should check against. Pulling it straight from dbt or Atlan is next on our list."]].map(([t,d])=>`<div class="card"><b>${t}</b><p>${d}</p></div>`).join('')}</div>
-<p class="laccess">Setup is two read-only connections: Claude's Compliance API (Claude Enterprise) and an n8n API key.</p>
-<div class="ltags"><span>Reads from: Claude (Compliance API, Claude Enterprise) · n8n (REST API)</span></div>
-<p class="lnext">Coming next: official metrics from dbt and Atlan.</p></section>
-<section class="lclose" id="audit"><div style="display:flex;justify-content:center">${lockup(28)}</div><h2>See where your agents disagree.</h2><p>Get a report of every place your agents give different answers. Or click through the walkthrough.</p><div class="lcta"><a class="btn p xl" href="#/start">Try it with sample data</a><a class="btn xl" href="#/watch">Take the walkthrough</a></div></section>`)
+<section class="lsec"><div class="lsteps">${steps.map(s=>`<div class="lstep"><b>${s[0]}</b><p>${s[1]}</p></div>`).join('')}</div></section>
+<section class="lsec"><div class="l3 cards">${who.map(([t,d])=>`<div class="card"><b>${t}</b><p>${d}</p></div>`).join('')}</div>
+<p class="ltags">Reads from: Claude (Compliance API, Claude Enterprise) · n8n (REST API)</p>
+<p class="lnext">Coming next: dbt and Atlan.</p></section>
+<section class="lclose" id="audit"><h2>See where agents disagree.</h2><p>Read-only. Concord never changes an agent.</p><div class="lcta"><a class="btn p xl" href="#/start">Try it with sample data</a><a class="btn xl" href="#/watch">Take the walkthrough</a></div></section>`)
 }
 export function howPage(){
   const steps=[
-    ['01','Read',`Connect Claude through its Compliance API, on Claude Enterprise, and n8n through its REST API. Concord scans daily. A new agent shows up on the first scan after someone uses it. A scan reads each agent's instructions and recent answers.`],
-    ['02','Detect',`When agents give different answers to the same question, Concord alerts the person who owns that number. At Northwind the alert reads: customer health, 4 agents, 4 different answers (35, 42, 17, 28). Dana's agent says 35. Tom's workflow says 17.`],
-    ['03','Decide',`The owner signs off one official answer. They can pick an existing answer or write their own. If a difference is intentional, for example a team that only counts contracts over $10k, the owner can allow it and Concord stops flagging it.`],
-    ['04','Verify adoption',`Concord tells each builder what to change, and builders update their own agents. The following daily scans check Dana's agent and Tom's workflow. If an agent still gives a different answer, Concord shows it as Not updated yet and alerts again.`],
+    ['Scan',"Reads every agent's answers daily."],
+    ['Alert','Tells the owner when answers differ.'],
+    ['Fix','Builders update their agents. Concord confirms they match.'],
   ]
-  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>Build anything. Concord scans daily, then alerts.</h1><p>People keep building in Claude and n8n. Concord tells the owner when two agents give different answers to the same question, and confirms the fix landed.</p></section>
-<div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}</div>
-<section class="lclose"><h2>See it with the Northwind story.</h2><p>Click through it. Dana's agent gets 35. That night's daily scan alerts Sara.</p><div class="lcta"><a class="btn p xl" href="#/watch">Take the walkthrough</a><a class="btn xl" href="#/start">Try it with sample data</a></div></section>`)
+  return marketShell('how', `<section class="mhero"><h1>Scan, alert, fix.</h1><p>Concord reads answers daily and tells the owner when they differ.</p></section>
+<div class="msteps">${steps.map(s=>`<article class="card"><h2>${s[0]}</h2><p>${s[1]}</p></article>`).join('')}</div>
+<section class="lclose"><h2>Walk through 35, 42, 17, and 28.</h2><div class="lcta"><a class="btn p xl" href="#/watch">Take the walkthrough</a><a class="btn xl" href="#/start">Try it with sample data</a></div></section>`)
 }
 export function pricingPage(){
   const tiers=[
-    ['Consistency Audit','Free','A read-only pass over the agents you already have: where they do the same job, and where the answers differ.','Try it with sample data','#/start',true],
-    ['Team','Contact us','For teams building agents in more than one tool. One official answer per job, a suggestion for each existing builder, and a check that they applied it.','Contact us','#/start',false],
-    ['Enterprise','Contact us','For a wider rollout across workspaces, including the semantic layer you already use. Same read-only rule: owners decide, builders apply.','Contact us','#/start',false],
+    ['Consistency Audit','Free','A read-only pass over the agents you already have.','Try it with sample data','#/start',true],
+    ['Team','Contact us','One official answer, then a check that agents match it.','Contact us','#/start',false],
+    ['Enterprise','Contact us','The same pass across more workspaces.','Contact us','#/start',false],
   ]
-  return marketShell('pricing', `<section class="mhero"><span class="eyebrow">Pricing</span><h1>Start with a consistency audit.</h1><p>The audit is free in this demo. Team and Enterprise prices are placeholders. There is no checkout.</p></section>
+  return marketShell('pricing', `<section class="mhero"><h1>Start with a consistency audit.</h1><p>The audit is free in this demo. Team and Enterprise are placeholders. No checkout.</p></section>
 <div class="prices">${tiers.map(t=>`<article class="price card ${t[5]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p><a class="btn ${t[5]?'p':''}" href="${t[4]}">${t[3]}</a></article>`).join('')}</div>
-<p class="pricenote">Placeholder prices only. Nothing here is a quote, and this demo does not bill anyone.</p>`)
+<p class="pricenote">Placeholder prices. No checkout.</p>`)
 }
 export function aboutPage(){
-  return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Agents answering the same question should give the same answer.</h1><p>Concord is a demo of that idea. Northwind, the company in the product, is fictional.</p></section>
+  return marketShell('about', `<section class="mhero"><h1>The same answer.</h1><p>Agents on one question should give the same answer. Northwind is fictional.</p></section>
 <div class="abouts">
-<article class="card"><h2>Why now</h2><p>People build agents where they already work, in Claude and in n8n. Two agents can be asked the same question and give different answers. That number then shows up in a forecast, a customer note, or a board update.</p></article>
 <article class="card"><h2>Principles</h2><ul>
-<li><b>Read-only.</b> Concord reads instructions and answers already given. It's read-only, so it never changes an agent.</li>
-<li><b>Owners decide.</b> The person who owns the number signs off the official answer.</li>
-<li><b>Builders stay in charge.</b> Concord tells them what changed, and they update their own agents. Official metrics from dbt and Atlan are coming next.</li>
+<li><b>Read-only.</b> Concord reads answers already given.</li>
+<li><b>Owners decide.</b> The owner signs off the official answer.</li>
+<li><b>Builders stay in charge.</b> Concord tells them what changed. They update their agents.</li>
 </ul></article>
 </div>`)
 }

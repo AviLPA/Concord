@@ -9,28 +9,28 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The line under the hero is the product: security tools check whether an agent is safe; Concord checks whether your agents give the same answer. |
-| `#/how` | How it works, in plain language: read, detect, decide, verify adoption. |
+| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the drift-then-snap chart (35, 42, 17, then 28). The centered line under it: security tools check whether an agent is safe; Concord checks whether your agents give the same answer. |
+| `#/how` | How it works, in three steps: Scan, Alert, Fix. |
 | `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. Prices are placeholders. No checkout. |
-| `#/about` | Mission, why now, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
+| `#/about` | The same answer, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
 | `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
 | `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
-| `#/watch` | **Walkthrough**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Dana uses an agent, that night's scan shows the same 35, other people's agents answer 42, 17, and 28, Sara alerts, and later daily scans check. |
+| `#/watch` | **Walkthrough**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Dana gets 35. The nightly scan alerts Sara. Four answers are 35, 42, 17, and 28. Sara signs off 28. Daily scans end with all 4 agents agreeing on 28. |
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Walkthrough
-A click-through story in three acts and six steps. The user clicks Next and Back, or a step in the stepper. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control. Concord never runs or edits an agent, and it does not sit in the chat. The right panel is always what Concord sees. Scans run daily.
+A click-through story in six steps. The user clicks Next and Back, or a step in the stepper. Each step is a short headline and one sentence. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control. The right panel is what Concord sees. On a phone that panel shows first, with a tab for the agent view. Scans run daily.
 
-1. **Dana builds.** She asks how many accounts are at risk in her Claude project and gets 35. Concord does not interrupt. The chat box is on screen only here.
-2. **Night scan.** Concord finds the new agent, matches Customer health, and shows the same question and the same line: Dana's agent answered 35.
-3. **Four answers.** Dana's 35 is marked as the one just seen. Three other agents answer the same question: the CS team lead's Account health monitor (42), Tom's n8n workflow (17), and Renewal radar (RevOps · Claude, warehouse score, 28). The left panel keeps Dana's chat, faded. Each card names the owner, team, and tool, plus a short definition.
-4. **Sara's alert.** A notification to Sara Klein: Customer health, 4 agents, 4 different answers.
-5. **Sara decides.** In Concord she marks 28, the warehouse score. Concord sends each builder a note. It does not change anyone's agent.
-6. **Daily scans.** Day 1 Dana updates. Day 3 Tom edits his n8n workflow himself. Day 5 the Account health monitor still says 42, so Concord alerts again. The CS team lead updates it after that and matches last. Daily monitoring keeps running.
+1. **Dana builds.** She asks the question and gets 35. The chat box is on screen only here.
+2. **Night scan.** The scan finds Dana's agent on Customer health and shows the same 35.
+3. **Four answers.** Dana's 35 sits with 42, 17, and 28. Renewal radar (RevOps · Claude, warehouse score) is 28. The left panel keeps Dana's chat, faded, with the note that her agent is one of four.
+4. **Sara's alert.** Sara Klein gets the four answers: 35, 42, 17, and 28.
+5. **Sara decides.** She signs off 28 as the official answer. Notes go to each builder.
+6. **Daily scans.** Day 1 Dana updates. Day 3 Tom updates. Day 5 the Account health monitor still says 42. The CS team lead updates it. All 4 agents agree: 28.
 
-Controls: Next, Back, and clickable step markers. On phones the panels become tabs. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
+Controls: Next, Back, and clickable step markers. Back is disabled on the first step. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
 
 ## Run locally
     npm install
@@ -42,7 +42,7 @@ Controls: Next, Back, and clickable step markers. On phones the panels become ta
 
 ## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
 - `test-onboarding.mjs [baseUrl] [shotDir]`: landing through resolve, dashboard, the walkthrough, and reset, at 1280×800 and 390×844. Exits non-zero on failure.
-- `test-watch.mjs [baseUrl]`: walkthrough click-through, controls, explore, and the adoption timeline. Exits non-zero on failure.
+- `test-watch.mjs [baseUrl]`: walkthrough click-through, controls, explore, and the adoption timeline, at 1280×800, 390×844, and 360×740. Exits non-zero on failure.
 - `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
 - `video.mjs [desktop|phone]` and `video-onboarding.mjs [desktop|phone]`: CDP screencast recordings.
 
