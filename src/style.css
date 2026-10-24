@@ -885,6 +885,11 @@ tbody tr:hover{background:var(--raised)}
   .bal{text-transform:uppercase;letter-spacing:.07em}
 }
 .lead .hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.lead form{min-width:0}
+.lead-plats{border:0;padding:0;margin:0 0 12px;min-width:0}
+.lead-plats legend{padding:0;margin:0 0 6px;font-size:12px;color:var(--mut)}
+.lead-check{display:flex;align-items:center;gap:8px;margin:0 0 8px;min-width:0;font-size:13.5px;color:var(--tx)}
+.lead-check input{width:16px;height:16px;flex:none;padding:0}
 .lead textarea{width:100%;max-width:100%;background:var(--raised);border:1px solid var(--line2);border-radius:8px;padding:9px 11px;font-size:13.5px;color:var(--tx);outline:none;resize:vertical}
 .lead textarea:focus{border-color:var(--agent);box-shadow:var(--focus-ring)}
 .lead-err{color:var(--status-conflict-text);font-size:13px;margin:0 0 8px;line-height:1.45}

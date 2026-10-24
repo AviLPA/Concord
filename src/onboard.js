@@ -298,8 +298,7 @@ ${rows.map(a=>`<div class="larow k-${a[1]}"><b>${a[0]}</b><span class="n">${a[2]
 </div></div></div></section>
 <section class="lsec"><div class="lsh"><span class="eyebrow">Who it's for</span><h2>The people who own the numbers</h2><p>The CFO, the head of RevOps and ops leaders.</p></div>
 <p class="lnext">Today Concord compares number answers. Next, it will compare written answers, like two support agents quoting different refund windows or two onboarding assistants giving different steps. Connecting the semantic layer you already use, such as dbt or Atlan, is also coming next.</p></section>
-<!-- TODO: "Start with a free consistency audit" has no email yet. It points at Open the demo (#/overview) until a contact address exists. -->
-<section class="lclose" id="audit"><h2>Start with a free consistency audit.</h2><div class="lcta"><a class="btn p xl" href="#/overview">Start with a free consistency audit</a></div></section>`)
+<section class="lclose" id="hear"><h2>Want to hear more?</h2><div class="lcta">${leadCta('p xl')}</div></section>`)
 }
 export function howPage(){
   const steps=[
@@ -317,12 +316,12 @@ export function howPage(){
 }
 export function pricingPage(){
   const tiers=[
-    ['Consistency audit','Free','We look at the agents you already have and show where agents doing the same job disagree.','Try it with sample data','#/start',true],
-    ['Team','Contact us','For teams building agents in more than one tool. One official version for every key question, a named owner for each, and proof every agent follows it.','Contact us','#/start',false],
-    ['Enterprise','Contact us','For a wider rollout across workspaces. Coming next: connect the semantic layer you already use.','Contact us','#/start',false],
+    ['Consistency audit','Free','We look at the agents you already have and show where agents doing the same job disagree.',true],
+    ['Team','Talk to us','For teams building agents in more than one tool. One official version for every key question, a named owner for each, and proof every agent follows it.',false],
+    ['Enterprise','Talk to us','For a wider rollout across workspaces. Coming next: connect the semantic layer you already use.',false],
   ]
-  return marketShell('pricing', `<section class="mhero"><span class="eyebrow">Pricing</span><h1>Start with a free consistency audit.</h1><p>Claude connections need Claude Enterprise.</p></section>
-<div class="prices">${tiers.map(t=>{const action=t[3]==='Contact us'?leadCta():`<a class="btn ${t[5]?'p':''}" href="${t[4]}">${t[3]}</a>`;return `<article class="price card ${t[5]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p>${action}</article>`}).join('')}</div>`)
+  return marketShell('pricing', `<section class="mhero"><span class="eyebrow">Pricing</span><h1>Pricing that fits how your teams build.</h1><p>Claude connections need Claude Enterprise.</p></section>
+<div class="prices">${tiers.map(t=>`<article class="price card ${t[3]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p>${leadCta(t[3]?'p':'')}</article>`).join('')}</div>`)
 }
 export function aboutPage(){
   return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Every team should be working from the same version of the truth.</h1><p>Teams are building their own agents faster than anyone can keep track of. That's a good thing, until two agents built for the same job start giving people different answers. Concord exists to find those differences, show why they happen, and help the company settle on one version, while people keep building the way they do today.</p></section>`)
