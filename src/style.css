@@ -266,7 +266,7 @@ select{background:var(--raised);border:1px solid var(--line2);color:var(--tx);bo
 @media (max-width:1100px){.wl{display:none}.ws-i{justify-content:center}.cmp,.rules{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:820px){
  .wpage{padding:12px 12px 0}.wv{display:flex;flex-direction:column;gap:8px;min-height:0}.wv-head{display:none}
- .wv-cap{order:1}.wv-tabs{order:2}.wv-split{order:3}.wv-dock{order:4}
+ .wv-cap{order:1;flex:0 0 auto}.wv-tabs{order:2}.wv-split{order:3}.wv-dock{order:4}
  .wv-dock{display:flex;align-items:center;gap:8px;height:72px;flex:none;border-top:1px solid var(--line);background:var(--bg);margin:0 -12px;padding:0 12px}
  .wv-dock .wv-steps{flex:1;min-width:0;gap:2px}.wv-dock .wv-prog{display:none}
  .wv-dock .wv-btns{flex:none;gap:6px}.wv-dock .btn{min-height:44px;padding:8px 12px}.wv-dock .wnext{max-width:none;white-space:nowrap}
