@@ -54,6 +54,22 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  })
  if(vp.width>=1024) assert(heroLay.n===2&&heroLay.sideBySide, 'desktop two-column hero '+JSON.stringify(heroLay))
  else assert(heroLay.n===1&&heroLay.stacked, 'stacked hero '+JSON.stringify(heroLay))
+ if(vp.width>=1024){
+  const v14=await p.evaluate(()=>{
+   const cs=el=>getComputedStyle(el)
+   const h1=cs(document.querySelector('.lhero h1'))
+   const sub=cs(document.querySelector('.lsub'))
+   const card=cs(document.querySelector('.lcard'))
+   const field=cs(document.querySelector('.syncfield'))
+   const num=cs(document.querySelector('.sfn'))
+   const dot=document.querySelector('.sfdot')
+   const q=document.querySelector('.lcardh .q').getBoundingClientRect()
+   const chip=document.querySelector('.lcardh .slot[data-off]').getBoundingClientRect()
+   const dots=[...document.querySelectorAll('.sfdot')].map(el=>el.getBoundingClientRect().top)
+   return {h1:Math.round(parseFloat(h1.fontSize)),sub:Math.round(parseFloat(sub.fontSize)),border:card.borderTopWidth,field:Math.round(parseFloat(field.height)),num:Math.round(parseFloat(num.fontSize)),dot:Math.round(parseFloat(cs(dot).width)),chipBelow:chip.top>=q.bottom-1,spread:Math.round(Math.max(...dots)-Math.min(...dots))}
+  })
+  assert(v14.h1===72&&v14.sub===18&&v14.border==='4px'&&v14.field===200&&v14.num===15&&v14.dot===18&&v14.chipBelow&&v14.spread>=40, 'v14 desktop hero '+JSON.stringify(v14))
+ }
  await shot('01-landing')
  await p.evaluate(()=>scrollTo(0,document.body.scrollHeight));await p.waitForTimeout(200);await honesty(p,'landing bottom')
  await p.evaluate(()=>scrollTo(0,0))

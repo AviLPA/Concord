@@ -223,8 +223,8 @@ function stopScan(){SC.timers.forEach(clearTimeout);SC.timers=[];SC.running=fals
 function searchStep(){return `<div class="obwide"><h1>Search across every agent</h1><p class="sub">Type a business term or a question. You get every agent on that job, the definition Concord read, and the answer already on record.</p>${searchBox(OB.q)}</div>`}
 
 function syncField(){
-  const cols=[["Dana's agent",'35',20],['Account health monitor','42',-28],["Tom's workflow",'17',16],['Renewal radar','28',0]]
-  return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' official':''}" style="--off:${c[2]};--i:${i}"><div class="sfmove"><span class="sfn"><span class="off">${c[1]}</span><span class="on">28</span></span><span class="sfdot"></span></div><span class="sfl">${c[0]}</span></div>`).join('')}</div>`
+  const cols=[["Dana's agent",'Claude','35',-52,20],['Account health monitor','Claude','42',44,-28],["Tom's workflow",'n8n','17',-20,16],['Renewal radar','Claude','28',0,0]]
+  return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' official':''}" style="--off:${c[3]};--snap:${c[4]};--i:${i}"><div class="sfmove"><span class="sfn"><span class="off">${c[2]}</span><span class="on">28</span></span><span class="sfdot"></span></div><span class="sfl"><span class="sfnm">${esc(c[0])}</span><span class="sfpl"> · ${esc(c[1])}</span></span></div>`).join('')}</div>`
 }
 const BURGER=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`
 const CLOSE=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`

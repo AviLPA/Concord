@@ -70,6 +70,17 @@ async function run(name,vp){
   assert(bodyWords.length<=15&&bodyWords.length>0, name+' body words '+bodyWords.length+' '+bodyWords.join(' '))
   const ovStep=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)
   assert(ovStep<=1, name+' step '+i+' overflow '+ovStep)
+  if(vp.width>=1024&&i===0){
+   const panels=await p.evaluate(()=>{
+    const cols=getComputedStyle(document.querySelector('.wv-split')).gridTemplateColumns.split(' ').filter(Boolean)
+    const chat=document.querySelector('.wchat').getBoundingClientRect()
+    const be=document.querySelector('.wbe').getBoundingClientRect()
+    const cap=document.querySelector('.wv-cap').getBoundingClientRect()
+    const btns=document.querySelector('.wv-btns').getBoundingClientRect()
+    return {cols:cols.length,side:be.left>=chat.right-2&&Math.abs(chat.top-be.top)<4,card:btns.width>40&&btns.left>=cap.left&&btns.right<=cap.right+1&&btns.top>=cap.top-1&&btns.bottom<=cap.bottom+1}
+   })
+   assert(panels.cols===2&&panels.side&&panels.card, name+' v14 desktop panels '+JSON.stringify(panels))
+  }
   if(vp.width<820){
     const phoneFit=await p.evaluate(()=>{
       const side=document.querySelector('.wv').dataset.side
