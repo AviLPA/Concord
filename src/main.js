@@ -179,7 +179,7 @@ ${S.semanticConnected?'<div class="ion">'+ic('check',14)+' Read-only preview con
 
 function docTitle(raw){
   const key=(raw||'home').split('/')[0]||'home'
-  if(key==='home') return 'Concord · Keep your AI agents giving the same answer'
+  if(key==='home') return "Your people are building the same agents. They're getting different answers."
   const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official blocks',integrations:'Integrations'}
   return 'Concord · '+(names[key]||'Overview')
 }
