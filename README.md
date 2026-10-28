@@ -1,52 +1,49 @@
-# Concord (demo)
+# Concord (private live-dashboard preview)
 
-Interactive proof-of-concept for an agent consistency layer. Employees build agents in Claude, n8n and more; Concord connects read-only, maps every agent, finds agents doing the same job that give different answers, and lets the owner publish one official definition that every agent calls over MCP.
+This tree is the **private live dashboard preview** (Spacefast v12): https://concord-live-dashboard.space.fast/
 
-Live demo: https://concord-demo.space.fast/
+Positioning is answer consistency for AI agents. The home H1 is “Your teams' AI agents are giving different answers to the same question.” The footer is “Let everyone build. Keep every answer consistent.” The hero animates that question into four branches — 35, 42, 17, and 28 — then resolves to Sara Klein’s official answer, 28. In the dashboard the old Conflicts label is **Inconsistencies** (the route is still `#/conflicts`). Overview is a denser layout: greeting, four KPIs, the top inconsistency, the consistency score beside recent activity, then inconsistencies by owner, shared jobs, and official answers.
 
-All data is fictional ("Northwind", 400 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v1`) and can be cleared with **Reset demo** (landing page footer, or the app sidebar).
+Agents and inconsistencies are built from a recorded n8n scan in `src/latest-scan.json` (`src/liveModel.js`). Concord reads those executions; it does not re-run the workflows. Progress is kept in `localStorage` (key `concord-live-preview-v1`). **Restart demo** asks for the demo password, then clears that key. The hands-on flow and the use case share the store. If the at-risk job is already decided, the story says so and does not overwrite it.
+
+The public marketing site is separate and is not this snapshot.
 
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Marketing landing page: hero with two equal CTAs (**Get started**, **▶ Watch it live**), the problem (35 / 42 / 17 / 28 from the demo company), how it works, integrations (Claude and n8n available, others "coming soon"), built for RevOps / Data / AI CoE. No logos, testimonials, pricing or real-world stats. |
-| `#/start` | Hands-on onboarding (no autoplay): 1 Create workspace → 2 Connect Claude (org-admin consent, read-only scopes) and n8n (instance URL + API key, Test connection) → 3 Scan (streams in 47 agents, groups them into 14 jobs, surfaces 7 conflicts; Skip available) → 4 Search → 5 Resolve. A one-line guide bar always says what to do next. |
-| `#/search/<query>` | Search across every agent (also from the app top bar). Synonym and fuzzy matching, so "customer health", "custmer helth", "how many accounts are at risk?" or "how much revenue do we have" all work. Results show every agent doing the job, with builder, definition/source and answer side by side; disagreements highlighted. |
-| `#/resolve/<cid>` | Resolve as owner: compare definitions, pick or edit one, add a reason, publish as an official MCP block, notify builders / rewire and watch answers converge; adoption and consistency score update. |
-| `#/watch` | **Watch it live**: guided 8-step simulation (unchanged; see below). Reachable from the landing hero, first item in the app sidebar, the top bar, onboarding header and the end of onboarding. |
-| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The Overview shows a setup checklist (Connect, Scan, Search, Resolve first conflict) until it is done, and reflects what you did (score 71 → 86 after resolving Customer health). |
+| `#/` (or no hash) | Home. Sticky nav: Home, How it works, Use case, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the branch-and-resolve animation for “How many accounts are at risk?” |
+| `#/how` | How it works: Find, Show, Decide, and Confirm. |
+| `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Talk to us. Prices are placeholders. No checkout. |
+| `#/about` | Why agents answering the same question should give the same answer. Northwind-style labels on the sample jobs are illustrative. |
+| `#/start` | Hands-on setup: workspace → connect Claude and n8n, both read-only → scan → search → resolve. |
+| `#/search/<query>` | Search across every agent. Synonym and fuzzy matching. Results show the definition Concord read and the answer already on record. |
+| `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, or mark a different job / valid variant. |
+| `#/watch` | **Use case**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Four answers are 35, 42, 17, and 28. Sara signs off 28. |
+| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The sidebar label for `#/conflicts` is Inconsistencies. Rows come from the live n8n scan. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
-## Watch it live
-A guided, autoplaying simulation in 8 steps:
+## Use case
+A click-through story. The user clicks Next and Back, or a step in the stepper. Each step is a short headline and one sentence. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control.
 
-1. Dana (Sales Ops) builds a "Q4 at-risk accounts" agent in Claude, in plain words → Concord detects the new agent.
-2. She pastes her own at-risk definition and a personal spreadsheet → Concord reads instructions and sources, read-only.
-3. Her agent answers "35 accounts" → Concord matches it to the Customer health job alongside Maya's and Priya's Claude agents and Tom's n8n workflow.
-4. Concord asks all four the same question: 35 / 42 / 17 / 28 → conflict flagged.
-5. The conflict is routed to the owner, Sara Klein, who picks the official definition.
-6. Customer health v2 is published as an official block over MCP.
-7. Dana's agent is rewired; asked again, it answers 28 (adoption 2/4).
-8. Tom's n8n workflow and Maya's agent are rewired → all four agree, consistency 71 → 86.
-
-Controls: play/pause (space), back/next (← →), restart, speed, clickable step markers. On phones the panels become tabs. The wrap-up card's **Explore the full app** opens the dashboard with the result applied.
+**Explore the full app** writes the story into the shared store, unless the workspace already decided that job.
 
 ## Run locally
     npm install
     npm run dev
 
 ## Build
-    npm run build      # static output in dist/ (relative base, can be hosted anywhere)
+    npm run build      # static output in dist/ (relative base; fonts are inlined)
     npm run preview    # serves dist/ on :4173
 
-## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
-- `test-onboarding.mjs [baseUrl] [shotDir]`: end-to-end test at 1280×800 and 390×844: landing → Get started → connect both → scan → search (chip, free text, typo) → resolve → dashboard; persistence; landing → Watch it live → wrap-up → Explore; Reset. Fails on console errors, horizontal scroll or raw template text.
-- `test-watch.mjs`: detailed test of the Watch it live mode (timing, controls, explore).
-- `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
-- `video.mjs [desktop|phone]`: records the Watch it live walkthrough. `video-onboarding.mjs [desktop|phone]`: records the hands-on onboarding. Both use CDP screencast frames plus a fake cursor and captions, then ffmpeg.
+## Scripts
+`test-onboarding.mjs`, `test-watch.mjs`, `shots.mjs`, `shots-onboarding.mjs`, `video.mjs`, and `video-onboarding.mjs` are the earlier Playwright helpers. They were left in place and were not rewritten for this preview. They still look for the old landing CTA (`#/watch` in the hero), Watch it live play/pause/speed controls, and an unauthenticated reset, so they will not pass against this source.
 
 ## Code
-- `src/main.js`: app shell, data, routing, persistence, and app screens (Overview, Agents, Jobs, Conflicts, Official blocks, Integrations).
-- `src/onboard.js`: landing page, onboarding (workspace, connect modals, scan), search, resolve flow, setup checklist.
-- `src/watch.js`: the Watch it live mode (step/beat timeline engine, chat and backend renderers).
-- `src/style.css`: all styles.
+- `src/latest-scan.json`: recorded n8n executions used as the live preview dataset.
+- `src/liveModel.js`: turns that scan into agents, jobs, inconsistencies, and draft official answers.
+- `src/model.js`: consistency score and shared adoption rules over the live rows.
+- `src/main.js`: app shell, routing, persistence, and the dashboard screens.
+- `src/onboard.js`: home (including the branch hero), onboarding, search, and the resolve flow.
+- `src/watch.js`: click-through use case.
+- `src/style.css`, `src/tokens.css`: styles. Overview density is `.ovp` / `.dash3`; the hero branches are `.ltree`.
+- `src/brand.js`, `src/lead.js`: mark, status chips, and the contact form.
