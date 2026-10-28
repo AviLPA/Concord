@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Concord: one official answer for every AI agent</title>
+<meta name="description" content="Your teams' AI agents are giving different answers to the same question. Concord finds where they disagree, shows you why, and gets every agent onto one official answer." />
+<meta property="og:title" content="Concord: one official answer for every AI agent" />
+<meta property="og:description" content="Concord finds where your AI agents disagree, shows you why, and gets every agent onto one official answer." />
+<meta name="theme-color" content="#F3F6F4" />
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./site.css" />
+</head>
+<body>
+<header class="nav" id="nav">
+  <div class="wrap navin">
+    <a class="brand" href="#top" aria-label="Concord home"><img src="./assets/mark.svg" alt="" width="34" height="14" /><span>concord</span></a>
+    <nav class="links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#where">Integrations</a>
+    </nav>
+    <div class="navcta">
+      <a class="link" href="../#/watch">Watch it live</a>
+      <a class="btn mint sm" href="../#/start">Open the demo</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap herogrid">
+      <div class="copy">
+        <h1 class="reveal">Your teams' AI agents are giving different answers to the same question.</h1>
+        <p class="lede reveal">Concord finds where they disagree, shows you why, and gets every agent onto one official answer.</p>
+        <div class="ctas reveal">
+          <a class="btn mint" href="../#/start">Try it with sample data</a>
+          <a class="btn line" href="../#/watch">Watch it live</a>
+        </div>
+      </div>
+
+      <figure class="card reveal" id="card" aria-label="Four agents answer the same question with 35, 42, 17 and 28. Concord resolves them to one official answer: 28.">
+        <div class="ask">“How many accounts are at risk?”</div>
+        <div class="verdict"><span class="vi" aria-hidden="true"></span><span id="verdict">Conflict · 4 answers</span></div>
+        <svg class="branch" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M200 0V12M50 34V22Q50 12 60 12H340Q350 12 350 22V34M150 12V34M250 12V34" />
+        </svg>
+        <ul class="agents">
+          <li data-from="35"><header><i>M</i><b>Maya</b></header><p>Renewal radar</p><span class="tag">CS · <code>Claude</code></span><strong>35</strong><small>Same job</small></li>
+          <li data-from="42"><header><i>D</i><b>Dan</b></header><p>Pipeline watch</p><span class="tag">Sales · <code>Claude</code></span><strong>42</strong><small>Same job</small></li>
+          <li data-from="17"><header><i>P</i><b>Priya</b></header><p>Escalation flow</p><span class="tag">Support · <code>n8n</code></span><strong>17</strong><small>Same job</small></li>
+          <li class="official" data-from="28"><header><i>S</i><b>Sara</b></header><p>Official renewal risk</p><span class="tag">RevOps · <code>n8n</code></span><strong>28</strong><small>Official</small></li>
+        </ul>
+        <svg class="merge" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M50 0V10Q50 20 60 20H340Q350 20 350 10V0M150 0V20M250 0V20M200 20V34" />
+        </svg>
+        <div class="answer"><b id="answerNum">28</b> Official answer · Sara Klein, RevOps</div>
+        <figcaption>Example data · same job, four agents, one official version</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="statement">
+    <div class="wrap">
+      <p class="big" id="statement">Security tools check whether an agent is safe. <span class="hl">Concord checks whether agents built for the same job are consistent.</span></p>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <h2 class="reveal">How it works</h2>
+      <div class="tabs reveal" role="tablist">
+        <button role="tab" class="tab on" data-tab="0"><span class="n">01</span><b>Find every agent</b><span class="d">Connect Claude and n8n, read-only. Concord maps every agent and the job it does.</span><i class="bar"></i></button>
+        <button role="tab" class="tab" data-tab="1"><span class="n">02</span><b>See where they disagree</b><span class="d">Ask one question. See every answer, definition and source side by side.</span><i class="bar"></i></button>
+        <button role="tab" class="tab" data-tab="2"><span class="n">03</span><b>Publish one answer</b><span class="d">The owner picks the official version. Every agent calls it over MCP.</span><i class="bar"></i></button>
+      </div>
+      <div class="screen reveal">
+        <img class="on" src="./assets/product/scan.jpg" alt="Concord scanning Claude Projects and n8n workflows and grouping 47 agents by job" />
+        <img src="./assets/product/search.jpg" alt="Three agents doing the customer health job answer 42, 17 and 28" loading="lazy" />
+        <img src="./assets/product/resolve-converged.jpg" alt="After publishing the official definition, every agent answers 28" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <section class="where" id="where">
+    <div class="wrap">
+      <h2 class="reveal">Works where your teams already build.</h2>
+      <p class="sub reveal">Read-only. No conversation content. Builders change nothing.</p>
+      <ul class="tools reveal">
+        <li class="live">Claude</li><li class="live">n8n</li><li>ChatGPT Enterprise</li><li>Copilot Studio</li><li>Gemini</li><li>Zapier</li>
+      </ul>
+      <p class="soon reveal"><span class="dot"></span>Available now · others coming soon</p>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2 class="reveal">One question. One answer.<br />Every agent.</h2>
+      <div class="ctas center reveal">
+        <a class="btn mint" href="../#/start">Try it with sample data</a>
+        <a class="btn line" href="../#/watch">Watch it live</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap footin">
+    <a class="brand" href="#top"><img src="./assets/mark.svg" alt="" width="30" height="12" /><span>concord</span></a>
+    <p>© 2026 Concord · Demo uses fictional data.</p>
+  </div>
+</footer>
+
+<script type="module" src="./site.js"></script>
+</body>
+</html>

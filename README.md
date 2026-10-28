@@ -22,6 +22,14 @@ The public marketing site is separate and is not this snapshot.
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The sidebar label for `#/conflicts` is Inconsistencies. Rows come from the live n8n scan. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
+## Showcase site (`site/`)
+A standalone, calm brand site for investors and users, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It's separate from the app, with its own HTML, CSS and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
+
+- Five sections: hero (an animated conflict card where 35 / 42 / 17 converge to the official 28), the security-vs-consistency statement, how it works (three auto-advancing tabs over real app screenshots), integrations, and a closing CTA.
+- Brand: a light Mist `#F3F6F4` background, Deep slate `#14232B` text, Mint `#6EE7A8` pill CTAs, green `#1F7A55` for agreement and red `#B83A2C` only for conflict. Headlines are in Manrope, body text in Inter.
+- Animation respects `prefers-reduced-motion`.
+- `node site/capture.mjs` regenerates the product screenshots in `site/assets/product/` (needs `npm run preview`).
+
 ## Use case
 A click-through story. The user clicks Next and Back, or a step in the stepper. Each step is a short headline and one sentence. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control.
 
