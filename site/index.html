@@ -3,301 +3,113 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Concord — One question. One answer. Every agent.</title>
-<meta name="description" content="Concord is the consistency layer for your company's AI agents. It finds agents doing the same job, catches when they disagree, and publishes one owner-approved answer they all call over MCP." />
-<meta property="og:title" content="Concord — One question. One answer. Every agent." />
-<meta property="og:description" content="The read-only consistency layer for every AI agent in your company." />
-<meta name="theme-color" content="#07070C" />
-<link rel="icon" href="./assets/mark.svg" type="image/svg+xml" />
+<title>Concord: one official answer for every AI agent</title>
+<meta name="description" content="Your teams' AI agents are giving different answers to the same question. Concord finds where they disagree, shows you why, and gets every agent onto one official answer." />
+<meta property="og:title" content="Concord: one official answer for every AI agent" />
+<meta property="og:description" content="Concord finds where your AI agents disagree, shows you why, and gets every agent onto one official answer." />
+<meta name="theme-color" content="#F3F6F4" />
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="./site.css" />
 </head>
 <body>
-<div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
-<div class="grain" aria-hidden="true"></div>
-
 <header class="nav" id="nav">
-  <a class="brand" href="#top" aria-label="Concord home">
-    <img src="./assets/mark.svg" alt="" width="28" height="28" />
-    <span>concord</span>
-  </a>
-  <nav class="links" aria-label="Sections">
-    <a href="#problem">Problem</a>
-    <a href="#product">Product</a>
-    <a href="#how">How it works</a>
-    <a href="#vision">Vision</a>
-  </nav>
-  <div class="navcta">
-    <a class="btn ghost sm" href="../#/watch">Watch it live</a>
-    <a class="btn primary sm" href="../#/start">Try the demo</a>
+  <div class="wrap navin">
+    <a class="brand" href="#top" aria-label="Concord home"><img src="./assets/mark.svg" alt="" width="34" height="14" /><span>concord</span></a>
+    <nav class="links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#where">Integrations</a>
+    </nav>
+    <div class="navcta">
+      <a class="link" href="../#/watch">Watch it live</a>
+      <a class="btn mint sm" href="../#/start">Open the demo</a>
+    </div>
   </div>
 </header>
 
 <main id="top">
-  <!-- HERO -->
   <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow reveal"><span class="dot"></span>The consistency layer for AI agents</p>
-      <h1 class="reveal">Four agents. Four answers.<br /><em>One truth.</em></h1>
-      <p class="lede reveal">Every team now builds its own AI agents. Concord finds the ones doing the same job, catches it when they disagree, and publishes one owner‑approved answer that every agent calls.</p>
-      <div class="ctas reveal">
-        <a class="btn primary" href="../#/start">Try the interactive demo <span aria-hidden="true">→</span></a>
-        <a class="btn ghost" href="../#/watch"><span class="play" aria-hidden="true"></span>Watch it live</a>
+    <div class="wrap herogrid">
+      <div class="copy">
+        <h1 class="reveal">Your teams' AI agents are giving different answers to the same question.</h1>
+        <p class="lede reveal">Concord finds where they disagree, shows you why, and gets every agent onto one official answer.</p>
+        <div class="ctas reveal">
+          <a class="btn mint" href="../#/start">Try it with sample data</a>
+          <a class="btn line" href="../#/watch">Watch it live</a>
+        </div>
       </div>
-    </div>
 
-    <div class="stage reveal" id="stage" aria-label="Animation: four agents give four different answers, Concord converges them to one">
-      <div class="q"><span class="qicon" aria-hidden="true">?</span><span id="qtext">How many accounts are at risk this quarter?</span><span class="caret" aria-hidden="true"></span></div>
-      <div class="stage-grid">
+      <figure class="card reveal" id="card" aria-label="Four agents answer the same question with 35, 42, 17 and 28. Concord resolves them to one official answer: 28.">
+        <div class="ask">“How many accounts are at risk?”</div>
+        <div class="verdict"><span class="vi" aria-hidden="true"></span><span id="verdict">Conflict · 4 answers</span></div>
+        <svg class="branch" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M200 0V12M50 34V22Q50 12 60 12H340Q350 12 350 22V34M150 12V34M250 12V34" />
+        </svg>
         <ul class="agents">
-          <li class="agent" data-from="35"><i style="--c:#f59e0b">DO</i><div><b>Dana's agent</b><small>Sales Ops · Claude</small></div><span class="num">35</span></li>
-          <li class="agent" data-from="42"><i style="--c:#38bdf8">MC</i><div><b>Maya's agent</b><small>CS · Claude</small></div><span class="num">42</span></li>
-          <li class="agent" data-from="17"><i style="--c:#a78bfa">TR</i><div><b>Tom's workflow</b><small>CS · n8n</small></div><span class="num">17</span></li>
-          <li class="agent" data-from="28"><i style="--c:#fb7185">PS</i><div><b>Priya's agent</b><small>Sales · Claude</small></div><span class="num">28</span></li>
+          <li data-from="35"><header><i>M</i><b>Maya</b></header><p>Renewal radar</p><span class="tag">CS · <code>Claude</code></span><strong>35</strong><small>Same job</small></li>
+          <li data-from="42"><header><i>D</i><b>Dan</b></header><p>Pipeline watch</p><span class="tag">Sales · <code>Claude</code></span><strong>42</strong><small>Same job</small></li>
+          <li data-from="17"><header><i>P</i><b>Priya</b></header><p>Escalation flow</p><span class="tag">Support · <code>n8n</code></span><strong>17</strong><small>Same job</small></li>
+          <li class="official" data-from="28"><header><i>S</i><b>Sara</b></header><p>Official renewal risk</p><span class="tag">RevOps · <code>n8n</code></span><strong>28</strong><small>Official</small></li>
         </ul>
-        <div class="flow">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <g class="wires">
-              <path d="M0 12.5 C 40 12.5, 45 50, 78 50" pathLength="100" />
-              <path d="M0 37.5 C 40 37.5, 45 50, 78 50" pathLength="100" />
-              <path d="M0 62.5 C 40 62.5, 45 50, 78 50" pathLength="100" />
-              <path d="M0 87.5 C 40 87.5, 45 50, 78 50" pathLength="100" />
-            </g>
-            <g class="pulses">
-              <path d="M0 12.5 C 40 12.5, 45 50, 78 50" pathLength="100" />
-              <path d="M0 37.5 C 40 37.5, 45 50, 78 50" pathLength="100" />
-              <path d="M0 62.5 C 40 62.5, 45 50, 78 50" pathLength="100" />
-              <path d="M0 87.5 C 40 87.5, 45 50, 78 50" pathLength="100" />
-            </g>
-          </svg>
-          <div class="core"><span class="ring"></span><span class="ring r2"></span><img src="./assets/mark.svg" alt="" /></div>
-        </div>
-        <div class="verdict">
-          <div class="status" id="status"><span class="sdot"></span><span id="statusText">4 agents · 4 answers</span></div>
-          <div class="official">
-            <small>Official block · MCP</small>
-            <code>concord.customer_health</code>
-            <p>Owner <b>Sara Klein</b> · v2</p>
-          </div>
-          <div class="score"><small>Consistency</small><b id="score">71</b></div>
-        </div>
-      </div>
+        <svg class="merge" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M50 0V10Q50 20 60 20H340Q350 20 350 10V0M150 0V20M250 0V20M200 20V34" />
+        </svg>
+        <div class="answer"><b id="answerNum">28</b> Official answer · Sara Klein, RevOps</div>
+        <figcaption>Example data · same job, four agents, one official version</figcaption>
+      </figure>
     </div>
   </section>
 
-  <!-- TOOLS STRIP -->
-  <section class="strip" aria-label="Integrations">
-    <p>Works where your teams already build</p>
-    <div class="marquee"><div class="track">
-      <span class="live">Claude</span><span class="live">n8n</span><span>ChatGPT Enterprise</span><span>Microsoft Copilot Studio</span><span>Google Gemini</span><span>Zapier</span><span>MCP</span>
-      <span class="live" aria-hidden="true">Claude</span><span class="live" aria-hidden="true">n8n</span><span aria-hidden="true">ChatGPT Enterprise</span><span aria-hidden="true">Microsoft Copilot Studio</span><span aria-hidden="true">Google Gemini</span><span aria-hidden="true">Zapier</span><span aria-hidden="true">MCP</span>
-    </div></div>
-    <p class="legend"><span class="live">Available</span> · others coming soon</p>
-  </section>
-
-  <!-- PROBLEM -->
-  <section class="section" id="problem">
+  <section class="statement">
     <div class="wrap">
-      <p class="kicker reveal">01 · The problem</p>
-      <h2 class="reveal">Everyone is building agents.<br /><em>Nobody checks if they agree.</em></h2>
-      <p class="sub reveal">Agents live in personal Projects and workflows. Each builder brings their own definition and their own spreadsheet. The answers drift, and the wrong number travels to customers, forecasts and the board.</p>
-
-      <div class="stats">
-        <div class="stat reveal"><b data-count="47">0</b><span>agents found in one scan</span></div>
-        <div class="stat reveal"><b data-count="14">0</b><span>jobs done by more than one agent</span></div>
-        <div class="stat reveal coral"><b data-count="7">0</b><span>conflicts nobody could see</span></div>
-        <div class="stat reveal coral"><b data-count="1.9" data-prefix="$" data-suffix="M" data-dec="1">0</b><span>ARR in disputed accounts</span></div>
-      </div>
-      <p class="fine reveal">From Northwind, Concord's fictional 400-person demo company.</p>
-
-      <div class="pains">
-        <article class="pain reveal"><span class="ico">◎</span><h3>No inventory</h3><p>Agents hide in personal Projects and workflows across tools. Nobody can list them, let alone own them.</p></article>
-        <article class="pain reveal"><span class="ico">≠</span><h3>Definitions drift</h3><p>"At-risk", "ARR", "discount cap": every builder picks a rule and a source, often a stale export.</p></article>
-        <article class="pain reveal"><span class="ico">↗</span><h3>The wrong number travels</h3><p>Different answers reach customers and the board. Trust in every agent erodes, including the right ones.</p></article>
-      </div>
+      <p class="big" id="statement">Security tools check whether an agent is safe. <span class="hl">Concord checks whether agents built for the same job are consistent.</span></p>
     </div>
   </section>
 
-  <!-- SOLUTION -->
-  <section class="section solution" id="solution">
+  <section class="how" id="how">
     <div class="wrap">
-      <p class="kicker reveal">02 · The solution</p>
-      <h2 class="reveal">Concord is the source of truth<br /><em>your agents call.</em></h2>
-      <p class="sub reveal">Security tools ask if an agent is safe. Concord asks if all your agents give the same answer, then makes sure they do.</p>
-      <div class="pillars">
-        <article class="pillar reveal"><span class="n">See</span><p>Connects read-only and maps every agent: who built it, what it does, which definition and source it uses.</p></article>
-        <article class="pillar reveal"><span class="n">Catch</span><p>Groups agents by job, asks them the same question, and flags it when the answers differ.</p></article>
-        <article class="pillar reveal"><span class="n">Decide</span><p>Routes each conflict to the person who owns the answer. Compare definitions side by side and pick one.</p></article>
-        <article class="pillar reveal"><span class="n">Publish</span><p>Ships the decision as an official block over MCP. Agents are rewired; builders change nothing.</p></article>
+      <h2 class="reveal">How it works</h2>
+      <div class="tabs reveal" role="tablist">
+        <button role="tab" class="tab on" data-tab="0"><span class="n">01</span><b>Find every agent</b><span class="d">Connect Claude and n8n, read-only. Concord maps every agent and the job it does.</span><i class="bar"></i></button>
+        <button role="tab" class="tab" data-tab="1"><span class="n">02</span><b>See where they disagree</b><span class="d">Ask one question. See every answer, definition and source side by side.</span><i class="bar"></i></button>
+        <button role="tab" class="tab" data-tab="2"><span class="n">03</span><b>Publish one answer</b><span class="d">The owner picks the official version. Every agent calls it over MCP.</span><i class="bar"></i></button>
+      </div>
+      <div class="screen reveal">
+        <img class="on" src="./assets/product/scan.jpg" alt="Concord scanning Claude Projects and n8n workflows and grouping 47 agents by job" />
+        <img src="./assets/product/search.jpg" alt="Three agents doing the customer health job answer 42, 17 and 28" loading="lazy" />
+        <img src="./assets/product/resolve-converged.jpg" alt="After publishing the official definition, every agent answers 28" loading="lazy" />
       </div>
     </div>
   </section>
 
-  <!-- PRODUCT WALKTHROUGH -->
-  <section class="section product" id="product">
+  <section class="where" id="where">
     <div class="wrap">
-      <p class="kicker reveal">03 · Product walkthrough</p>
-      <h2 class="reveal">From scattered agents<br /><em>to one answer</em> in five steps.</h2>
-    </div>
-    <div class="wrap tour">
-      <ol class="steps">
-        <li class="step" data-shot="0">
-          <span class="sn">01</span><h3>Connect, read-only</h3>
-          <p>An org admin authorizes Concord in Claude and n8n. The scopes say exactly what Concord can and cannot do: no edits, no messages, no conversation content.</p>
-          <img class="mshot" src="./assets/product/connect-consent.jpg" alt="Authorize Concord for your Claude organization, read-only scopes" loading="lazy" />
-        </li>
-        <li class="step" data-shot="1">
-          <span class="sn">02</span><h3>Scan every agent</h3>
-          <p>Concord reads every Claude Project and n8n workflow, then groups agents by the job they do: churn reasons, ARR, discount approval and more.</p>
-          <img class="mshot" src="./assets/product/scan.jpg" alt="Scan for agents: 47 agents found, grouped into jobs" loading="lazy" />
-        </li>
-        <li class="step" data-shot="2">
-          <span class="sn">03</span><h3>Search any business term</h3>
-          <p>Type "customer health", or even "custmer helth". See every agent doing that job, with its definition, source and answer side by side.</p>
-          <img class="mshot" src="./assets/product/search.jpg" alt="Search across every agent for customer health" loading="lazy" />
-        </li>
-        <li class="step" data-shot="3">
-          <span class="sn">04</span><h3>See the conflict and what's at stake</h3>
-          <p>$4.8M, $5.3M, $5.1M. Concord diffs the definitions, estimates the impact and routes the decision to the owner.</p>
-          <img class="mshot" src="./assets/product/conflicts.jpg" alt="Conflict detail: ARR, three different totals" loading="lazy" />
-        </li>
-        <li class="step" data-shot="4">
-          <span class="sn">05</span><h3>Publish one answer</h3>
-          <p>The owner makes a definition official. It's published over MCP, every agent is rewired, and every agent now answers 28.</p>
-          <img class="mshot" src="./assets/product/resolve-converged.jpg" alt="Every agent now answers 28 after publishing Customer health v2" loading="lazy" />
-        </li>
-        <li class="step" data-shot="5">
-          <span class="sn">06</span><h3>Watch consistency climb</h3>
-          <p>One dashboard for every agent, open conflicts, orphaned agents and official-block adoption. Consistency score: 71 → 86.</p>
-          <img class="mshot" src="./assets/product/dashboard.jpg" alt="Concord overview dashboard with consistency score 86" loading="lazy" />
-        </li>
-      </ol>
-      <div class="screen" aria-hidden="true">
-        <div class="frame">
-          <div class="chrome"><i></i><i></i><i></i><span>app.concord · Northwind</span></div>
-          <div class="shots">
-            <img src="./assets/product/connect-consent.jpg" alt="" class="on" />
-            <img src="./assets/product/scan.jpg" alt="" loading="lazy" />
-            <img src="./assets/product/search.jpg" alt="" loading="lazy" />
-            <img src="./assets/product/conflicts.jpg" alt="" loading="lazy" />
-            <img src="./assets/product/resolve-converged.jpg" alt="" loading="lazy" />
-            <img src="./assets/product/dashboard.jpg" alt="" loading="lazy" />
-          </div>
-          <div class="progress"><span id="tourbar"></span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="wrap bento">
-      <figure class="tile wide reveal"><img src="./assets/product/watch-conflict.jpg" alt="Watch it live: an employee builds an agent and Concord catches the conflict" loading="lazy" /><figcaption><b>Watch it live.</b> Dana builds an agent in Claude, and Concord catches the conflict and fixes it.</figcaption></figure>
-      <figure class="tile reveal"><img src="./assets/product/jobs.jpg" alt="Jobs and overlap view" loading="lazy" /><figcaption><b>Jobs & overlap.</b> See which agents share a job.</figcaption></figure>
-      <figure class="tile reveal"><img src="./assets/product/blocks.jpg" alt="Official blocks with MCP endpoints and adoption" loading="lazy" /><figcaption><b>Official blocks.</b> MCP endpoints, owners, adoption.</figcaption></figure>
+      <h2 class="reveal">Works where your teams already build.</h2>
+      <p class="sub reveal">Read-only. No conversation content. Builders change nothing.</p>
+      <ul class="tools reveal">
+        <li class="live">Claude</li><li class="live">n8n</li><li>ChatGPT Enterprise</li><li>Copilot Studio</li><li>Gemini</li><li>Zapier</li>
+      </ul>
+      <p class="soon reveal"><span class="dot"></span>Available now · others coming soon</p>
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
-  <section class="section how" id="how">
-    <div class="wrap">
-      <p class="kicker reveal">04 · How it works</p>
-      <h2 class="reveal">Read everywhere. <em>Write nowhere.</em><br />Answer once.</h2>
-      <div class="arch reveal">
-        <div class="col">
-          <h4>Where agents live</h4>
-          <div class="chip live">Claude Projects</div>
-          <div class="chip live">n8n workflows</div>
-          <div class="chip">ChatGPT Enterprise</div>
-          <div class="chip">Copilot Studio</div>
-        </div>
-        <div class="pipe"><span></span><em>read-only APIs</em></div>
-        <div class="col center">
-          <div class="hub">
-            <img src="./assets/mark.svg" alt="" width="40" height="40" />
-            <b>Concord</b>
-            <ul><li>Map agents</li><li>Group by job</li><li>Ask the same question</li><li>Route to owner</li></ul>
-          </div>
-        </div>
-        <div class="pipe"><span></span><em>MCP</em></div>
-        <div class="col">
-          <h4>Official blocks</h4>
-<pre class="code"><span class="k">concord.customer_health</span>(account)
-  → { score, at_risk }
-<span class="c">// owner: Sara Klein · v2</span>
-<span class="c">// at_risk = score &lt; 60</span></pre>
-          <div class="agree">Every agent answers <b>28</b></div>
-        </div>
-      </div>
-      <div class="trust">
-        <div class="reveal"><b>Read-only by design</b><p>Concord never creates, edits or deletes anything in your tools.</p></div>
-        <div class="reveal"><b>No conversation content</b><p>It reads usage metadata, instructions and source names, not chats.</p></div>
-        <div class="reveal"><b>Builders keep building</b><p>Agents call the official block. Nothing else changes in Claude or n8n.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- AUDIENCE -->
-  <section class="section who">
-    <div class="wrap">
-      <p class="kicker reveal">05 · Built for</p>
-      <h2 class="reveal">The teams who <em>own the answers.</em></h2>
-      <div class="cards3">
-        <article class="reveal"><h3>RevOps</h3><p>Keep pipeline, ARR, discount and health definitions consistent across every agent sales and CS build.</p></article>
-        <article class="reveal"><h3>Data & Analytics</h3><p>Make the governed metric the one agents use, instead of a personal spreadsheet.</p></article>
-        <article class="reveal"><h3>AI Center of Excellence</h3><p>Let everyone build agents and still know that agents doing the same job agree.</p></article>
-      </div>
-    </div>
-  </section>
-
-  <!-- VISION / INVESTORS -->
-  <section class="section vision" id="vision">
-    <div class="wrap">
-      <p class="kicker reveal">06 · Why now · Vision</p>
-      <h2 class="reveal">Agents are the new spreadsheets.<br /><em>They need a source of truth.</em></h2>
-      <div class="why">
-        <article class="reveal"><span>Shift</span><h3>Every employee is a builder</h3><p>Agent builders in Claude, ChatGPT, Copilot and n8n put automation in everyone's hands. Like spreadsheets before them, agents multiply faster than anyone can govern them.</p></article>
-        <article class="reveal"><span>Enabler</span><h3>MCP makes a shared layer possible</h3><p>A standard protocol means one official definition can be served to agents in any tool, without rebuilding them.</p></article>
-        <article class="reveal"><span>Gap</span><h3>Safety is covered. Consistency isn't.</h3><p>Security and observability tools watch what agents can access. Nothing checks whether agents doing the same job agree.</p></article>
-      </div>
-
-      <div class="road reveal">
-        <div class="lane done"><h4>Built</h4><ul><li>Working product, end-to-end</li><li>Read-only Claude and n8n connectors</li><li>Conflict detection and owner workflow</li><li>Official blocks served over MCP</li></ul></div>
-        <div class="lane next"><h4>Next</h4><ul><li>Design-partner pilots</li><li>ChatGPT Enterprise and Copilot Studio</li><li>Gemini and Zapier connectors</li></ul></div>
-        <div class="lane later"><h4>Then</h4><ul><li>Sync with semantic layers and BI metrics</li><li>Policy, audit trail and approvals</li><li>The definition layer for every agent</li></ul></div>
-      </div>
-      <p class="fine reveal">Directional roadmap. The product demo uses fictional data; we don't show customer logos or metrics until they're real.</p>
-
-      <div class="flywheel reveal">
-        <div><b>Land</b><p>One painful conflict: a board metric with three answers.</p></div>
-        <i aria-hidden="true">→</i>
-        <div><b>Expand</b><p>Every job with more than one agent gets an owner and an official block.</p></div>
-        <i aria-hidden="true">→</i>
-        <div><b>Become the standard</b><p>New agents call Concord first. Consistency becomes the default.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
   <section class="final">
     <div class="wrap">
-      <div class="cta reveal">
-        <div class="converge" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-        <h2>Make every agent<br /><em>tell the same story.</em></h2>
-        <p>Run the hands-on demo in two minutes, or watch an employee build an agent first. Design-partner and investor conversations are open.</p>
-        <div class="ctas">
-          <a class="btn primary" href="../#/start">Try the interactive demo <span aria-hidden="true">→</span></a>
-          <a class="btn ghost" href="../#/watch"><span class="play" aria-hidden="true"></span>Watch it live</a>
-        </div>
+      <h2 class="reveal">One question. One answer.<br />Every agent.</h2>
+      <div class="ctas center reveal">
+        <a class="btn mint" href="../#/start">Try it with sample data</a>
+        <a class="btn line" href="../#/watch">Watch it live</a>
       </div>
     </div>
   </section>
 </main>
 
 <footer class="foot">
-  <div class="wrap">
-    <a class="brand" href="#top"><img src="./assets/mark.svg" alt="" width="24" height="24" /><span>concord</span></a>
-    <p>One question. One answer. Every agent.</p>
-    <p class="fine">© 2026 Concord · Demo data is fictional (Northwind).</p>
+  <div class="wrap footin">
+    <a class="brand" href="#top"><img src="./assets/mark.svg" alt="" width="30" height="12" /><span>concord</span></a>
+    <p>© 2026 Concord · Demo uses fictional data.</p>
   </div>
 </footer>
 

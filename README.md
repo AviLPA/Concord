@@ -18,10 +18,10 @@ All data is fictional ("Northwind", 400 people). Everything runs client-side; th
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Showcase site (`site/`)
-A standalone, animated brand and story site for investors and users, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It's separate from the app: its own HTML, CSS and JS, with no shared code. Its CTAs link into the app at `../#/start` and `../#/watch`.
+A standalone, calm brand site for investors and users, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It's separate from the app, with its own HTML, CSS and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
 
-- Sections: hero (animated convergence of 35 / 42 / 17 / 28 → 28), problem, solution, a scroll-driven product walkthrough using real app screenshots, how it works, who it's for, why now / vision / roadmap, and a CTA.
-- Brand: "concord" wordmark with a convergence mark (`site/assets/mark.svg`); Concord Violet `#7C6CFF`, Unison Mint `#3FE0A5` for agreement, Dissonance Coral `#FF6B5E` for conflict; Inter Tight, Instrument Serif italic accents, JetBrains Mono.
+- Five sections: hero (an animated conflict card where 35 / 42 / 17 converge to the official 28), the security-vs-consistency statement, how it works (three auto-advancing tabs over real app screenshots), integrations, and a closing CTA.
+- Brand: a light Mist `#F3F6F4` background, Deep slate `#14232B` text, Mint `#6EE7A8` pill CTAs, green `#1F7A55` for agreement and red `#B83A2C` only for conflict. Headlines are in Manrope, body text in Inter.
 - Animation respects `prefers-reduced-motion`.
 - `node site/capture.mjs` regenerates the product screenshots in `site/assets/product/` (needs `npm run preview`).
 
