@@ -17,6 +17,14 @@ All data is fictional ("Northwind", 400 people). Everything runs client-side; th
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The Overview shows a setup checklist (Connect, Scan, Search, Resolve first conflict) until it is done, and reflects what you did (score 71 → 86 after resolving Customer health). |
 | `#/live` | Old route, redirects to `#/watch`. |
 
+## Showcase site (`site/`)
+A standalone, animated brand and story site for investors and users, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It's separate from the app: its own HTML, CSS and JS, with no shared code. Its CTAs link into the app at `../#/start` and `../#/watch`.
+
+- Sections: hero (animated convergence of 35 / 42 / 17 / 28 → 28), problem, solution, a scroll-driven product walkthrough using real app screenshots, how it works, who it's for, why now / vision / roadmap, and a CTA.
+- Brand: "concord" wordmark with a convergence mark (`site/assets/mark.svg`); Concord Violet `#7C6CFF`, Unison Mint `#3FE0A5` for agreement, Dissonance Coral `#FF6B5E` for conflict; Inter Tight, Instrument Serif italic accents, JetBrains Mono.
+- Animation respects `prefers-reduced-motion`.
+- `node site/capture.mjs` regenerates the product screenshots in `site/assets/product/` (needs `npm run preview`).
+
 ## Watch it live
 A guided, autoplaying simulation in 8 steps:
 
