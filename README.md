@@ -1,57 +1,62 @@
-# Concord (private live-dashboard preview)
+# Concord (demo)
 
-This tree is the **private live dashboard preview** (Spacefast v12): https://concord-live-dashboard.space.fast/
+Interactive proof-of-concept for an agent consistency layer. Employees build agents in Claude and n8n. Agents doing the same job end up with different definitions. Concord connects read-only, compares those definitions and the answers already on record, and lets the owner publish one official definition. Builders adopt it themselves. Concord re-reads the project or the workflow to verify.
 
-Positioning is answer consistency for AI agents. The home H1 is “Your teams' AI agents are giving different answers to the same question.” The footer is “Let everyone build. Keep every answer consistent.” The hero animates that question into four branches — 35, 42, 17, and 28 — then resolves to Sara Klein’s official answer, 28. In the dashboard the old Conflicts label is **Inconsistencies** (the route is still `#/conflicts`). Overview is a denser layout: greeting, four KPIs, the top inconsistency, the consistency score beside recent activity, then inconsistencies by owner, shared jobs, and official answers.
+Live demo: https://concord-demo.space.fast/
 
-Agents and inconsistencies are built from a recorded n8n scan in `src/latest-scan.json` (`src/liveModel.js`). Concord reads those executions; it does not re-run the workflows. Progress is kept in `localStorage` (key `concord-live-preview-v1`). **Restart demo** asks for the demo password, then clears that key. The hands-on flow and the use case share the store. If the at-risk job is already decided, the story says so and does not overwrite it.
-
-The public marketing site is separate and is not this snapshot.
+All data is fictional (Northwind, 480 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v2`) and can be cleared with **Reset demo** in the app sidebar. The hands-on flow and the walkthrough share that store. If Customer health is already decided, the story says so and does not overwrite it.
 
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Home. Sticky nav: Home, How it works, Use case, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the branch-and-resolve animation for “How many accounts are at risk?” |
-| `#/how` | How it works: Find, Show, Decide, and Confirm. |
-| `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Talk to us. Prices are placeholders. No checkout. |
-| `#/about` | Why agents answering the same question should give the same answer. Northwind-style labels on the sample jobs are illustrative. |
-| `#/start` | Hands-on setup: workspace → connect Claude and n8n, both read-only → scan → search → resolve. |
-| `#/search/<query>` | Search across every agent. Synonym and fuzzy matching. Results show the definition Concord read and the answer already on record. |
-| `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, or mark a different job / valid variant. |
-| `#/watch` | **Use case**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Four answers are 35, 42, 17, and 28. Sara signs off 28. |
-| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. The sidebar label for `#/conflicts` is Inconsistencies. Rows come from the live n8n scan. |
+| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the drift-then-snap chart (35, 42, 17, then 28) for “How many accounts are at risk this quarter?” Below it: the problem, from conflict to one official answer, the product illustration, and who it is built for. |
+| `#/how` | How it works: Read, Detect, Decide, and Verify adoption. The $10k intentional-difference example lives here. |
+| `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. The semantic layer is marked coming next. Prices are placeholders. No checkout. |
+| `#/about` | Agents answering the same question should give the same answer. Why now, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
+| `#/start` | Hands-on onboarding: workspace (default 301–1,000 people) → Connect Claude through the Compliance API and n8n through its REST API, both read-only → Scan (20 agents, 8 jobs, 6 conflicts; nothing is run) → Search → Resolve. |
+| `#/search/<query>` | Search across every agent. Synonym and fuzzy matching, so "customer health", "custmer helth", "at risk accounts", or "how much revenue do we have" all work. Results show the definition Concord read and the answer already on record. |
+| `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
+| `#/watch` | **Walkthrough**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Dana gets 35. The nightly scan alerts Sara. Four answers are 35, 42, 17, and 28. Sara signs off 28. Daily scans end with all 4 agents agreeing on 28. |
+| `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
+## Walkthrough
+A click-through story in six steps. The user clicks Next and Back, or a step in the stepper. Each step is a short headline and one sentence. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control. The right panel is what Concord sees. On a phone that panel shows first, with a tab for the agent view. Scans run daily.
+
+1. **Dana builds.** She asks the question and gets 35. The chat box is on screen only here.
+2. **Night scan.** The scan finds Dana's agent on Customer health and shows the same 35.
+3. **Four answers.** Dana's 35 sits with 42, 17, and 28. Renewal radar (RevOps · Claude, warehouse score) is 28. The left panel keeps Dana's chat, faded, with the note that her agent is one of four.
+4. **Sara's alert.** Sara Klein gets the four answers: 35, 42, 17, and 28.
+5. **Sara decides.** She signs off 28 as the official answer. Notes go to each builder.
+6. **Daily scans.** Builders update their agents. Daily scans confirm all four now say 28.
+
+Controls: Next, Back, and clickable step markers. Back is disabled on the first step. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
+
 ## Showcase site (`site/`)
-A standalone, calm brand site for investors and users, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It's separate from the app, with its own HTML, CSS and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
+A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It has its own HTML, CSS, and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
 
-- Five sections: hero (an animated card where four Sales agents answer "What's our churn risk this quarter?" with 35 / 42 / 17 / 28 and converge to Sara Klein's official churn score, 28), the security-vs-consistency statement, how it works (three auto-advancing tabs over real app screenshots), a "How does Concord know it's the same question?" section (it reads team, owner, purpose and the decision an answer feeds; the main example is three Sales agents giving 35 / 42 / 17 for the same churn question, which resolves to the official 28, and a note that Concord also checks company-wide questions such as ARR, active customers or refund policy), integrations, and a closing CTA.
-- Brand: a light Mist `#F3F6F4` background, Deep slate `#14232B` text, Mint `#6EE7A8` pill CTAs, green `#1F7A55` for agreement and red `#B83A2C` only for conflict. Headlines are in Manrope, body text in Inter.
-- Animation respects `prefers-reduced-motion`.
+- Hero: four Sales agents answer “What's our churn risk this quarter?” with 35, 42, 17, and 28, then converge on Sara Klein’s official 28.
+- How it works, a “same question?” section, integrations, and a closing CTA.
 - `node site/capture.mjs` regenerates the product screenshots in `site/assets/product/` (needs `npm run preview`).
-
-## Use case
-A click-through story. The user clicks Next and Back, or a step in the stepper. Each step is a short headline and one sentence. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control.
-
-**Explore the full app** writes the story into the shared store, unless the workspace already decided that job.
 
 ## Run locally
     npm install
     npm run dev
 
 ## Build
-    npm run build      # static output in dist/ (relative base; fonts are inlined)
+    npm run build      # static output in dist/ (relative base, can be hosted anywhere)
     npm run preview    # serves dist/ on :4173
 
-## Scripts
-`test-onboarding.mjs`, `test-watch.mjs`, `shots.mjs`, `shots-onboarding.mjs`, `video.mjs`, and `video-onboarding.mjs` are the earlier Playwright helpers. They were left in place and were not rewritten for this preview. They still look for the old landing CTA (`#/watch` in the hero), Watch it live play/pause/speed controls, and an unauthenticated reset, so they will not pass against this source.
+## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
+- `test-onboarding.mjs [baseUrl] [shotDir]`: landing through resolve, dashboard, the walkthrough, and reset, at 1280×800 and 390×844. Exits non-zero on failure.
+- `test-watch.mjs [baseUrl]`: walkthrough click-through, controls, explore, and the adoption timeline, at 1280×800, 390×844, and 360×740. Exits non-zero on failure.
+- `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
+- `video.mjs [desktop|phone]` and `video-onboarding.mjs [desktop|phone]`: CDP screencast recordings.
 
 ## Code
-- `src/latest-scan.json`: recorded n8n executions used as the live preview dataset.
-- `src/liveModel.js`: turns that scan into agents, jobs, inconsistencies, and draft official answers.
-- `src/model.js`: consistency score and shared adoption rules over the live rows.
+- `src/model.js`: Northwind agents, jobs, conflicts, the consistency score, and the shared adoption rules.
 - `src/main.js`: app shell, routing, persistence, and the dashboard screens.
-- `src/onboard.js`: home (including the branch hero), onboarding, search, and the resolve flow.
-- `src/watch.js`: click-through use case.
-- `src/style.css`, `src/tokens.css`: styles. Overview density is `.ovp` / `.dash3`; the hero branches are `.ltree`.
-- `src/brand.js`, `src/lead.js`: mark, status chips, and the contact form.
+- `src/onboard.js`: landing page, onboarding, search, and the resolve flow.
+- `src/watch.js`: click-through walkthrough.
+- `src/style.css`: all styles.
+- `site/`: the standalone showcase page, built next to the app.

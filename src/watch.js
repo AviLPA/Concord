@@ -20,11 +20,6 @@ const SAID=[
 ]
 const NEXT=['the nightly scan','four answers',"Sara's alert",'Sara decides','daily scans','the ending']
 const ALERT='4 answers: 35, 42, 17, 28'
-const ALERT_FULL='4 agents are answering "How many accounts are at risk?" differently: Dana\'s agent 35, Account health monitor 42, Tom\'s workflow 17, Renewal radar 28. Pick the official answer.'
-const BUILDERS=[{id:'b35',to:'Dana',ini:'DO',c:'#ABD1E6',agent:"Dana's agent",n:35},{id:'b42',to:'CS team lead',ini:'CS',c:'#82B9D9',agent:'Account health monitor',n:42},{id:'b17',to:'Tom',ini:'TR',c:'#82B9D9',agent:"Tom's workflow",n:17},{id:'b28',to:'RevOps',ini:'RR',c:'#58A2CD',agent:'Renewal radar',n:28}]
-const NOTE1='Your agent is one of 4 giving different answers to this question.'
-const NOTE2="Your agent doesn't match the official answer (28). Nothing in your agent was changed."
-
 const STEPS=[
 {label:'Dana builds', left:'build',
  title:'Dana asks her agent',
@@ -40,8 +35,8 @@ const STEPS=[
  dwell:5200,
  beats:[{t:'ev', id:'found', side:'be', wait:700}]},
 {label:'Four answers', left:'build',
- title:'Four agents, one question, four answers.',
- body:"Dana isn't the only one. Three other people built agents for the same job, and each one answers differently.",
+ title:'Four answers, one question',
+ body:"Dana's 35 sits with 42, 17, and 28.",
  dwell:5200,
  beats:[
   {t:'ev', id:'n35', side:'be', wait:420},
@@ -51,18 +46,11 @@ const STEPS=[
  ]},
 {label:"Sara's alert", left:'alert',
  title:'Sara gets the alert',
- body:'One alert lands with Sara. Each builder gets a note.',
+ body:'Four answers: 35, 42, 17, and 28.',
  dwell:5000,
  beats:[
-  {t:'ev', id:'j35', side:'be', wait:300},
-  {t:'ev', id:'j42', side:'be', wait:300},
-  {t:'ev', id:'j17', side:'be', wait:300},
-  {t:'ev', id:'j28', side:'be', wait:400},
-  {t:'ev', id:'slack', side:'be', wait:600},
-  {t:'ev', id:'b35', side:'be', wait:350},
-  {t:'ev', id:'b42', side:'be', wait:350},
-  {t:'ev', id:'b17', side:'be', wait:350},
-  {t:'ev', id:'b28', side:'be', wait:500},
+  {t:'ev', id:'slack', side:'chat', wait:700},
+  {t:'ev', id:'inbox', side:'chat', wait:600},
  ]},
 {label:'Sara decides', left:'sara',
  title:'Sara marks 28',
@@ -71,9 +59,6 @@ const STEPS=[
  beats:[
   {t:'ev', id:'choose', side:'chat', wait:700},
   {t:'ev', id:'picked', side:'chat', wait:700},
-  {t:'ev', id:'m35', side:'be', wait:450},
-  {t:'ev', id:'m42', side:'be', wait:450},
-  {t:'ev', id:'m17', side:'be', wait:450},
   {t:'ev', id:'noted', side:'chat', wait:600},
  ]},
 {label:'Daily scans', left:'n8n',
@@ -126,7 +111,7 @@ function leftMode(){
 function shownStep(){return W.step>=N?N-1:Math.max(0,W.step)}
 
 function alertCard(){
-  return `<div class="alertc"><div class="alertk">Notification to Sara Klein</div><div class="alertfrom">Slack · #revops</div><b>${ALERT_FULL}</b><span>From Concord · nightly scan</span></div>`
+  return `<div class="alertc"><div class="alertk">Notification to Sara Klein</div><div class="alertfrom">Slack · #revops</div><b>${ALERT}</b><span>From Concord · nightly scan</span></div>`
 }
 function timeline(V){
   const rows=[
@@ -181,15 +166,7 @@ function chatItems(V){
   return []
 }
 function answerCards(list){
-  return `<div class="sameq4"><div class="sq4k">Same question, asked of 4 agents built by 4 people.</div><div class="sq4q">“${Q}”</div></div><div class="cmp cmp4">${list.map(a=>`<div class="cc${a.seen?' seen':''}">${a.seen?'<div class="ccseen here">You are here</div>':''}<div class="ccn">${a.n}</div><div class="ccline"><b>${a.short||a.name}</b> <span class="ccwho">Built by ${a.who}</span></div></div>`).join('')}</div>`
-}
-function noteCards(list,txt){
-  return `<div class="bnotes">${list.map(b=>`<div class="bnote"><div class="bnh">${av(b.ini,b.c)}<b>To ${b.to}</b><span>${b.agent} · ${b.n}</span></div><p>${txt}</p></div>`).join('')}</div>`
-}
-function joinCards(V){
-  const on=BUILDERS.filter(b=>V.has('j'+b.n))
-  const landed=V.has('slack')
-  return `<div class="join4${landed?' landed':''}"><div class="j4row">${BUILDERS.map(b=>`<div class="j4c${V.has('j'+b.n)?' on':''}">${av(b.ini,b.c)}<b>${b.agent}</b><em>${b.n}</em></div>`).join('')}</div><div class="j4lines">${BUILDERS.map(b=>`<i class="${V.has('j'+b.n)?'on':''}"></i>`).join('')}</div><div class="j4alert${landed?' on':''}">${landed?`<div class="alertk">Slack · #revops · to Sara Klein</div><b>${ALERT_FULL}</b>`:'<span>Joining into one alert…</span>'}</div></div>`
+  return `<div class="cmp">${list.map(a=>`<div class="cc${a.seen?' seen':''}"><div class="ccn">${a.n}</div><div class="ccline"><b>${a.short||a.name}</b> <span class="ccwho">${a.who}${a.id==='n28'?' · '+a.rule:''}</span></div>${a.seen?'<div class="ccseen">Just seen</div>':''}</div>`).join('')}</div>`
 }
 function numberCards(ok){
   return `<div class="cmp${ok?' settle':''}">${SAID.map(a=>`<div class="cc${ok?' ok':''}"><div class="ccn">${ok?28:a.n}</div><div class="cch">${av(a.ini,a.c)}<b>${a.short||a.name}</b></div></div>`).join('')}</div>`
@@ -205,13 +182,11 @@ function beItems(V){
     const cards=SAID.filter(a=>V.has(a.id))
     if(cards.length) A('nums','layers','','Four answers','',answerCards(cards))
   }else if(step===3){
-    if(V.has('j35')) A('join','alert','','One alert for Sara','',joinCards(V))
-    const got=BUILDERS.filter(b=>V.has(b.id))
-    if(got.length) A('bn1','link','','Notes to each builder','',noteCards(got,NOTE1))
+    if(V.has('slack')) A('sent','alert','','Alert sent to Sara',ALERT)
+    if(V.has('inbox')) A('inbox','check','','In Concord','Sara can open it.')
   }else if(step===4){
     if(V.has('picked')) A('marked','check','','Official answer is 28','Warehouse score.')
-    const mis=BUILDERS.filter(b=>b.n!==28&&V.has('m'+b.n))
-    if(mis.length) A('bn2','link','','Notes to the builders who don\'t match','',noteCards(mis,NOTE2))
+    if(V.has('noted')) A('notes','link','','Notes sent','Dana, Tom, and the CS team lead.')
   }else if(step===5){
     if(V.has('d1')) A('days','eye','','',V.has('agree')?'':'Checking who updated.',timeline(V)+(V.has('agree')?numberCards(true)+`<div class="tlchip">${status('sync','In sync')}</div>`:''))
   }
@@ -243,7 +218,7 @@ function draw(){
   setH(root.querySelector('.wv-cap'),caption())
   const atEnd=W.step>=N
   const nextTitle=W.step>=0&&!atEnd?NEXT[W.step]:''
-  const nextLabel=W.step<0?'Start the use case':atEnd?'Done':phone()?'Next':`Next: ${NEXT[W.step]}`
+  const nextLabel=W.step<0?'Start the walkthrough':atEnd?'Done':phone()?'Next':`Next: ${NEXT[W.step]}`
   setH(root.querySelector('.wv-btns'),`<button class="btn" data-w="back" ${W.step<=0?'disabled':''}>Back</button><button class="btn p wnext" data-w="${W.step<0?'start':'next'}" ${atEnd?'disabled':''} ${nextTitle?`title="${nextTitle}"`:''}>${nextLabel}</button>`)
   const leftTab='Agent view'
   setH(root.querySelector('.wv-tabs'),`<button data-wside="be" class="${W.side==='be'?'on':''}">What Concord sees</button><button data-wside="chat" class="${W.side==='chat'?'on':''}">${leftTab}</button>`)
@@ -268,11 +243,11 @@ function draw(){
   setH(root.querySelector('.am-s'),'')
   setH(root.querySelector('.wv-over'),W.step<0?intro():W.step>=N?wrap():'')
 }
-function intro(){return `<div class="wcard"><h2>Dana gets 35.</h2><p>A nightly scan alerts Sara. Later every agent says 28.</p><button class="btn p big" data-w="start">Start the use case</button></div>`}
+function intro(){return `<div class="wcard"><h2>Dana gets 35.</h2><p>A nightly scan alerts Sara. Later every agent says 28.</p><button class="btn p big" data-w="start">Start the walkthrough</button></div>`}
 function wrap(){return `<div class="wcard wrapc"><h2>All 4 agents agree: 28.</h2><div class="ba"><div class="b4"><div class="bal">That night</div><div class="bav">35 · 42 · 17 · 28</div><div class="bas">Sara got the alert</div></div><div class="barr">→</div><div class="b4 after"><div class="bal">Now</div><div class="bav numok">28</div><div class="bas">All 4 agents agree</div></div></div><p>The next daily scan shows one agent at 28 and one still at 42, so Concord re-alerts. On day 6 the builder fixes it. The job is in sync. Daily scans continue.</p><div class="wacts"><button class="btn p big" data-w="explore">Explore the full app</button><button class="btn big" data-w="restart">Walk through again</button></div></div>`}
 export function watchPage(alreadyDecided){
   return `<div class="page wpage"><div id="wv" class="wv" data-side="be" data-left="said">
-<div class="wv-head"><div><h1>Use case</h1><p class="sub" style="margin:0">Dana gets 35. A scan alerts Sara.</p></div></div>
+<div class="wv-head"><div><h1>Walkthrough</h1><p class="sub" style="margin:0">Dana gets 35. A scan alerts Sara.</p></div></div>
 ${alreadyDecided?'<div class="wbanner">Customer health is already decided in this workspace. This story will not overwrite that decision.</div>':''}
 <div class="wv-cap"></div>
 <div class="wv-tabs"></div>

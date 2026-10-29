@@ -1,14 +1,13 @@
-// Live-scan preview data and the consistency score.
+// Shared Northwind demo data and the consistency score.
 // Detection reads definitions and answers already on record. Nothing here runs or edits an agent.
 
 export const PEOPLE = 480
 export const SARA_ROLE = 'Head of RevOps'
-export const LS_KEY = 'concord-live-preview-v1'
+export const LS_KEY = 'concord-demo-v2'
 
 export const TOOLS = {
   claude: {n:'Claude', a:'C', c:'#82B9D9', via:'Compliance API'},
   n8n: {n:'n8n', a:'n', c:'#58A2CD', via:'REST API'},
-  chatgpt: {n:'ChatGPT', a:'G', c:'#ABD1E6', via:'Compliance API'},
 }
 export const DC = {
   CS:'#82B9D9', Sales:'#58A2CD', Finance:'#8CECC7', RevOps:'#ABD1E6', Exec:'#D5E8F2',
@@ -18,11 +17,124 @@ export const DC = {
 export const BLIND = 'The Compliance API cannot see which connectors or MCP servers a Claude project uses.'
 export const N8N_NOTE = 'n8n has no execute endpoint. Triggering a webhook would run the workflow, including its Slack post, so Concord never does.'
 
-import {LIVE_AGENTS, LIVE_CONF, LIVE_BLOCKS, LIVE_JOBS} from './liveModel.js'
-export const AGENTS = LIVE_AGENTS
-export const JOB_ORDER = LIVE_JOBS
-export const CONF = LIVE_CONF
-export const BLOCKS = LIVE_BLOCKS
+export const AGENTS = [
+  {n:'Q4 at-risk accounts', job:'Customer health', tool:'claude', b:'Dana Ortiz', dept:'Sales Ops', own:'Sara Klein', src:'Q4_accounts_dana.xlsx', up:'4d', st:'conflict', ans:'35', sub:'accounts', users:4,
+    evidence:'Claude chat · Thu · “35 accounts”',
+    def:['at_risk = no login in 21 days','OR open_tickets > 3','source = Q4_accounts_dana.xlsx']},
+  {n:'Account health monitor', job:'Customer health', tool:'claude', b:'Maya Cohen', dept:'CS', own:'Sara Klein', src:'Gainsight export (Mar)', up:'2d', st:'conflict', ans:'42', sub:'accounts', users:11,
+    evidence:'Claude chat · Tue · “42 accounts”',
+    def:['at_risk = tickets_30d > 5','OR csat < 3.5','window = last 30 days','source = Gainsight export (Mar)']},
+  {n:'CSM weekly risk digest', job:'Customer health', tool:'n8n', b:'Tom Rivera', dept:'CS', own:'Sara Klein', src:'Snowflake · usage_daily', up:'5h', st:'conflict', ans:'17', sub:'accounts', users:8,
+    evidence:'n8n execution · Mon · “17 accounts” · also posted to #cs-risk',
+    def:['at_risk = usage_drop_pct > 40','window = last 30 days','excludes contracts under $10k','then posts the digest to #cs-risk','source = usage_daily']},
+  {n:'Renewal radar', job:'Customer health', tool:'claude', b:'Priya Shah', dept:'Sales', own:'Sara Klein', src:'Warehouse · health_account_daily', up:'1d', st:'conflict', ans:'28', sub:'accounts', users:9,
+    evidence:'Claude chat · Wed · “28 accounts”',
+    def:['score = 0.5·usage + 0.3·nps + 0.2·tickets','at_risk = score < 60','window = last 30 days','source = health_account_daily']},
+
+  {n:'ARR rollup', job:'ARR', tool:'claude', b:'Omer Levi', dept:'Finance', own:'Ravi Iyer', src:'NetSuite · invoices', up:'6h', st:'conflict', ans:'$4.8M', sub:'net of churn', users:6,
+    evidence:'Claude chat · today · “$4.8M”',
+    def:['arr = sum(active_subscriptions)','minus churned_this_month','source = NetSuite invoices']},
+  {n:'Board metrics pack', job:'ARR', tool:'claude', b:'Ben Adler', dept:'Exec', own:'Ravi Iyer', src:'Snowflake · arr_monthly', up:'1d', st:'conflict', ans:'$5.3M', sub:'includes signed, not live', users:5,
+    evidence:'Claude chat · yesterday · “$5.3M”',
+    def:['arr = sum(active_subscriptions)','plus signed_not_started','source = arr_monthly']},
+  {n:'Pipeline ARR helper', job:'ARR', tool:'n8n', b:'Jess Wong', dept:'Sales', own:'Ravi Iyer', src:'Salesforce · closed-won', up:'4h', st:'conflict', ans:'$5.1M', sub:'gross, no churn', users:7,
+    evidence:'n8n execution · today · “$5.1M”',
+    def:['arr = sum(opps where stage = closed-won)','no churn adjustment','source = Salesforce opps']},
+
+  {n:'Deal desk assistant', job:'Discount approval', tool:'claude', b:'Chris Hall', dept:'Sales', own:'Noa Friedman', src:'Pricing policy v3', up:'2d', st:'ok', onBlock:true, ans:'Needs VP', sub:'auto-approval capped at 15%', users:14,
+    evidence:'Claude chat · Mon · “Needs VP”',
+    def:['calls concord.discount_approval()','if discount <= 15%: auto_approve','else: route to VP Sales','source = Pricing policy v3']},
+  {n:'Quote approval', job:'Discount approval', tool:'n8n', b:'Omer Levi', dept:'RevOps', own:'Noa Friedman', src:'Pricing policy v3', up:'1d', st:'ok', onBlock:true, ans:'Needs VP', sub:'auto-approval capped at 15%', users:10,
+    evidence:'n8n execution · yesterday · “Needs VP”',
+    def:['calls concord.discount_approval()','if discount <= 15%: auto_approve','else: route to VP Sales in Slack','source = Pricing policy v3']},
+  {n:'Rep discount helper', job:'Discount approval', tool:'claude', b:'Tom Rivera', dept:'Sales', own:'Unassigned', src:'Slack thread #deals', up:'2w', st:'conflict', ans:'Approved', sub:'auto-approves up to 20%', users:9,
+    evidence:'Claude chat · 2 weeks ago · “Approved”',
+    def:['auto_approve if discount <= 20%','source = Slack thread #deals']},
+  {n:'Discount checker', job:'Discount approval', tool:'claude', b:'Jess Wong', dept:'Sales', own:'Noa Friedman', src:'Pricing policy v2 (2024)', up:'5w', st:'stale', ans:'Needs VP', sub:'15% cap, 2024 file', users:3,
+    evidence:'Claude chat · Sep · “Needs VP”',
+    def:['if discount <= 15%: auto_approve','else: route to VP Sales','source = Pricing policy v2 (2024)']},
+
+  {n:'Refund assistant', job:'Refund policy', tool:'claude', b:'Sara Klein', dept:'Support', own:'Maya Cohen', src:'Refund policy 2026', up:'3d', st:'ok', onBlock:true, ans:'No', sub:'30-day window', users:12,
+    evidence:'Claude chat · Mon · “No”',
+    def:['calls concord.refund_policy()','refund_window = 30 days','source = Refund policy 2026']},
+  {n:'Refund macro', job:'Refund policy', tool:'n8n', b:'Noa Friedman', dept:'Support', own:'Maya Cohen', src:'Refund policy 2024', up:'9w', st:'stale', ans:'Yes', sub:'60-day window', users:6,
+    evidence:'n8n execution · last month · “Yes”',
+    def:['refund_window = 60 days','source = Refund policy 2024']},
+
+  {n:'New hire onboarding guide', job:'Onboarding FAQ', tool:'claude', b:'Leo Park', dept:'People', own:'Leo Park', src:'Notion · onboarding wiki', up:'1d', st:'ok', onBlock:true, ans:'Aligned', sub:'same checklist', users:15,
+    evidence:'Instructions call the shared block',
+    def:['calls concord.onboarding_faq()','source = Notion onboarding wiki']},
+  {n:'Customer onboarding checklist', job:'Onboarding FAQ', tool:'n8n', b:'Maya Cohen', dept:'CS', own:'Leo Park', src:'Notion · onboarding wiki', up:'3d', st:'ok', onBlock:true, ans:'Aligned', sub:'same checklist', users:8,
+    evidence:'Workflow JSON calls the shared block',
+    def:['calls concord.onboarding_faq()','source = Notion onboarding wiki']},
+
+  {n:'MQL scoring assistant', job:'Lead scoring', tool:'claude', b:'Chris Hall', dept:'Marketing', own:'Chris Hall', src:'HubSpot · contact score', up:'4d', st:'conflict', ans:'65', sub:'MQL threshold', users:6,
+    evidence:'Claude chat · last week · “threshold 65”',
+    def:['mql = hubspot_score >= 65','source = HubSpot contact score']},
+  {n:'SDR lead qualifier', job:'Lead scoring', tool:'n8n', b:'Dana Ortiz', dept:'Sales Ops', own:'Chris Hall', src:'HubSpot · contact score', up:'1w', st:'conflict', ans:'70', sub:'MQL threshold', users:5,
+    evidence:'n8n execution · last week · “threshold 70”',
+    def:['mql = hubspot_score >= 70','source = HubSpot contact score']},
+
+  {n:'Pipeline coverage check', job:'Pipeline coverage', tool:'claude', b:'Priya Shah', dept:'Sales', own:'Sara Klein', src:'Salesforce · pipeline', up:'4d', st:'conflict', ans:'3×', sub:'coverage target', users:7,
+    evidence:'Claude chat · last week · “3× covered”',
+    def:['covered = pipeline / quota >= 3','source = Salesforce pipeline']},
+  {n:'Q4 coverage digest', job:'Pipeline coverage', tool:'n8n', b:'Leo Park', dept:'RevOps', own:'Sara Klein', src:'Salesforce · pipeline', up:'6d', st:'conflict', ans:'4×', sub:'coverage target', users:4,
+    evidence:'n8n execution · last week · “4× covered”',
+    def:['covered = pipeline / quota >= 4','source = Salesforce pipeline']},
+
+  {n:'Security questionnaire drafter', job:'Security questionnaire', tool:'claude', b:'Ravi Iyer', dept:'Eng', own:'Unassigned', src:'Trust center docs', up:'3w', st:'orphan', ans:'—', sub:'no owner', users:2,
+    evidence:'No recent answer on record',
+    def:['draft answers from the trust center','source = Trust center docs']},
+]
+
+export const JOB_ORDER = ['Customer health','ARR','Discount approval','Refund policy','Onboarding FAQ','Lead scoring','Pipeline coverage','Security questionnaire']
+
+export const CONF = [
+  {id:'c1', t:'Customer health: 4 definitions', job:'Customer health', type:'Definition', sev:'bad', odept:'RevOps', age:'2d', owner:'Sara Klein',
+    d:'Dana, Maya, Tom, and Priya each define at-risk differently. Last week their agents told people four different numbers.',
+    q:'How many accounts are at risk this quarter?',
+    note:'Those answers are already in Claude chats and an n8n execution log. Concord did not ask the question.',
+    cols:[0,1,2,3].map(a=>({a})), win:3,
+    impact:['$1.9M ARR','in disputed accounts'], imp2:['4 agents','Sales, CS, Sales Ops'], imp3:['4 answers','35, 42, 17, and 28']},
+  {id:'c2', t:'ARR: 3 different totals', job:'ARR', type:'Definition', sev:'bad', odept:'Data', age:'6h', owner:'Ravi Iyer',
+    d:'Finance says $4.8M net. The board pack says $5.3M. The pipeline helper says $5.1M.',
+    q:'What is our current ARR?',
+    note:'Taken from chats and an n8n execution this week. Concord did not run the agents.',
+    cols:[4,5,6].map(a=>({a})), win:0,
+    impact:['$500K','spread between answers'], imp2:['3 agents','board pack Thursday'], imp3:['2 teams','using different numbers']},
+  {id:'c3', t:'Discount approval: 15% vs 20%', job:'Discount approval', type:'Rule', sev:'warn', odept:'RevOps', age:'1d', owner:'Noa Friedman',
+    d:'The published policy caps auto-approval at 15%. Tom’s helper still auto-approves 20% from a Slack thread. Jess’s checker agrees on 15% but still cites the 2024 file.',
+    q:'Can I give 18% off a 2-year deal?',
+    note:'Answers already on record. A sandboxed test is optional and is not how this was found.',
+    cols:[8,9,10].map(a=>({a})), win:0,
+    impact:['$84K','discount leakage / qtr'], imp2:['4 agents','Sales, RevOps'], imp3:['12 deals','approved off the published cap']},
+  {id:'c4', t:'Refund policy: 30 days vs 60', job:'Refund policy', type:'Stale source', sev:'warn', odept:'CS', age:'3d', owner:'Maya Cohen',
+    d:'The 2026 policy is a 30-day window. The n8n macro still has the 2024 file, which says 60 days.',
+    q:'Can a customer get a refund after 45 days?',
+    note:'The “Yes” is from an n8n execution last month, not a new run.',
+    cols:[11,12].map(a=>({a})), win:0,
+    impact:['31','refunds / mo affected'], imp2:['2 agents','Support'], imp3:['9 weeks','since the policy changed']},
+  {id:'c5', t:'Lead score: MQL at 65 vs 70', job:'Lead scoring', type:'Definition', sev:'info', odept:'Marketing', age:'1w', owner:'Chris Hall',
+    d:'Marketing’s assistant treats 65 as an MQL. The SDR workflow waits until 70.',
+    q:'Is a score of 67 an MQL?',
+    note:'Thresholds were read from instructions and from last week’s answers.',
+    cols:[15,16].map(a=>({a})), win:0,
+    impact:['—','routing difference'], imp2:['2 agents','Marketing, Sales Ops'], imp3:['1 week','since the thresholds diverged']},
+  {id:'c6', t:'Pipeline coverage: 3× vs 4×', job:'Pipeline coverage', type:'Rule', sev:'info', odept:'RevOps', age:'4d', owner:'Sara Klein',
+    d:'Priya’s check calls the quarter covered at 3×. Leo’s Monday digest uses 4×. One of these may be a real scope difference.',
+    q:'Are we covered for Q4?',
+    note:'Both targets were read from instructions. Mark a valid variant if they are not the same job.',
+    cols:[17,18].map(a=>({a})), win:0,
+    impact:['—','forecast narrative'], imp2:['2 agents','Sales, RevOps'], imp3:['2 targets','3× and 4×']},
+]
+
+export const BLOCKS = [
+  {id:'c1', n:'Customer health', v:'v2', job:'Customer health', own:'Sara Klein', pub:false, calls:'—', upd:'Draft'},
+  {id:'c2', n:'ARR (net)', v:'v1', job:'ARR', own:'Ravi Iyer', pub:false, calls:'—', upd:'Draft'},
+  {id:'c3', n:'Discount approval', v:'v3', job:'Discount approval', own:'Noa Friedman', pub:true, calls:'860 / wk', upd:'Oct 02'},
+  {id:'c4', n:'Refund policy', v:'2026.1', job:'Refund policy', own:'Maya Cohen', pub:true, calls:'410 / wk', upd:'Aug 14'},
+  {id:'b-onboard', n:'Onboarding FAQ', v:'v5', job:'Onboarding FAQ', own:'Leo Park', pub:true, calls:'2.4k / wk', upd:'Oct 11'},
+]
 
 export const SEMANTIC = {}
 
@@ -125,10 +237,10 @@ export function jobPresentation(job, state){
   const c=conflictByJob(job)
   if(c && state.resolved[c.id]==='variant') return {kind:'sync', label:'Valid variant', score}
   if(score==null) return {kind:'unknown', label:'Not checked', score}
-  if(score===100) return {kind:'sync', label:'Consistent', score}
+  if(score===100) return {kind:'sync', label:'In sync', score}
   if(c && state.resolved[c.id]==='official') return {kind:'drift', label:'Drift detected', score}
   if(c && isOpen(c, state)){
-    if(c.sev==='bad') return {kind:'conflict', label:'Inconsistent', score}
+    if(c.sev==='bad') return {kind:'conflict', label:'Conflict', score}
     if(c.sev==='warn') return {kind:'risk', label:'At risk', score}
     return {kind:'review', label:'Needs sign-off', score}
   }
@@ -171,7 +283,7 @@ export function blockLive(b, state){
 }
 
 export function deptConflicts(state){
-  const names=['RevOps']
+  const names=['RevOps','Data','CS','Marketing','Sales','Support']
   const m=Object.fromEntries(names.map(n=>[n,0]))
   for(const c of openConflicts(state)) m[c.odept]=(m[c.odept]||0)+1
   return names.map(n=>[n, m[n]||0])

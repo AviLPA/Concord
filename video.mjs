@@ -21,10 +21,11 @@ await p.evaluate(()=>{const d=document.createElement('div');d.style.cssText='pos
 await cdp.send('Page.startScreencast',{format:'jpeg',quality:90,everyNthFrame:1})
 await W(500)
 await cap(PH?'Northwind builds agents in <b>Claude</b> and <b>n8n</b>.':'Northwind builds agents in 2 places, <b>Claude</b> and <b>n8n</b>. Concord sees them as one inventory.');await move(VP.width*0.4,VP.height*0.3);await W(2800)
-await cap('Start here: watch someone build an agent, live.');await W(1200);await click('.hero [data-startwatch]');await cap('');await W(1500)
-await click('.wcard [data-w=toggle]')
-await p.waitForSelector('.wrapc',{timeout:120000});await W(2600)
-await click('.wrapc [data-w=explore]');await cap('Back in the app: score <b>71 → 86</b>, Dana\'s agent is in the inventory.');await W(3800)
+await cap('Start here: click through the walkthrough.');await W(1200);await click('.hero [data-startwatch]');await cap('');await W(1500)
+await click('.wcard [data-w=start]')
+for(let i=0;i<8;i++){if(await p.locator('.wrapc').count())break;await click('[data-w=next]');await W(700)}
+await p.waitForSelector('.wrapc',{timeout:20000});await W(2600)
+await click('.wrapc [data-w=explore]');await cap('Back in the app: company score <b>53 → 68</b>. Concord re-read the agents. It did not edit them.');await W(3800)
 if(PH){await p.evaluate(()=>scrollTo({top:1040,behavior:'smooth'}));await W(1800);await p.evaluate(()=>scrollTo({top:0,behavior:'smooth'}));await W(900)}
 await p.goto('http://localhost:4173/#/conflicts/c1').catch(()=>{});await cap('The conflict is resolved, with every agent on the official definition.');await W(3600)
 await cap('Security tools ask if an agent is safe.<br/><b>Concord asks if all your agents give the same answer.</b>');await W(4200);await cap('');await W(600)

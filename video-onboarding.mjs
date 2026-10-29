@@ -35,15 +35,15 @@ await click('.lhero a[href="#/start"]');await W(900)
 // 2. workspace
 await cap('Create the workspace. Prefilled with the fictional Northwind.');await W(1600);await click('[data-obws]');await W(900)
 // 3. connect
-await cap('Connect Claude with an org-admin consent: <b>read-only</b> scopes.');await click('[data-connect=claude]');await W(2600)
-await click('[data-cauth]');await p.waitForSelector('.mok');await W(1300);await click('.mf [data-mclose]');await W(500)
+await cap('Connect Claude with the <b>Compliance API</b>: a read-only key from the Primary Owner.');await click('[data-connect=claude]');await W(2600)
+await click('[data-cauth]');await p.waitForSelector('.modal',{state:'detached',timeout:5000});await W(500)
 await cap('Connect n8n with an API key, then test the connection.');await click('[data-connect=n8n]');await W(1400);await click('[data-ntest]')
-await p.waitForSelector('[data-nsave]:not([disabled])');await W(900);await click('[data-nsave]');await W(1300);await click('.mf [data-mclose]');await W(700)
+await p.waitForSelector('[data-nsave]:not([disabled])');await W(900);await click('[data-nsave]');await p.waitForSelector('.modal',{state:'detached',timeout:4000});await W(700)
 await cap('Both tools connected, read-only. Concord never writes to them.');await W(1600);await click('.obfoot [data-obgo=scan]');await W(800)
 // 4. scan
 await cap('Scan: Concord discovers every agent and groups them by the job they do.');await click('[data-scan]');await W(PH?3500:5000)
 if(PH){await scrollY(await sec('#jobs'),1200);await W(3200)}
-await p.waitForSelector('#toSearch:not([disabled])',{timeout:40000});await cap('<b>47 agents, 14 jobs, 7 conflicts.</b> Agents doing the same job, answering differently.');await W(PH?1500:2200)
+await p.waitForSelector('#toSearch:not([disabled])',{timeout:40000});await cap('<b>20 agents, 8 jobs, 6 conflicts.</b> Read from instructions and logs. No agent was run.');await W(PH?1500:2200)
 if(PH){await scrollY(await sec('#confl'),1200);await W(1800)}
 await click('#toSearch');await W(800)
 // 5. search
@@ -52,15 +52,15 @@ await cap('...or a business term, even with typos. Every agent doing that job, s
 if(PH){await scrollY(await sec('.sg'),1100);await W(2000)}
 // 6. resolve
 await cap('As the owner, resolve it.');await click('[data-resolve=c1]');await W(1100)
-await cap('Compare the three definitions and pick the official one.');await click('[data-rpick="2"]');await W(1300);await click('[data-rnext]');await W(700)
+await cap('Compare the definitions. Write your own, import one, or mark a valid variant.');await click('[data-rpick="3"]');await W(1300);await click('[data-rnext]');await W(700)
 await cap('Add a reason. Builders will see it.');await click('[data-rchip]');await W(1100)
 await cap('Publish it as an official block over <b>MCP</b>.');await click('[data-rpublish]');await W(1600)
-await cap('Notify the builders and rewire. Watch the answers converge.');await click('[data-rrewire]');await W(1000);if(PH)await scrollY(0,900)
-await p.waitForSelector('.rdone',{timeout:15000});await W(500);await cap('Every agent now answers <b>28</b>. Consistency <b>71 → 86</b>.');await W(PH?1200:2400)
+await cap('Send the suggested change. Builders apply it. Concord re-reads.');await click('[data-rsuggest]');await W(1000);if(PH)await scrollY(0,900)
+await p.waitForSelector('.rdone',{timeout:15000});await W(500);await cap('Every agent now says <b>28</b>. This job is <b>100</b>. Company score <b>53 → 68</b>.');await W(PH?1200:2400)
 if(PH){await ensure('.rdone');await W(1300)}
 // 7. dashboard
 await click('[data-obfinish]');await W(700);await cap('The dashboard reflects what you did. Checklist done.');await W(3000)
-await cap('Next: <b>Watch it live</b> to see an employee build a new agent.');await move(...await p.evaluate(()=>{const e=[...document.querySelectorAll('a[href="#/watch"]')].find(x=>x.offsetParent&&x.getBoundingClientRect().top>0);const b=e.getBoundingClientRect();return[b.x+b.width/2,b.y+b.height/2]}));await W(2600)
+await cap('Next: the <b>Walkthrough</b>, one click at a time.');await move(...await p.evaluate(()=>{const e=[...document.querySelectorAll('a[href="#/watch"]')].find(x=>x.offsetParent&&x.getBoundingClientRect().top>0);const b=e.getBoundingClientRect();return[b.x+b.width/2,b.y+b.height/2]}));await W(2600)
 await cap('Security tools ask if an agent is safe.<br/><b>Concord asks if all your agents give the same answer.</b>');await W(3800);await cap('');await W(500)
 await cdp.send('Page.stopScreencast');await W(300);await b.close()
 let list='';for(let i=0;i<frames.length;i++){const d=i<frames.length-1?Math.max(0.001,frames[i+1][1]-frames[i][1]):0.5;list+=`file '${frames[i][0]}'\nduration ${d.toFixed(4)}\n`}

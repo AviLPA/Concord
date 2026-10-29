@@ -2,13 +2,12 @@
 import * as M from './model.js'
 import {lockup, status, tag, Brand} from './brand.js'
 import {leadCta} from './lead.js'
-import {SCAN, TENANT} from './liveModel.js'
 let C=null
-export const OB={step:'workspace',company:'Private live scan',name:'Demo admin',role:M.SARA_ROLE,size:'301–1,000 people',conn:{claude:false,n8n:false},scanned:false,searched:false,resolved:false,cid:'c1',q:'',dismissed:false}
+export const OB={step:'workspace',company:'Northwind',name:'Sara Klein',role:M.SARA_ROLE,size:'301–1,000 people',conn:{claude:false,n8n:false},scanned:false,searched:false,resolved:false,cid:'c1',q:'',dismissed:false}
 export function initOB(ctx){C=ctx}
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))
 const save=()=>C.save()
-const SYN={'Count at-risk accounts':['at risk','at-risk','risk','churn','health'],'Sum ARR this quarter':['arr','revenue','recurring','quarter'],'Score MQLs':['mql','lead','score','scoring'],'Measure pipeline coverage':['pipeline','coverage','quota'],'Count overdue renewals':['renewal','renewals','overdue'],'Count open tickets':['ticket','tickets','support'],'Customer health':['customer health','health','churn','at risk','at-risk','risk','renewal','csat','nps','healthy'],'ARR':['arr','revenue','recurring','annual','mrr','bookings'],'Discount approval':['discount','discounts','pricing','quote','approval','approve','deal desk'],'Refund policy':['refund','refunds','return','returns','money back'],'Lead scoring':['lead','mql','score','scoring'],'Pipeline coverage':['pipeline','coverage','quota'],'Onboarding FAQ':['onboarding','hire','checklist']}
+const SYN={'Customer health':['customer health','health','churn','at risk','at-risk','risk','renewal','csat','nps','healthy'],'ARR':['arr','revenue','recurring','annual','mrr','bookings'],'Discount approval':['discount','discounts','pricing','quote','approval','approve','deal desk'],'Refund policy':['refund','refunds','return','returns','money back'],'Lead scoring':['lead','mql','score','scoring'],'Pipeline coverage':['pipeline','coverage','quota'],'Onboarding FAQ':['onboarding','hire','checklist']}
 const STOP=new Set('how many much what which who is are the a an our we do does of for to in on this that it be can with my me show list give all any per'.split(' '))
 function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[b.length]}
 
@@ -25,12 +24,12 @@ export function search(q){
   for(const g of Object.values(groups)) g.ids=M.jobIds(g.job)
   return Object.values(groups).sort((a,b)=>b.score-a.score||b.ids.length-a.ids.length).slice(0,6)
 }
-const CHIPS=['at-risk accounts','ARR this quarter','MQL','pipeline coverage','overdue renewals','open tickets']
+const CHIPS=['customer health','ARR','discount','refund','how many accounts are at risk?','pipeline']
 export function searchBox(q,big=true){return `<div class="sbox ${big?'big':''}"><span class="sbi">${C.ic('search',big?18:15)}</span><input id="sq" autocomplete="off" placeholder="Search a business term or question, e.g. customer health, ARR, refund…" value="${esc(q||'')}"/>${q?'<button class="sclr" data-sclear title="Clear">×</button>':''}</div>
 <div class="schips"><span class="dim">Try:</span>${CHIPS.map(c=>`<button class="schip" data-sq="${esc(c)}">${esc(c)}</button>`).join('')}</div><div id="sres">${results(q)}</div>`}
 function results(q){
   if(!q||!q.trim())return `<div class="sempty">${C.ic('search',20)}<div><b>Search definitions and answers already on record</b><span>It shows the definition it read, and the answer that agent already gave.</span></div></div>`
-  const R=search(q);if(!R.length)return `<div class="sempty"><div><b>No agents match “${esc(q)}”</b><span>Try at-risk accounts, ARR, MQL, pipeline, renewals, or tickets.</span></div></div>`
+  const R=search(q);if(!R.length)return `<div class="sempty"><div><b>No agents match “${esc(q)}”</b><span>Try customer health, ARR, discount, or refund.</span></div></div>`
   return `<div class="smeta">${R.reduce((n,g)=>n+g.ids.length,0)} agents in ${R.length} job${R.length>1?'s':''} match “${esc(q)}”</div>`+R.map(group).join('')
 }
 function group(g){
@@ -114,7 +113,7 @@ function stage4(c,R,inOB,offAns,plan){
   const js=M.jobScore(c.job,C.S), p=M.companyParts(C.S)
   return `${timelineMarkup(c.id)}<div class="rdone">${C.ic('check',18)}<div><b>This job is ${js==null?'—':js}. The recorded answer on the official definition is ${esc(plan.ans||offAns)}.</b><span>${plan.verifiedNeed.length}/${plan.need.length} builders applied the suggestion. Concord verified by re-reading. Company score is ${p.score}.</span></div></div>
 <p class="mut" style="margin-top:8px">The next daily scans check that the builders applied the change. Concord alerts again if one is still off.</p>
-<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><button class="btn" data-reset>Restart demo</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Use case</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
+<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Walkthrough</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
 }
 function variantDone(c,inOB){
   const p=M.companyParts(C.S)
@@ -139,7 +138,7 @@ function guideText(){const s=OB.step
   if(s==='workspace')return 'Check the workspace, then click <b>Create workspace</b>.'
   if(s==='connect')return !OB.conn.claude?'Click <b>Connect</b> on Claude. The key is the Compliance API, created by the Primary Owner.':!OB.conn.n8n?'Now connect n8n. Test the connection, then save.':'Both tools connected. Click <b>Continue to scan</b>.'
   if(s==='scan')return OB.scanned?'Scan complete. Click <b>Continue to search</b>.':SC.running?'Reading projects, workflows, and answers already on record.':'Click <b>Start scan</b>.'
-  if(s==='search'){const q=(document.getElementById('sq')||{}).value??OB.q;return !q?'Try <b>at-risk accounts</b>.':search(q).some(g=>{const c=M.conflictByJob(g.job);return c&&M.isOpen(c,C.S)})?'These definitions disagree. Click <b>Resolve as owner</b>.':'Try ARR, discount, or your own question.'}
+  if(s==='search'){const q=(document.getElementById('sq')||{}).value??OB.q;return !q?'Try <b>customer health</b>.':search(q).some(g=>{const c=M.conflictByJob(g.job);return c&&M.isOpen(c,C.S)})?'These definitions disagree. Click <b>Resolve as owner</b>.':'Try ARR, discount, or your own question.'}
   if(s==='resolve'){const R=rs(OB.cid);if(C.S.resolved[OB.cid]==='variant')return 'Marked as a valid variant. Go to the dashboard, or watch the build-time story.'
     return ['Pick a definition, write your own, or mark a valid variant if it is not the same job.','Add a short reason, then <b>Publish as official version</b>.','The official version is live. Click <b>Send suggested changes</b>. Builders apply them.','Watching the next few days. Concord is re-reading.','Done. Go to the dashboard, or watch how the next agent is prevented.'][R.stage]||''}
   return ''
@@ -148,10 +147,10 @@ export function guide(){const g=document.getElementById('obguide');if(g)g.innerH
 export function onboardPage(){const s=OB.step
   return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="#/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
 <nav class="obsteps">${STEPS.map(([k,l],i)=>{const idx=STEPS.findIndex(x=>x[0]===s),done=i<idx||(k==='resolve'&&OB.resolved);return `<button class="${k===s?'on':''} ${done?'done':''}" data-obgo="${k}" ${reach(k)?'':'disabled'}><i>${done?'✓':i+1}</i><span>${l}</span></button>`}).join('')}</nav>
-<div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Use case</span></a><button class="obskip navbtn" data-reset style="cursor:pointer">Restart demo</button><a class="obskip" href="#/overview">Skip to app</a></div></header>
+<div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Walkthrough</span></a><a class="obskip" href="#/overview">Skip to app</a></div></header>
 <div class="obguide" id="obguide"></div><main class="obm">${({workspace:wsStep,connect:connStep,scan:scanStep,search:searchStep,resolve:()=>resolveView(OB.cid,true)})[s]()}</main>${modal?modalHTML():''}</div>`}
 const logo=()=>lockup(18)
-function wsStep(){return `<div class="obgrid"><div class="card obcard"><h1>Create your workspace</h1><p class="sub">Demo admin sign-up. Scan reads real n8n execution results (example jobs). Nothing leaves your browser.</p>
+function wsStep(){return `<div class="obgrid"><div class="card obcard"><h1>Create your workspace</h1><p class="sub">Northwind is a fictional company of ${M.PEOPLE} people. Nothing leaves your browser.</p>
 <label class="fl">Company name<input id="f-company" value="${esc(OB.company)}"/></label><div class="frow2"><label class="fl">Your name<input id="f-name" value="${esc(OB.name)}"/></label><label class="fl">Your role<input id="f-role" value="${esc(OB.role)}"/></label></div>
 <label class="fl">Company size<select id="f-size">${['301–1,000 people','Under 300 people','1,001–5,000 people'].map(o=>`<option ${OB.size===o?'selected':''}>${o}</option>`).join('')}</select><small class="dim">Concord is for companies on Claude Enterprise, usually 300 to 1,000 people. The Compliance API needs that plan.</small></label>
 <button class="btn p big" data-obws style="margin-top:8px">Create workspace →</button></div>
@@ -168,18 +167,18 @@ ${['ChatGPT Enterprise','Microsoft Copilot Studio','Google Gemini','Zapier'].map
 function modalHTML(){
   const m=mstate
   if(modal==='claude') return `<div class="mbg" data-mclose></div><div class="modal" role="dialog"><div class="mh">${logo()}<span class="mx">⇄</span><span class="tile cl">C</span><button class="iconbtn" data-mclose style="margin-left:auto">${C.ic('x')}</button></div>
-<h2>Connect Claude with the Compliance API</h2><p class="mut">A read-only key created by the workspace Primary Owner. You are signed in as ${esc(OB.name)}, ${esc(OB.role)}.</p>
+<h2>Connect Claude with the Compliance API</h2><p class="mut">A read-only key created by Northwind’s Primary Owner. You are signed in as ${esc(OB.name)}, ${esc(OB.role)}.</p>
 <div class="scope"><div class="lbl">${Brand} will be able to read</div>${['Projects, instructions, and knowledge files','Chats and messages linked to a project','Who built each project, and when it changed'].map(s=>`<div class="sc-y">${C.ic('check',14)}${s}${tag('read')}</div>`).join('')}</div>
 <div class="scope"><div class="lbl">${Brand} will not be able to</div>${['See which connectors or MCP servers a project uses','Invoke a project or send a message','Create, edit, or delete anything'].map(s=>`<div class="sc-n">${C.ic('x',14)}${s}</div>`).join('')}</div>
 <div class="mf"><button class="btn" data-mclose>Cancel</button><button class="btn p" data-cauth ${m.busy?'disabled':''}>${m.busy?'<span class="spin"></span> Authorizing…':'Authorize read-only access'}</button></div></div>`
   const checks=n8nChecks()
   return `<div class="mbg" data-mclose></div><div class="modal" role="dialog"><div class="mh">${logo()}<span class="mx">⇄</span><span class="tile n8">n</span><button class="iconbtn" data-mclose style="margin-left:auto">${C.ic('x')}</button></div>
 <h2>Connect your n8n instance</h2><p class="mut">Owner or Admin key, read-only. Concord reads workflow JSON and execution history. There is no execute endpoint, and Concord never calls a webhook.</p>
-<label class="fl">Instance URL<input value="https://self-hosted n8n" spellcheck="false"/></label><label class="fl">API key<input type="password" value="n8n_api_demo_7f3a92c1e4b8" spellcheck="false"/><small class="dim">Demo value. In n8n: Settings, n8n API, Create an API key.</small></label>
+<label class="fl">Instance URL<input value="https://northwind.app.n8n.cloud" spellcheck="false"/></label><label class="fl">API key<input type="password" value="n8n_api_demo_7f3a92c1e4b8" spellcheck="false"/><small class="dim">Demo value. In n8n: Settings, n8n API, Create an API key.</small></label>
 <div class="tests-slot"><div class="tests">${checks.map((s,i)=>`<div>${i<(m.k||0)?C.ic('check',14)+esc(s):'<span class="dim">'+(i===0&&!m.testing?'Results appear here.':' ')+'</span>'}</div>`).join('')}</div></div>
 <div class="mf"><button class="btn" data-mclose>Cancel</button><button class="btn" data-ntest ${m.testing?'disabled':''}>Test connection</button><button class="btn p" data-nsave ${m.k>=4?'':'disabled'}>Save connection</button></div></div>`
 }
-function n8nChecks(){return ['Reached self-hosted n8n','API key accepted · Owner, read-only','workflows:read and executions:read','Found '+M.AGENTS.filter(a=>a.tool==='n8n').length+' workflows with an AI step']}
+function n8nChecks(){return ['Reached northwind.app.n8n.cloud','API key accepted · Owner, read-only','workflows:read and executions:read','Found '+M.AGENTS.filter(a=>a.tool==='n8n').length+' workflows with an AI step']}
 function paintN8n(){
   const rows=document.querySelectorAll('.tests-slot .tests > div'), checks=n8nChecks()
   rows.forEach((row,i)=>{row.innerHTML=i<(mstate.k||0)?C.ic('check',14)+esc(checks[i]):'<span class="dim">'+(i===0&&!mstate.testing?'Results appear here.':' ')+'</span>'})
@@ -189,7 +188,7 @@ function paintN8n(){
 }
 const SC={running:false,timers:[]}
 function scanStep(){const done=OB.scanned, jobs=new Set(M.AGENTS.map(a=>a.job)).size
-  return `<div class="obwide"><h1>Scan for agents</h1><p class="sub"><b>${TENANT}</b> · live n8n results pulled ${esc(SCAN.pulled_at)} (${SCAN.jobs.length} jobs). Concord reads Claude projects through the Compliance API and n8n workflow JSON, then reads chat history and execution logs. It compares definitions.</p>
+  return `<div class="obwide"><h1>Scan for agents</h1><p class="sub">Concord reads Claude projects through the Compliance API and n8n workflow JSON, then reads chat history and execution logs. It compares definitions.</p>
 <div class="scan"><div class="card sphases">${['Reading Claude projects','Reading n8n workflows','Reading chats and execution logs','Comparing definitions on record'].map((p,i)=>`<div class="ph" data-ph="${i}"><i></i><div><b>${p}</b><span></span></div></div>`).join('')}
 <div class="sbtn">${done?'':`<button class="btn p big" data-scan ${SC.running?'disabled':''}>${C.ic('search',14)} Start scan</button>`}</div></div>
 <div class="sright"><div class="scount"><div><b id="k-all">0</b><span>agents found</span></div><div><b id="k-cl">0</b><span>in Claude</span></div><div><b id="k-n8">0</b><span>in n8n</span></div><div><b id="k-jobs">0</b><span>jobs</span></div></div>
@@ -219,136 +218,134 @@ function fillScan(full){
 function stopScan(){SC.timers.forEach(clearTimeout);SC.timers=[];SC.running=false}
 function searchStep(){return `<div class="obwide"><h1>Search across every agent</h1><p class="sub">Type a business term or a question. You get every agent on that job, the definition Concord read, and the answer already on record.</p>${searchBox(OB.q)}</div>`}
 
-function syncField(){
-  const cols=[["Maya’s renewal radar",'Claude','35',-52,20],["Dan’s pipeline watch",'Claude','42',44,-28],["Priya’s escalation flow",'n8n','17',-20,16],["Sara’s official renewal risk",'n8n','28',0,0]]
-  return `<div class="syncfield"><div class="sfline"></div>${cols.map((c,i)=>`<div class="sfcol${i===3?' official':''}" style="--off:${c[3]};--snap:${c[4]};--i:${i}"><div class="sfmove"><span class="sfn"><span class="off">${c[2]}</span><span class="on">28</span></span><span class="sfdot"></span></div><span class="sfl"><span class="sfnm">${esc(c[0])}</span><span class="sfpl"> · ${esc(c[1])}</span></span></div>`).join('')}</div>`
-}
 const BURGER=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`
 const CLOSE=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`
-const MKT=[['home','Home','#/'],['how','How it works','#/how'],['watch','Use case','#/watch'],['pricing','Pricing','#/pricing'],['about','About','#/about']]
+const MKT=[['home','Home','#/'],['how','How it works','#/how'],['watch','Walkthrough','#/watch'],['pricing','Pricing','#/pricing'],['about','About','#/about']]
 function mktLinks(active){return MKT.map(([id,label,href])=>`<a href="${href}" class="${active===id?'on':''}"${active===id?' aria-current="page"':''}>${label}</a>`).join('')}
 function marketFoot(active){
-  return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Let everyone build. Keep every answer consistent.</span><span>Works with Claude and n8n.</span><a href="#/overview">Open the demo</a><a href="#/start">Try it with sample data</a></div></div></footer>`
+  return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Your teams build. Concord keeps their answers aligned.</span><span>Works with Claude and n8n.</span><a href="#/overview">Open the demo</a><a href="#/start">Try it with sample data</a></div></div></footer>`
 }
 export function marketShell(active, main){
-  return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/start">Try it with sample data</a><a class="btn p" href="#/overview">Open the demo</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/start">Try it with sample data</a><a class="btn p" href="#/overview">Open the demo</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
+  return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Open the demo</a><a class="btn p" href="#/start">Try it with sample data</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Open the demo</a><a class="btn p" href="#/start">Try it with sample data</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
 }
-let syncTimer=0, readTimer=0, syncObs=null
-function readDelay(){
-  const cs=getComputedStyle(document.documentElement)
-  const ms=name=>{
-    const raw=cs.getPropertyValue(name).trim()
-    const n=parseFloat(raw)
-    if(!raw||Number.isNaN(n)) return 0
-    return /ms$/.test(raw)?n:n*1000
-  }
-  return ms('--dur-snap')+2*ms('--stagger')
+let phaseTimer=0, phaseTimers=[]
+const LANES=[
+  {v:35,who:'Agent 1',st:'risk',left:70,gap:'left:56%;width:14%'},
+  {v:42,who:'Agent 2',st:'drift',left:84,gap:'left:56%;width:28%'},
+  {v:17,who:'Agent 3',st:'drift',left:34,gap:'left:34%;width:22%'},
+  {v:28,who:'Agent 4',st:'sync',left:56,gap:''},
+]
+const PHASE_CAP={
+  1:'Four agents at Northwind answer “Which accounts are at risk?” with 35, 42, 17 and 28. Each answer is built differently, and Concord shows why.',
+  2:'The official answer is 28, signed off by Sara Klein, Head of RevOps.',
+  3:'Each builder updates their own agent. The next checks confirm every agent follows it.',
 }
-function watchSyncRead(el){
-  if(syncObs) syncObs.disconnect()
-  let synced=el.classList.contains('is-sync')
-  syncObs=new MutationObserver(()=>{
-    const on=el.classList.contains('is-sync')
-    if(on===synced) return
-    synced=on
-    clearTimeout(readTimer)
-    if(el.classList.contains('is-read')) el.classList.remove('is-read')
-    if(!on) return
-    readTimer=setTimeout(()=>{if(el.isConnected&&el.classList.contains('is-sync')) el.classList.add('is-read')}, readDelay())
-  })
-  syncObs.observe(el,{attributes:true, attributeFilter:['class']})
-}
+const CHIP={risk:'At risk',drift:'Drifting',sync:'In sync'}
+function clearPhase(){clearTimeout(phaseTimer);phaseTimers.forEach(clearTimeout);phaseTimers=[];phaseTimer=0}
 export function mountLanding(){
-  clearInterval(syncTimer);clearTimeout(syncTimer);clearTimeout(readTimer)
-  const el=document.getElementById('lcard');if(!el)return
-  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  el.classList.remove('is-sync','is-read','is-reduce')
-  if(reduce){el.classList.add('is-reduce','is-sync','is-read');return}
-  const cycle=()=>{
-    const card=document.getElementById('lcard');if(!card)return
-    card.classList.remove('is-sync','is-read')
-    syncTimer=setTimeout(()=>{if(!card.isConnected)return;card.classList.add('is-sync');readTimer=setTimeout(()=>{if(card.isConnected)card.classList.add('is-read')},500)
-      syncTimer=setTimeout(cycle,3000)},2300)
+  clearPhase()
+  const demo=document.getElementById('example');if(!demo)return
+  const cap=document.getElementById('cap')
+  const dots=[...demo.querySelectorAll('.vdot')]
+  const chips=[...demo.querySelectorAll('.vchip')]
+  const kind={35:'risk',42:'drift',17:'drift',28:'sync'}
+  const reduce=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const set=p=>{
+    phaseTimers.forEach(clearTimeout);phaseTimers=[]
+    demo.dataset.phase=String(p)
+    if(cap) cap.textContent=PHASE_CAP[p]
+    demo.querySelectorAll('[data-go]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.go)===String(p)?'true':'false'))
+    dots.forEach((d,i)=>{
+      const v=+d.dataset.v, st=p===3?'sync':kind[v]
+      d.style.transitionDelay=(p===3&&!reduce?i*80:0)+'ms'
+      d.style.left=((p===3?28:v)/50*100)+'%'
+      const apply=()=>{
+        if(!d.isConnected) return
+        d.className='vdot '+st
+        d.querySelector('b').textContent=p===3?'28':String(v)
+        chips[i].className='vchip s-'+st
+        chips[i].textContent=CHIP[st]
+      }
+      if(p===3&&!reduce) phaseTimers.push(setTimeout(apply,900+i*80))
+      else apply()
+    })
   }
-  cycle()
+  let phase=1
+  const loop=()=>{phaseTimer=setTimeout(()=>{if(!demo.isConnected)return;phase=phase%3+1;set(phase);loop()},phase===3?3600:2800)}
+  demo.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{clearPhase();phase=+b.dataset.go;set(phase)}))
+  set(1)
+  if(!reduce) loop()
 }
-function agentTiles(){
-  const T=[['Maya',"Maya’s renewal radar",'CS','Claude','35',0],['Dan',"Dan’s pipeline watch",'Sales','Claude','42',0],['Priya',"Priya’s escalation flow",'Support','n8n','17',0],['Sara',"Sara’s official renewal risk",'RevOps','n8n','28',1]]
-  return `<div class="atiles">${T.map(([n,a,t,tool,v,o],i)=>`<div class="atile${o?' official':''}" style="--i:${i}"><div class="atop"><span class="av">${n[0]}</span><b>${n}</b></div><span class="aname">${a}</span><span class="ameta">${t} · <span class="tool">${tool}</span></span><div class="anum"><span class="anc">${v}</span><span class="ans">28</span></div><span class="aoff">${o?'Official version':'Same job'}</span></div>`).join('')}</div>`
+function laneRow(l){
+  const same=l.v===28
+  const gap=l.gap?`<span class="vgap ${l.st}" style="${l.gap}"></span>`:''
+  return `<div class="vlane"><span class="vwho">${l.who}</span><div class="vtrack"><span class="vghost${same?' same':''}" style="left:${l.left}%"><b>${l.v}</b></span>${gap}<span class="vdot ${l.st}" data-v="${l.v}" style="left:${l.left}%"><b>${l.v}</b></span></div><span class="vst"><span class="vchip s-${l.st}">${CHIP[l.st]}</span></span></div>`
 }
+function landingShell(main){
+  const jumps=[['example','Example'],['what','What you get'],['how','How it works'],['next','Coming next']]
+  const nav=jumps.map(([id,label])=>`<a href="#${id}" data-scroll="${id}">${label}</a>`).join('')
+  const more=[['#/watch','Walkthrough'],['#/how','How it works'],['#/pricing','Pricing'],['#/about','About'],['#/overview','Open the demo'],['#/start','Try it with sample data']]
+  return `<div class="mkt v20"><header class="sitebar"><div class="v20wrap v20bar"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav v20links" aria-label="Primary">${nav}</nav><div class="v20cta">${leadCta('v20btn sm')}</div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${nav}${more.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}</nav></div></header><div class="lp">${main}</div><footer class="sitefoot"><div class="v20wrap v20foot"><a class="brand" href="#/" aria-label="Concord home">${lockup(16)}</a><p class="vtl">Your teams build. <span>Concord keeps their answers aligned.</span></p><p class="vworks">Works with Claude and n8n.</p><nav class="sitefoot-nav" aria-label="Footer">${mktLinks('home')}<a class="sitein" href="#/overview">Open the demo</a><a href="#/start">Try it with sample data</a></nav></div></footer></div>`
+}
+const VIZ1=['','r','','d','','','r','','d','','s','','','d','','r'].map(k=>`<i${k?` class="${k}"`:''}></i>`).join('')
 export function landingPage(){
   const defs=[
-    ['35',"Maya’s renewal radar",'CS','Claude','no login 21d OR &gt; 3 tickets'],
-    ['42',"Dan’s pipeline watch",'Sales','Claude','tickets &gt; 5 OR CSAT &lt; 3.5'],
-    ['17',"Priya’s escalation flow",'Support','n8n','usage drop &gt; 40%, excl. under $10k'],
-    ['28',"Sara’s official renewal risk",'RevOps','n8n','usage + NPS + tickets, score &lt; 60'],
+    ['35',"Dana's agent",'Sales Ops','Claude','no login 21d OR &gt; 3 tickets'],
+    ['42','Account health monitor','CS','Claude','tickets &gt; 5 OR CSAT &lt; 3.5'],
+    ['17',"Tom's workflow",'CS','n8n','usage drop &gt; 40%, excl. under $10k'],
+    ['28','Renewal radar','RevOps','Claude','usage + NPS + tickets, score &lt; 60'],
   ]
-  const steps=[
-    ['01','unknown','Scanning','Find','Concord checks the agents people already built and groups the ones doing the same job.'],
-    ['02','conflict','Conflict','Show','When their answers differ, the owner of that number sees each answer and why.'],
-    ['03','review','Decide','Decide','The owner signs off one official version. Each builder updates their own agent.'],
-    ['04','sync','Confirm','Confirm','Later checks confirm every agent is consistent with it — and alert if one drifts.'],
-  ]
-  const jobs=[
-    ['Accounts at risk','review','Fixing','2 of 4 updated'],
-    ['ARR','review','Needs sign-off','Owner to decide'],
-    ['Lead scoring','conflict','Inconsistent','65 vs 70'],
-  ]
-  const rows=[
-    ["Sara’s official renewal risk · n8n",'sync','28','Consistent'],
-    ["Maya’s renewal radar · Claude",'sync','28','Consistent'],
-    ["Dan’s pipeline watch · Claude",'drift','42','Not updated yet'],
-    ["Priya’s escalation flow · n8n",'drift','17','Not updated yet'],
-  ]
-  const story=['Sara gets the alert: four agents, four numbers for “How many accounts are at risk?”','She opens the inconsistency: Maya 35 · Dan 42 · Priya 17 · Sara 28 — each with its rule.','She signs <b>28</b> as the official version.','Builders update their own agents. Concord re-reads. What’s still inconsistent stays visible until it matches.']
-  const gets=[
-    ['See every place','See every place personal agents collide on the same job.'],
-    ['Know why','Definition, data or instructions behind each answer.'],
-    ['Fix it once','The owner signs the official version; builders update their own agents.'],
-  ]
-  return marketShell('home', `<section class="lhero"><div class="lht"><h1>Your teams' AI agents are giving different answers to the same question.</h1>
-<p class="lsub">Concord finds where they disagree, shows you why, and gets every agent onto one official answer.</p>
-<div class="lcta"><a class="btn p xl" href="#/start">Try it with sample data</a><a class="btn xl" href="#/overview">Open the demo</a></div></div>
-<div class="lcard ltree" id="lcard"><div class="lcardh"><span class="q">“How many accounts are at risk?”</span><span class="slot" data-off>${status('conflict','Conflict · 4 answers',{big:true})}</span><span class="slot" data-on>${status('sync','4 of 4 consistent',{big:true})}</span></div>
-<svg class="lbr lbr-top" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M200 0 C200 26 50 18 50 44"/><path pathLength="1" d="M200 0 C200 26 150 18 150 44"/><path pathLength="1" d="M200 0 C200 26 250 18 250 44"/><path pathLength="1" d="M200 0 C200 26 350 18 350 44"/></svg>${agentTiles()}<svg class="lbr lbr-bot" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" class="" d="M50 0 C50 22 200 14 200 40"/><path pathLength="1" class="" d="M150 0 C150 22 200 14 200 40"/><path pathLength="1" class="" d="M250 0 C250 22 200 14 200 40"/><path pathLength="1" class="om" d="M350 0 C350 22 200 14 200 40"/></svg><div class="lofficial"><span class="lon">28</span><span>Official answer · Sara Klein, RevOps</span></div><p class="mcap">Example data · same job, four agents, one official version: 28 (Sara Klein)</p></div></section>
-<div class="lband" data-hero-line><span class="mut">Security tools check whether an agent is safe. </span><b>${Brand} checks whether agents built for the same job are consistent.</b></div>
-<section class="lsec" id="drift"><div class="lsh"><span class="eyebrow">Why answers drift</span><h2>Why answers drift</h2></div>
-<div class="l3 ldrift"><div><span class="lsn">01</span><b>Private context</b><p>People build on their own spreadsheets, old threads and last quarter's deck.</p></div><div><span class="lsn">02</span><b>Different definitions</b><p>Each team defines 'at risk' its own way.</p></div><div><span class="lsn">03</span><b>Conflicting sources</b><p>Even official documents disagree with each other.</p></div></div></section>
-<section class="lsec"><div class="lsh"><span class="eyebrow">The problem</span><h2>Same question. Different answers.</h2>
-<p>People don’t wait for a shared platform. They build agents for themselves — and they keep building. The friction starts when several of those personal agents are meant to answer the same company question. Each builder picks a definition that works for them. Same job. Different rules. Different numbers. Those numbers don’t stay personal — they show up in forecasts, customer calls and board decks.</p></div>
-<p>Four agents at a sample company answer “How many accounts are at risk?” with 35, 42, 17 and 28. Each was built by a different person for their own work. Concord shows why they differ. The official answer is 28, signed off by Sara Klein, Head of RevOps.</p>
-<div class="l4">${defs.map(r=>`<div class="lc"><div class="lcn">${r[0]}</div><b>${r[1]}</b><span>${r[2]} · ${r[3]}</span><code>${r[4]}</code></div>`).join('')}</div>
-<div class="l3">${gets.map(([t,d])=>`<div><b>${t}</b><p>${d}</p></div>`).join('')}</div></section>
-<section class="lsec" id="how"><div class="lsh"><span class="eyebrow">How it works</span><h2>How it works</h2></div>
-<div class="lsteps">${steps.map(s=>`<div class="lstep k-${s[1]}"><div class="lstephead"><span class="lsn">${s[0]}</span>${status(s[1],s[2])}</div><b>${s[3]}</b><p>${s[4]}</p></div>`).join('')}</div></section>
-<section class="lsec"><div class="lsh"><span class="eyebrow">Product</span><h2>From conflict to one official version.</h2><p>What Concord looks like after a scan finds the same job with different answers.</p></div>
-<ol class="lstory">${story.map((t,i)=>`<li><span class="lsn">0${i+1}</span><p>${t}</p></li>`).join('')}</ol>
-<div class="lprod"><div class="lprodbar">${lockup(14)}<span>Private live scan · Inconsistencies · Accounts at risk</span></div>
-<div class="lbanner"><div><b>Reminder to Sara Klein</b><span>Accounts at risk: 2 of 4 agents still give a different answer (42, 17).</span></div><span class="act">Open in Concord</span></div>
-<div class="lsplit"><div class="ljobs">${jobs.map((j,i)=>`<div class="ljob k-${j[1]} ${i===0?'on':''}"><b>${j[0]}</b><span>${status(j[1],j[2])} <span class="mut">${j[3]}</span></span></div>`).join('')}</div>
-<div class="lmain"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:18px">Accounts at risk · official v2</b>${status('review','2 of 4 updated')}</div>
-<div class="mut" style="margin:4px 0 12px">Official version: 28, warehouse score, signed off by Sara Klein</div>
-<div class="ldef">score = 0.5·usage + 0.3·nps + 0.2·tickets<br>at_risk = score &lt; 60<br><span class="c"># warehouse score, signed off by Sara Klein</span></div>
-${rows.map(a=>`<div class="larow k-${a[1]}"><b>${a[0]}</b><span class="n">${a[2]}</span>${status(a[1],a[3])}</div>`).join('')}
-</div></div></div></section>
-<section class="lsec lwho"><p><b>Who decides.</b> The person who owns the number signs the official version. Builders keep building. Concord never rewrites their agents.</p>
-<p class="lnext"><b>Coming next.</b> Today Concord compares number answers. Next: written answers (refund windows, onboarding steps). Connecting a semantic layer you already use (dbt or Atlan) is also coming next.</p>
-<p class="ltrust"><b>Setup.</b> Read-only. Concord reads your agents' definitions and answers. It never runs or edits them. Claude needs an Enterprise plan. n8n connects with an Owner or Admin API key. Scans run daily.</p></section>
-<section class="lclose" id="hear"><h2>Seen two teams bring different numbers to the same meeting? Tell us about it.</h2><div class="lcta"><a class="btn p xl" href="#">Book 15 minutes</a></div></section>`)
+  const axis=[0,10,20,30,40,50].map((n,i)=>`<i style="left:${i*20}%">${n}</i>`).join('')
+  return landingShell(`<header class="lhero" id="top"><div class="v20wrap">
+<h1>Your people are building the same agents. <span>They're getting different answers.</span></h1>
+<p class="lsub"><b>Concord finds where agents built for the same job disagree, shows you why, and helps you settle on one version.</b></p>
+<details class="vmore"><summary>How it starts</summary><p>Anyone can build an agent in an afternoon. Two people build a customer health score agent, each defines it their own way, and the company ends up with two answers.</p></details>
+<div class="vhero-row">${leadCta('v20btn')}<p class="vtrust"><span class="vlock">Read-only</span><span>Connects to Claude Enterprise and n8n with read-only access. Your teams keep building the way they do today.</span></p></div>
+<div class="vdemo" id="example" data-phase="1" aria-label="Northwind example, example data">
+<div class="vdemo-head"><div><div class="veye">Northwind · four agents</div><div class="vq">“How many accounts are at risk this quarter?”</div></div><span class="vtag">Example data</span></div>
+<div class="vplot"><div class="vlanes"><div class="vofficial"><span>Official · 28</span></div>${LANES.map(laneRow).join('')}</div><div class="vaxis">${axis}</div></div>
+<div class="vcap"><p id="cap">${PHASE_CAP[1]}</p><div class="vsteps" role="group" aria-label="Example steps"><button type="button" data-go="1" aria-pressed="true">01 Answers</button><button type="button" data-go="2" aria-pressed="false">02 Official</button><button type="button" data-go="3" aria-pressed="false">03 Confirm</button></div></div>
+<details class="vmore"><summary>The four answers</summary><p>The official answer is 28, signed off by Sara Klein, Head of RevOps.</p><ul>${defs.map(r=>`<li><b>${r[1]}</b> · ${r[2]} · ${r[3]} · ${r[0]} · ${r[4]}</li>`).join('')}</ul></details>
+</div></div></header>
+<section class="vsec" id="problem"><div class="v20wrap"><div class="veye">The problem</div><h2>Same question. Different answers.</h2>
+<div class="vprob"><article class="vpcard"><h3>Everyone picks their own definition.</h3><div class="vpills"><span>a personal spreadsheet</span><span>a ticket count</span><span>a usage drop</span><span>the warehouse score</span></div></article>
+<article class="vpcard"><h3>Wrong numbers spread.</h3><div class="vflow"><span>forecasts</span><em>→</em><span>customer calls</span><em>→</em><span>board decks</span></div><p>They end up in forecasts, customer calls and board decks before anyone notices.</p></article></div></div></section>
+<section class="vsec" id="what"><div class="v20wrap"><div class="veye">What you get</div>
+<div class="vcards">
+<article class="vcard"><div class="vviz v1" aria-hidden="true">${VIZ1}</div><div class="vk">01</div><h3>See every place it happens</h3><p>Every agent doing the same job, and where their answers differ.</p></article>
+<article class="vcard"><div class="vviz v2" aria-hidden="true"><span>Definition</span><span>Data source</span><span>Instructions</span></div><div class="vk">02</div><h3>Know why it happens</h3><p>The definition, data source or instructions behind each answer.</p></article>
+<article class="vcard"><div class="vviz v3" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="vk">03</div><h3>Fix it once</h3><p>The owner signs off one official version, and Concord confirms every agent follows it.</p></article>
+</div>
+<p class="vwho-line"><span class="veye">Who it's for</span> The people who own the numbers: the CFO, the head of RevOps and ops leaders.</p>
+</div></section>
+<section class="vsec" id="how"><div class="v20wrap"><div class="veye">How it works</div><h2>From different answers to one official version.</h2>
+<div class="lsteps vstrip">
+<div class="vstep"><div class="vbar"></div><div class="vk">01</div><h3>Find</h3><p>Concord checks your agents every day and groups the ones doing the same job.</p><span class="varrow" aria-hidden="true">→</span></div>
+<div class="vstep"><div class="vbar"></div><div class="vk">02</div><h3>Show</h3><p>When their answers differ, the owner of that number sees each answer and why it differs.</p><span class="varrow" aria-hidden="true">→</span></div>
+<div class="vstep"><div class="vbar"></div><div class="vk">03</div><h3>Decide</h3><p>The owner decides, builders fix.</p><details class="vmore"><summary>More</summary><p>The owner signs off one official version, and each builder updates their own agent.</p></details><span class="varrow" aria-hidden="true">→</span></div>
+<div class="vstep"><div class="vbar"></div><div class="vk">04</div><h3>Confirm</h3><p>The next checks confirm every agent follows it, and Concord alerts the owner if one drifts.</p></div>
+</div>
+<div class="vextra">
+<details class="vmore"><summary>Intentional differences</summary><p>If a team really does a different job, for example only counting contracts over $10k, the owner marks it as a valid variant and Concord stops flagging it.</p></details>
+<details class="vmore"><summary>Setup</summary><p>Claude needs an Enterprise plan (Compliance API). n8n connects with an Owner or Admin API key. Scans run daily.</p></details>
+</div></div></section>
+<section class="vband" aria-label="Positioning"><div class="v20wrap"><div class="veye">Positioning</div><p><span>Security tools check whether an agent is safe.</span> ${Brand} checks whether your agents <b>agree</b>.</p></div></section>
+<section id="next"><div class="v20wrap"><div class="vnext"><div class="vline"><span class="veye">Coming next</span> Today Concord compares number answers.</div><details class="vmore"><summary>What's next</summary><p>Next, it will compare written answers, like two support agents quoting different refund windows or two onboarding assistants giving different steps. Connecting the semantic layer you already use, such as dbt or Atlan, is also coming next.</p></details></div></div></section>
+<section class="vfinal" id="hear"><div class="v20wrap"><h2>Want to hear more?</h2>${leadCta('v20btn')}</div></section>`)
 }
 export function howPage(){
-  const g=i=>`<i${[2,5,9,14].includes(i)?' class="g"':''}></i>`
-  const rows=[
-    ['01','Find','Concord checks the agents people already built and groups the ones doing the same job.',`<div class="hviz hv1">${Array.from({length:16},(_,i)=>g(i)).join('')}</div>`],
-    ['02','Show','When their answers differ, the owner of that number sees each answer and why: definition, data source or instructions.','<div class="hviz hv2"><span>Definition</span><span>Data source</span><span>Instructions</span></div>'],
-    ['03','Decide','The owner signs off one official version. Each builder updates their own agent. Concord never rewrites it.','<div class="hviz hv5"><i></i><i></i><i></i><i></i><em>→</em><b></b></div>'],
-    ['04','Confirm','Later checks confirm every agent is consistent with it — and alert the owner if one drifts.','<div class="hviz hv4"><i></i><i></i><i></i><i></i></div>'],
+  const steps=[
+    ['01','Find','Concord checks your agents every day and groups the ones doing the same job.'],
+    ['02','Show','When their answers differ, the owner of that number sees each answer and why it differs.'],
+    ['03','Decide','The owner decides, builders fix. The owner signs off one official version, and each builder updates their own agent.'],
+    ['04','Confirm','The next checks confirm every agent follows it, and Concord alerts the owner if one drifts.'],
   ]
-  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>From different answers to one consistent official version.</h1></section>
-<div class="hrows">${rows.map(r=>`<div class="hrow"><div class="hn">${r[0]}<span class="hbar"></span></div><div><h3>${r[1]}</h3><p>${r[2]}</p></div>${r[3]}</div>`).join('')}</div>
-<div class="hduo"><div class="hpanel"><span class="eyebrow">Intentional differences</span><p class="hlede">If a team really does a different job, for example only counting contracts over $10k, the owner marks it as a valid variant and Concord stops flagging it.</p>
-<div class="hvt"><div><i class="s"></i><span class="ln s"></span></div><div><i class="s"></i><span class="ln s"></span></div><div><i class="t"></i><span class="ln t"></span></div></div></div>
-<div class="hpanel"><span class="eyebrow">Setup</span><p class="hlede">Read-only. Concord reads your agents' definitions and answers. It never runs or edits them.</p><ul class="hspecs"><li><span class="k">Claude</span>Claude needs an Enterprise plan (Compliance API).</li><li><span class="k">n8n</span>n8n connects with an Owner or Admin API key.</li><li><span class="k">Daily</span>Scans run daily.</li></ul></div></div>`)
+  const notes=[
+    ['Intentional differences','If a team really does a different job, for example only counting contracts over $10k, the owner marks it as a valid variant and Concord stops flagging it.'],
+    ['Setup','Claude needs an Enterprise plan (Compliance API). n8n connects with an Owner or Admin API key. Scans run daily.'],
+  ]
+  return marketShell('how', `<section class="mhero"><span class="eyebrow">How it works</span><h1>From different answers to one official version.</h1></section>
+<div class="msteps">${steps.map(s=>`<article class="card"><span class="lsn">${s[0]}</span><h2>${s[1]}</h2><p>${s[2]}</p></article>`).join('')}${notes.map(s=>`<article class="card"><h2>${s[0]}</h2><p>${s[1]}</p></article>`).join('')}</div>`)
 }
 export function pricingPage(){
   const tiers=[
@@ -360,17 +357,11 @@ export function pricingPage(){
 <div class="prices">${tiers.map(t=>`<article class="price card ${t[3]?'feat':''}"><h2>${t[0]}</h2><div class="pricev">${t[1]}</div><p>${t[2]}</p>${leadCta(t[3]?'p':'')}</article>`).join('')}</div>`)
 }
 export function aboutPage(){
-  return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Every team should work from consistent answers to the same question.</h1></section>
-<div class="hduo hab">
-<div class="hpanel"><div class="hviz hv1">${Array.from({length:16},()=>'<i></i>').join('')}</div><p class="hbig">People build their own agents for their own work, constantly. That's a good thing.</p><p>A CS lead's renewal check, a sales watchlist, a support escalation flow, a RevOps score. Nobody waits for a shared platform, and nobody should have to.</p></div>
-<div class="hpanel"><div class="hviz hv5"><i></i><i></i><i></i><i></i><em>→</em><b></b></div><p class="hbig">The problem starts when several personal agents meant for the same job give different numbers.</p><p>Each builder picks a definition that works for them. Same job, different rules, different numbers, and those numbers reach forecasts and board decks.</p></div>
-<div class="hpanel"><span class="eyebrow">What Concord does</span><p>Concord finds those splits and shows why each answer differs. The person who owns the number signs one official version. Builders update their own agents. Concord never rewrites them.</p></div>
-<div class="hpanel"><span class="eyebrow">What Concord is not</span><p>It is not one shared bot for everyone, and it is not "AI consistency" or prompt-matching. People keep their own agents. Concord only checks whether agents built for the same job are consistent.</p></div></div>
-<div class="lband"><b>People build their own agents; Concord finds where those agents disagree on the same job and helps settle one official version.</b></div>`)
+  return marketShell('about', `<section class="mhero"><span class="eyebrow">About</span><h1>Every team should be working from the same version of the truth.</h1><p>Teams are building their own agents faster than anyone can keep track of. That's a good thing, until two agents built for the same job start giving people different answers. Concord exists to find those differences, show why they happen, and help the company settle on one version, while people keep building the way they do today.</p></section>`)
 }
 
 export function checklist(){
-  const items=[['Connect Claude and n8n',OB.conn.claude&&OB.conn.n8n,'connect'],['Scan for agents',OB.scanned,'scan'],['Search a business term',OB.searched,'search'],['Resolve your first inconsistency',OB.resolved,'resolve']]
+  const items=[['Connect Claude and n8n',OB.conn.claude&&OB.conn.n8n,'connect'],['Scan for agents',OB.scanned,'scan'],['Search a business term',OB.searched,'search'],['Resolve your first conflict',OB.resolved,'resolve']]
   const n=items.filter(i=>i[1]).length;if(n===4&&OB.dismissed)return ''
   return `<div class="card chk"><div class="chkh"><div><b>${n===4?"You're set up":'Get set up'}</b><span class="mut">${n}/4 done</span></div><div class="bar" style="flex:1;max-width:200px"><span style="width:${n/4*100}%"></span></div>${n===4?'<button class="btn" data-chkx>Dismiss</button>':`<a class="btn p" href="#/start">Continue setup →</a>`}</div>
 <div class="chki">${items.map(([t,d])=>`<a href="#/start" class="${d?'d':''}"><i>${d?'✓':''}</i>${t}</a>`).join('')}</div></div>`}
@@ -398,12 +389,12 @@ document.addEventListener('click',e=>{
   if(!t)return
   const d=t.dataset,Rerender=()=>C.render()
   if(d.navtoggle!=null){const bar=t.closest('.sitebar'),menu=bar.querySelector('.sitemenu'),open=menu.hasAttribute('hidden');if(open)menu.removeAttribute('hidden');else menu.setAttribute('hidden','');t.setAttribute('aria-expanded',open?'true':'false');t.setAttribute('aria-label',open?'Close menu':'Open menu');t.innerHTML=open?CLOSE:BURGER;return}
-  if(d.scroll){document.getElementById(d.scroll)?.scrollIntoView({behavior:'smooth'});return}
+  if(d.scroll){e.preventDefault();document.getElementById(d.scroll)?.scrollIntoView({behavior:'smooth'});const bar=document.querySelector('.v20 .sitebar');const menu=bar?.querySelector('.sitemenu');if(menu&&!menu.hasAttribute('hidden')){menu.setAttribute('hidden','');const b=bar.querySelector('[data-navtoggle]');if(b){b.setAttribute('aria-expanded','false');b.setAttribute('aria-label','Open menu');b.innerHTML=BURGER}}return}
   if(d.reset!=null){C.reset();return}
   if(d.chkx!=null){OB.dismissed=true;save();Rerender();return}
   if(d.semcon!=null){C.S.semanticConnected=true;save();Rerender();return}
   if(d.obgo){if(t.disabled||!reach(d.obgo))return;stopScan();OB.step=d.obgo;save();if(location.hash!=='#/start')location.hash='#/start';else Rerender();scrollTo(0,0);return}
-  if(d.obws!=null){OB.company=document.getElementById('f-company').value.trim()||'Private live scan';OB.name=document.getElementById('f-name').value.trim()||'Demo admin';OB.role=document.getElementById('f-role').value.trim()||M.SARA_ROLE;OB.size=document.getElementById('f-size').value;OB.step='connect';save();Rerender();return}
+  if(d.obws!=null){OB.company=document.getElementById('f-company').value.trim()||'Northwind';OB.name=document.getElementById('f-name').value.trim()||'Sara Klein';OB.role=document.getElementById('f-role').value.trim()||M.SARA_ROLE;OB.size=document.getElementById('f-size').value;OB.step='connect';save();Rerender();return}
   if(d.connect){modal=d.connect;mstate={k:0};Rerender();return}
   if(d.mclose!=null){authGen++;testGen++;modal=null;mstate={};Rerender();return}
   if(d.cauth!=null){const g=++authGen;mstate.busy=true;Rerender();setTimeout(()=>{if(g!==authGen)return;OB.conn.claude=true;modal=null;mstate={};save();Rerender()},800);return}
