@@ -35,6 +35,32 @@ A click-through story. The user clicks Next and Back, or a step in the stepper. 
 
 **Explore the full app** writes the story into the shared store, unless the workspace already decided that job.
 
+## Synthetic company (Meridian)
+
+Private preview at `#/company` (sidebar: **Ask Meridian**). This does not replace the recorded n8n dashboard, and it does not change the marketing homepage.
+
+Meridian is a fictional 380-person B2B company. One shared dataset (pipeline, SQLs, customers, and a few docs) feeds a registry of recipe agents. Recipes are deterministic formulas — a closed set of steps such as read a source, filter, sum, or multiply. Concord does not call a model. Asking a question matches a registered question, reads the last scan, and returns the **cluster**: every agent on that question, the distinct finals, and the mid-path steps that diverged.
+
+The hero cluster is inside Sales: “What’s our qualified pipeline for this quarter?” Ten Sales agents answer it. Most are multi-step recipes. Dana Brooks is instructions plus a final, so both check depths show. They disagree because of a copied Google Sheet, a Friday CRM export, a pod filter, a $25k desk floor, a new-logo cut, SQL coverage times a stale ACV page versus the company brain, and a stricter hygiene rule.
+
+Three smaller company-wide questions use the same machinery: active clients (live sheet vs a September copy vs a CRM export vs a board slide), the brand line (company brain and official Notion vs a duplicated old page), and payment terms (current MSA vs a 2024 copy vs a personal note).
+
+The scan strip is computed from the registry and the last scan. Change the qualify bar or mark Priya’s sheet copy as caught up, then **Rescan**. Jordan’s and Priya’s numbers move. The open cluster, if you have one, is read again from that scan.
+
+Adding the next agent is a row in `src/company/registry.js` (question id, sources, steps). Adding a file or a copy is a source in `src/company/warehouse.js`. The chat, the diff, and the scan strip do not need a new screen. That is the path toward ~150 agents: more rows, not more runners, and not a fleet of model calls.
+
+### Try the cluster
+```
+npm install
+npm run dev
+```
+Open `http://localhost:5173/#/company`. Ask “What’s our qualified pipeline for this quarter?” (or use a chip). Open a person’s full path. Then set the qualify bar to stage ≥ 4 and press Rescan.
+
+```
+npm run test:company
+```
+checks the matcher, the Sales finals, the mid-path splits, the flag flip, and the company-wide clusters.
+
 ## Run locally
     npm install
     npm run dev
