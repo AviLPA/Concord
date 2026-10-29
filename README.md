@@ -25,7 +25,7 @@ The public marketing site is separate and is not this snapshot.
 ## Showcase site (`site/`)
 A standalone, calm brand site for investors and users, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It's separate from the app, with its own HTML, CSS and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
 
-- Five sections: hero (an animated conflict card where 35 / 42 / 17 converge to the official 28), the security-vs-consistency statement, how it works (three auto-advancing tabs over real app screenshots), integrations, and a closing CTA.
+- Five sections: hero (an animated card where four Sales agents answer "What's our churn risk this quarter?" with 35 / 42 / 17 / 28 and converge to Sara Klein's official churn score, 28), the security-vs-consistency statement, how it works (three auto-advancing tabs over real app screenshots), a "How does Concord know it's the same question?" section (it reads team, owner, purpose and the decision an answer feeds; the main example is three Sales agents giving 35 / 42 / 17 for the same churn question, which resolves to the official 28, and a note that Concord also checks company-wide questions such as ARR, active customers or refund policy), integrations, and a closing CTA.
 - Brand: a light Mist `#F3F6F4` background, Deep slate `#14232B` text, Mint `#6EE7A8` pill CTAs, green `#1F7A55` for agreement and red `#B83A2C` only for conflict. Headlines are in Manrope, body text in Inter.
 - Animation respects `prefers-reduced-motion`.
 - `node site/capture.mjs` regenerates the product screenshots in `site/assets/product/` (needs `npm run preview`).
