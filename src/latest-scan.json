@@ -1,0 +1,506 @@
+{
+  "pulled_at": "2026-10-26T21:12:11.219923+02:00",
+  "source": "http://127.0.0.1:5678",
+  "tenant": "Private live Scan",
+  "jobs": [
+    {
+      "job": "accounts_at_risk",
+      "label": "How many accounts are at risk?",
+      "agents": [
+        {
+          "variant": "Maya’s renewal radar · CS · Claude",
+          "workflow_id": "4h1JukXhAmTOLLXV",
+          "workflow_name": "Maya’s renewal radar · CS · Claude",
+          "execution_id": "43",
+          "execution_finished": "2026-10-26T19:12:10.145Z",
+          "value": 35,
+          "unit": "accounts",
+          "fields": {
+            "data_source": "Gainsight health export (100 accounts, synced daily)",
+            "rule": "health score < 60",
+            "time_window": "all active accounts (snapshot)",
+            "calculation": "count of accounts",
+            "result_unit": "35 accounts"
+          },
+          "builder": "Maya",
+          "dept": "CS",
+          "tool": "Claude",
+          "agent_name": "Maya’s renewal radar"
+        },
+        {
+          "variant": "Dan’s pipeline watch · Sales · ChatGPT",
+          "workflow_id": "gvDG5sFErd6c5XGa",
+          "workflow_name": "Dan’s pipeline watch · Sales · ChatGPT",
+          "execution_id": "44",
+          "execution_finished": "2026-10-26T19:12:10.200Z",
+          "value": 42,
+          "unit": "accounts",
+          "fields": {
+            "data_source": "CRM account health field (100 accounts, weekly copy)",
+            "rule": "health score < 70",
+            "time_window": "all active accounts (snapshot)",
+            "calculation": "count of accounts",
+            "result_unit": "42 accounts"
+          },
+          "builder": "Dan",
+          "dept": "Sales",
+          "tool": "ChatGPT",
+          "agent_name": "Dan’s pipeline watch"
+        },
+        {
+          "variant": "Priya’s escalation flow · Support · n8n",
+          "workflow_id": "Bd45mGEWv5IbjqCk",
+          "workflow_name": "Priya’s escalation flow · Support · n8n",
+          "execution_id": "45",
+          "execution_finished": "2026-10-26T19:12:10.249Z",
+          "value": 17,
+          "unit": "accounts",
+          "fields": {
+            "data_source": "Gainsight health export (100 accounts, synced daily)",
+            "rule": "health score < 50 AND renewal due",
+            "time_window": "renewal in next 90 days",
+            "calculation": "count of accounts",
+            "result_unit": "17 accounts"
+          },
+          "builder": "Priya",
+          "dept": "Support",
+          "tool": "n8n",
+          "agent_name": "Priya’s escalation flow"
+        },
+        {
+          "variant": "Sara’s official renewal risk · RevOps · n8n",
+          "workflow_id": "MBbP2xRGNAx6F0Ip",
+          "workflow_name": "Sara’s official renewal risk · RevOps · n8n",
+          "execution_id": "46",
+          "execution_finished": "2026-10-26T19:12:10.289Z",
+          "value": 28,
+          "unit": "accounts",
+          "fields": {
+            "data_source": "Gainsight health export (100 accounts, synced daily)",
+            "rule": "health score < 60 AND renewal due",
+            "time_window": "renewal in next 180 days",
+            "calculation": "count of accounts (official, signed by Sara Klein, Head of RevOps)",
+            "result_unit": "28 accounts"
+          },
+          "builder": "Sara",
+          "dept": "RevOps",
+          "tool": "n8n",
+          "agent_name": "Sara’s official renewal risk"
+        }
+      ],
+      "split_fields": [
+        "data_source",
+        "rule",
+        "time_window",
+        "calculation",
+        "result_unit"
+      ],
+      "status": "conflict"
+    },
+    {
+      "job": "discount_cap",
+      "label": "How much discount can a rep give without VP approval?",
+      "agents": [
+        {
+          "variant": "Leo’s quote helper · Sales · ChatGPT",
+          "workflow_id": "PRCUFlbIWFRLg8Yb",
+          "workflow_name": "Leo’s quote helper · Sales · ChatGPT",
+          "execution_id": "47",
+          "execution_finished": "2026-10-26T19:12:10.345Z",
+          "value": 20,
+          "unit": "% max discount",
+          "fields": {
+            "data_source": "Deal desk policy v2025.2",
+            "rule": "max discount without VP = 20%",
+            "time_window": "current quarter quotes",
+            "calculation": "policy cap read from instructions",
+            "result_unit": "20 % max discount"
+          },
+          "builder": "Leo",
+          "dept": "Sales",
+          "tool": "ChatGPT",
+          "agent_name": "Leo’s quote helper"
+        },
+        {
+          "variant": "Nina’s deal desk check · Finance · Claude",
+          "workflow_id": "YYGpu0cria18vvFs",
+          "workflow_name": "Nina’s deal desk check · Finance · Claude",
+          "execution_id": "48",
+          "execution_finished": "2026-10-26T19:12:10.382Z",
+          "value": 15,
+          "unit": "% max discount",
+          "fields": {
+            "data_source": "Deal desk policy v2026.1",
+            "rule": "max discount without VP = 15%",
+            "time_window": "current quarter quotes",
+            "calculation": "policy cap read from instructions",
+            "result_unit": "15 % max discount"
+          },
+          "builder": "Nina",
+          "dept": "Finance",
+          "tool": "Claude",
+          "agent_name": "Nina’s deal desk check"
+        },
+        {
+          "variant": "Omar’s EMEA quote flow · Sales EMEA · n8n",
+          "workflow_id": "TwIr850I2gJHq36Q",
+          "workflow_name": "Omar’s EMEA quote flow · Sales EMEA · n8n",
+          "execution_id": "49",
+          "execution_finished": "2026-10-26T19:12:10.435Z",
+          "value": 18,
+          "unit": "% max discount",
+          "fields": {
+            "data_source": "EMEA addendum 2026",
+            "rule": "max discount without VP = 18%",
+            "time_window": "current quarter quotes",
+            "calculation": "policy cap read from instructions",
+            "result_unit": "18 % max discount"
+          },
+          "builder": "Omar",
+          "dept": "Sales EMEA",
+          "tool": "n8n",
+          "agent_name": "Omar’s EMEA quote flow"
+        }
+      ],
+      "split_fields": [
+        "data_source",
+        "rule",
+        "result_unit"
+      ],
+      "status": "conflict"
+    },
+    {
+      "job": "critical_tickets",
+      "label": "How many support tickets are critical?",
+      "agents": [
+        {
+          "variant": "Priya’s escalation flow · Support · n8n",
+          "workflow_id": "xd7PuZOSLCnvvnjO",
+          "workflow_name": "Priya’s escalation flow · Support · n8n",
+          "execution_id": "50",
+          "execution_finished": "2026-10-26T19:12:10.485Z",
+          "value": 12,
+          "unit": "tickets",
+          "fields": {
+            "data_source": "Zendesk ticket export (57 tickets)",
+            "rule": "priority == P1, status open",
+            "time_window": "current open queue",
+            "calculation": "count of tickets",
+            "result_unit": "12 tickets"
+          },
+          "builder": "Priya",
+          "dept": "Support",
+          "tool": "n8n",
+          "agent_name": "Priya’s escalation flow"
+        },
+        {
+          "variant": "Ben’s sentiment triage · CS · Claude",
+          "workflow_id": "jDMfMV1LjXSuyRWo",
+          "workflow_name": "Ben’s sentiment triage · CS · Claude",
+          "execution_id": "51",
+          "execution_finished": "2026-10-26T19:12:10.554Z",
+          "value": 25,
+          "unit": "tickets",
+          "fields": {
+            "data_source": "Zendesk ticket export (57 tickets)",
+            "rule": "sentiment == negative, status open",
+            "time_window": "current open queue",
+            "calculation": "count of tickets",
+            "result_unit": "25 tickets"
+          },
+          "builder": "Ben",
+          "dept": "CS",
+          "tool": "Claude",
+          "agent_name": "Ben’s sentiment triage"
+        },
+        {
+          "variant": "Ava’s queue monitor · Support Ops · ChatGPT",
+          "workflow_id": "gEZ5F3X6vIPt2TuP",
+          "workflow_name": "Ava’s queue monitor · Support Ops · ChatGPT",
+          "execution_id": "52",
+          "execution_finished": "2026-10-26T19:12:10.599Z",
+          "value": 23,
+          "unit": "tickets",
+          "fields": {
+            "data_source": "Zendesk ticket export (57 tickets)",
+            "rule": "priority in (P1,P2), status open",
+            "time_window": "current open queue",
+            "calculation": "count of tickets",
+            "result_unit": "23 tickets"
+          },
+          "builder": "Ava",
+          "dept": "Support Ops",
+          "tool": "ChatGPT",
+          "agent_name": "Ava’s queue monitor"
+        }
+      ],
+      "split_fields": [
+        "rule",
+        "result_unit"
+      ],
+      "status": "conflict"
+    },
+    {
+      "job": "mql_scoring",
+      "label": "How many leads are MQLs for SDR routing?",
+      "agents": [
+        {
+          "variant": "Jess’s MQL scorer · Marketing · n8n",
+          "workflow_id": "20oNVvBaBNdMPnps",
+          "workflow_name": "Jess’s MQL scorer · Marketing · n8n",
+          "execution_id": "53",
+          "execution_finished": "2026-10-26T19:12:10.682Z",
+          "value": 25,
+          "unit": "MQLs",
+          "fields": {
+            "data_source": "HubSpot lead export (40 leads)",
+            "rule": "lead score >= 65",
+            "time_window": "all leads (snapshot)",
+            "calculation": "count of MQLs",
+            "result_unit": "25 MQLs"
+          },
+          "builder": "Jess",
+          "dept": "Marketing",
+          "tool": "n8n",
+          "agent_name": "Jess’s MQL scorer"
+        },
+        {
+          "variant": "Kai’s SDR router · SDR · Claude",
+          "workflow_id": "YNjFDj6uEo4Hrptp",
+          "workflow_name": "Kai’s SDR router · SDR · Claude",
+          "execution_id": "54",
+          "execution_finished": "2026-10-26T19:12:10.727Z",
+          "value": 15,
+          "unit": "MQLs",
+          "fields": {
+            "data_source": "HubSpot lead export (40 leads)",
+            "rule": "lead score >= 70",
+            "time_window": "all leads (snapshot)",
+            "calculation": "count of MQLs",
+            "result_unit": "15 MQLs"
+          },
+          "builder": "Kai",
+          "dept": "SDR",
+          "tool": "Claude",
+          "agent_name": "Kai’s SDR router"
+        },
+        {
+          "variant": "Rosa’s lead hygiene · RevOps · ChatGPT",
+          "workflow_id": "UCizbFVRn4AhJWNK",
+          "workflow_name": "Rosa’s lead hygiene · RevOps · ChatGPT",
+          "execution_id": "55",
+          "execution_finished": "2026-10-26T19:12:10.772Z",
+          "value": 11,
+          "unit": "MQLs",
+          "fields": {
+            "data_source": "HubSpot lead export (40 leads)",
+            "rule": "lead score >= 70 AND activity",
+            "time_window": "activity in last 30 days",
+            "calculation": "count of MQLs",
+            "result_unit": "11 MQLs"
+          },
+          "builder": "Rosa",
+          "dept": "RevOps",
+          "tool": "ChatGPT",
+          "agent_name": "Rosa’s lead hygiene"
+        }
+      ],
+      "split_fields": [
+        "rule",
+        "time_window",
+        "result_unit"
+      ],
+      "status": "conflict"
+    },
+    {
+      "job": "arr_this_quarter",
+      "label": "What is board ARR this quarter?",
+      "agents": [
+        {
+          "variant": "Nina’s board ARR pack · Finance · Claude",
+          "workflow_id": "nOKb77NbTgBOHlbA",
+          "workflow_name": "Nina’s board ARR pack · Finance · Claude",
+          "execution_id": "56",
+          "execution_finished": "2026-10-26T19:12:10.860Z",
+          "value": 239000,
+          "unit": "USD",
+          "fields": {
+            "data_source": "Salesforce deals export (10 deals)",
+            "rule": "net: won − churn − contraction",
+            "time_window": "Q4 2026 (Oct 1 – Dec 31)",
+            "calculation": "sum of amount",
+            "result_unit": "239000 USD"
+          },
+          "builder": "Nina",
+          "dept": "Finance",
+          "tool": "Claude",
+          "agent_name": "Nina’s board ARR pack"
+        },
+        {
+          "variant": "Dan’s bookings tally · Sales · ChatGPT",
+          "workflow_id": "rmeAoSEeu8VPXWMs",
+          "workflow_name": "Dan’s bookings tally · Sales · ChatGPT",
+          "execution_id": "57",
+          "execution_finished": "2026-10-26T19:12:10.906Z",
+          "value": 284000,
+          "unit": "USD",
+          "fields": {
+            "data_source": "Salesforce deals export (10 deals)",
+            "rule": "gross: closed won only",
+            "time_window": "Q4 2026 (Oct 1 – Dec 31)",
+            "calculation": "sum of amount",
+            "result_unit": "284000 USD"
+          },
+          "builder": "Dan",
+          "dept": "Sales",
+          "tool": "ChatGPT",
+          "agent_name": "Dan’s bookings tally"
+        },
+        {
+          "variant": "Eli’s exec dashboard flow · Exec office · n8n",
+          "workflow_id": "Zis9PJ0e9x2y1eJi",
+          "workflow_name": "Eli’s exec dashboard flow · Exec office · n8n",
+          "execution_id": "58",
+          "execution_finished": "2026-10-26T19:12:10.955Z",
+          "value": 405000,
+          "unit": "USD",
+          "fields": {
+            "data_source": "Salesforce deals export (10 deals)",
+            "rule": "includes signed, not yet booked",
+            "time_window": "Q4 2026 (Oct 1 – Dec 31)",
+            "calculation": "sum of amount",
+            "result_unit": "405000 USD"
+          },
+          "builder": "Eli",
+          "dept": "Exec office",
+          "tool": "n8n",
+          "agent_name": "Eli’s exec dashboard flow"
+        }
+      ],
+      "split_fields": [
+        "rule",
+        "result_unit"
+      ],
+      "status": "conflict"
+    },
+    {
+      "job": "dirty_pipeline",
+      "label": "How many pipeline opps are dirty?",
+      "agents": [
+        {
+          "variant": "Tom’s hygiene flow · RevOps · n8n",
+          "workflow_id": "4wUaUHe9oBsleeoX",
+          "workflow_name": "Tom’s hygiene flow · RevOps · n8n",
+          "execution_id": "59",
+          "execution_finished": "2026-10-26T19:12:11.004Z",
+          "value": 19,
+          "unit": "opps",
+          "fields": {
+            "data_source": "Salesforce open opps (60 opps)",
+            "rule": "missing next step",
+            "time_window": "open pipeline as of 2026-10-26",
+            "calculation": "count of opps",
+            "result_unit": "19 opps"
+          },
+          "builder": "Tom",
+          "dept": "RevOps",
+          "tool": "n8n",
+          "agent_name": "Tom’s hygiene flow"
+        },
+        {
+          "variant": "Lena’s close-date audit · Sales Ops · Claude",
+          "workflow_id": "plcDFUtC4A0KLNJj",
+          "workflow_name": "Lena’s close-date audit · Sales Ops · Claude",
+          "execution_id": "60",
+          "execution_finished": "2026-10-26T19:12:11.055Z",
+          "value": 14,
+          "unit": "opps",
+          "fields": {
+            "data_source": "Salesforce open opps (60 opps)",
+            "rule": "close date in the past",
+            "time_window": "open pipeline as of 2026-10-26",
+            "calculation": "count of opps",
+            "result_unit": "14 opps"
+          },
+          "builder": "Lena",
+          "dept": "Sales Ops",
+          "tool": "Claude",
+          "agent_name": "Lena’s close-date audit"
+        },
+        {
+          "variant": "Sam’s forecast cleaner · Sales · ChatGPT",
+          "workflow_id": "jI6LBiSu0Np6BmHQ",
+          "workflow_name": "Sam’s forecast cleaner · Sales · ChatGPT",
+          "execution_id": "61",
+          "execution_finished": "2026-10-26T19:12:11.106Z",
+          "value": 27,
+          "unit": "opps",
+          "fields": {
+            "data_source": "Salesforce open opps (60 opps)",
+            "rule": "missing next step OR past close date",
+            "time_window": "open pipeline as of 2026-10-26",
+            "calculation": "count of opps",
+            "result_unit": "27 opps"
+          },
+          "builder": "Sam",
+          "dept": "Sales",
+          "tool": "ChatGPT",
+          "agent_name": "Sam’s forecast cleaner"
+        }
+      ],
+      "split_fields": [
+        "rule",
+        "result_unit"
+      ],
+      "status": "conflict"
+    },
+    {
+      "job": "open_p1_agree",
+      "label": "How many open P1 tickets are there?",
+      "agents": [
+        {
+          "variant": "Priya’s P1 counter · Support · n8n",
+          "workflow_id": "YROW3pceEi0f3D0w",
+          "workflow_name": "Priya’s P1 counter · Support · n8n",
+          "execution_id": "62",
+          "execution_finished": "2026-10-26T19:12:11.159Z",
+          "value": 12,
+          "unit": "tickets",
+          "fields": {
+            "data_source": "Zendesk ticket export (57 tickets)",
+            "rule": "priority == P1, status open",
+            "time_window": "current open queue",
+            "calculation": "count of tickets",
+            "result_unit": "12 tickets"
+          },
+          "builder": "Priya",
+          "dept": "Support",
+          "tool": "n8n",
+          "agent_name": "Priya’s P1 counter"
+        },
+        {
+          "variant": "Ben’s P1 counter · CS · Claude",
+          "workflow_id": "IZGWfl1n3WiBGVhe",
+          "workflow_name": "Ben’s P1 counter · CS · Claude",
+          "execution_id": "63",
+          "execution_finished": "2026-10-26T19:12:11.208Z",
+          "value": 12,
+          "unit": "tickets",
+          "fields": {
+            "data_source": "Zendesk ticket export (57 tickets)",
+            "rule": "priority == P1, status open",
+            "time_window": "current open queue",
+            "calculation": "count of tickets",
+            "result_unit": "12 tickets"
+          },
+          "builder": "Ben",
+          "dept": "CS",
+          "tool": "Claude",
+          "agent_name": "Ben’s P1 counter"
+        }
+      ],
+      "split_fields": [],
+      "status": "agree"
+    }
+  ]
+}

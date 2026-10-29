@@ -32,6 +32,13 @@ A click-through story in six steps. The user clicks Next and Back, or a step in 
 
 Controls: Next, Back, and clickable step markers. Back is disabled on the first step. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
 
+## Showcase site (`site/`)
+A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It has its own HTML, CSS, and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
+
+- Hero: four Sales agents answer “What's our churn risk this quarter?” with 35, 42, 17, and 28, then converge on Sara Klein’s official 28.
+- How it works, a “same question?” section, integrations, and a closing CTA.
+- `node site/capture.mjs` regenerates the product screenshots in `site/assets/product/` (needs `npm run preview`).
+
 ## Run locally
     npm install
     npm run dev
@@ -52,3 +59,4 @@ Controls: Next, Back, and clickable step markers. Back is disabled on the first 
 - `src/onboard.js`: landing page, onboarding, search, and the resolve flow.
 - `src/watch.js`: click-through walkthrough.
 - `src/style.css`: all styles.
+- `site/`: the standalone showcase page, built next to the app.
