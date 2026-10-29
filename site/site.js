@@ -102,3 +102,19 @@ async function heroLoop() {
 }
 if (reduced) { items.forEach((li) => { li.classList.add('ok'); $('strong', li).textContent = FINAL }); resolved() }
 else heroLoop()
+
+// Same-question section: the Sales churn-score conflict resolves once on scroll.
+const sameRow = $('#compare .row.main'), sameVerdict = $('#sameVerdict')
+const resolveSame = () => { sameRow.classList.add('resolved'); sameVerdict.textContent = 'Resolved · 1 answer' }
+if (reduced) {
+  $$('.vals b', sameRow).forEach((b) => (b.textContent = FINAL))
+  resolveSame()
+} else {
+  new IntersectionObserver(async ([en], obs) => {
+    if (!en.isIntersecting) return
+    obs.disconnect()
+    await sleep(1800)
+    for (const b of $$('.vals b', sameRow)) { await tween(b, +b.dataset.from, FINAL, 600); await sleep(120) }
+    resolveSame()
+  }, { threshold: 0.5 }).observe(sameRow)
+}
