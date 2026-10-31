@@ -1,8 +1,8 @@
-// Chat → same-question match → cluster, read from the last deterministic scan.
+// Pick or ask a question → the agents on it side by side, read from the last deterministic scan.
 import './company.css'
 import {QUESTIONS} from './registry.js'
-import {ask, currentFlags, lastScan, rescan, summarize} from './engine.js'
-import {COMPANY, DEFAULT_FLAGS} from './warehouse.js'
+import {ask, currentFlags, lastScan, rescan} from './engine.js'
+import {COMPANY, DEFAULT_FLAGS, SOURCES} from './warehouse.js'
 
 const SS = 'concord-meridian-flags-v1'
 const TOOL = {
@@ -30,7 +30,9 @@ if (stored && (stored.qualifyStageMin !== DEFAULT_FLAGS.qualifyStageMin || store
 
 const ui = {
   pending: stored || {...DEFAULT_FLAGS},
-  turns: [],
+  selected: null,
+  open: {},
+  miss: null,
   scroll: false,
 }
 
@@ -41,10 +43,6 @@ function flagsEqual(a, b) {
 function persistAndScan() {
   rescan(ui.pending)
   try { sessionStorage.setItem(SS, JSON.stringify(currentFlags())) } catch (e) {}
-  const scan = lastScan()
-  ui.turns = ui.turns.map(turn => turn.questionId
-    ? {...turn, cluster: scan.clusters.find(c => c.question.id === turn.questionId) || null}
-    : turn)
 }
 
 function toolTag(key) {
@@ -92,49 +90,113 @@ function traces(cluster) {
   return `<div class="co-traces">${cluster.cards.map(({agent, run}) => `<details class="co-trace"><summary>${esc(agent.owner)} · ${esc(agent.verb)} · ${esc(run.finalText)}</summary><p>${esc(agent.note)}</p><ol>${run.steps.map(step => `<li><span>${esc(step.roleLabel)}</span><b>${esc(step.label)}</b><em>${esc(step.text)}</em></li>`).join('')}</ol></details>`).join('')}</div>`
 }
 
-function clusterView(cluster, latest) {
+const TONE = {
+  live: {cls: 't-live'},
+  copy: {cls: 't-copy'},
+  note: {cls: 't-note', badge: 'Note / words only'},
+}
+
+function sourceOf(run) {
+  const step = run.steps.find(s => s.role === 'source')
+  return step && step.binding ? SOURCES[step.binding] : null
+}
+
+function toneOf(card) {
+  if (card.agent.depth === 'instructions') return {...TONE.note, key: 'note'}
+  const src = sourceOf(card.run)
+  const key = src && src.official ? 'live' : 'copy'
+  return {...TONE[key], key, badge: src ? src.badge : 'Recipe'}
+}
+
+const initials = n => n.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase()
+const cardsOf = cluster => {
+  const ids = cluster.question.featured || cluster.cards.map(c => c.agent.id)
+  return ids.map(id => cluster.cards.find(c => c.agent.id === id)).filter(Boolean)
+}
+const num = n => ['Zero', 'One', 'Two', 'Three', 'Four', 'Five'][n] || String(n)
+
+function agentCol(card) {
+  const t = toneOf(card)
+  const {agent, run} = card
+  const steps = run.steps.map(step => `<li><b>${esc(step.roleLabel)}</b><span>${esc(step.text)}</span></li>`).join('')
+  return `<article class="co-col ${t.cls}"><header class="co-colh"><span class="co-av">${esc(initials(agent.owner))}</span><div><b>${esc(agent.owner)}'s agent</b><small>${esc(agent.team)} · ${esc(agent.role)}</small></div></header>
+<span class="co-badge">${esc(t.badge)}</span><p class="co-colsub">${esc(agent.note)}</p><ol class="co-steps">${steps}</ol><p class="co-final">${esc(run.finalText)}</p></article>`
+}
+
+function splitRows(cluster, cards) {
+  const recipes = cards.filter(c => c.agent.depth === 'recipe')
+  const roles = []
+  for (const c of recipes) for (const s of c.run.steps) if (s.role !== 'answer' && !roles.includes(s.role)) roles.push(s.role)
+  let seenSplit = false
+  const rows = roles.map(role => {
+    const keys = new Set(recipes.map(c => c.run.steps.find(s => s.role === role)).filter(Boolean).map(s => s.valueKey))
+    let state = 'same'
+    if (keys.size > 1) { state = seenSplit ? 'carry' : 'split'; seenSplit = true }
+    const label = recipes.map(c => c.run.steps.find(s => s.role === role)).find(Boolean).roleLabel
+    return {role, state, label: role === 'source' ? 'Source (what each agent read)' : label}
+  })
+  const open = ui.open[cluster.question.id] ?? rows.find(r => r.state === 'split')?.role ?? null
+  const chip = {split: 'Split starts here', carry: 'Gap carries through', same: 'Same step'}
+  return rows.map(row => {
+    const isOpen = open === row.role
+    const cells = isOpen ? `<div class="co-splitcells">${cards.map(card => {
+      const t = toneOf(card)
+      const step = card.run.steps.find(s => s.role === row.role)
+      const note = card.agent.depth === 'instructions' ? card.run.steps.find(s => s.role === 'instructions') : null
+      const text = step ? step.text : note && row.role === 'source' ? note.text : note ? 'No step. The answer is written in the note.' : 'No step.'
+      return `<div class="co-splitcell ${t.cls}"><small>${esc(card.agent.owner)} · ${esc(t.badge)}</small><p>${esc(text)}</p></div>`
+    }).join('')}</div>` : ''
+    return `<div class="co-split is-${row.state} ${isOpen ? 'is-open' : ''}"><button type="button" class="co-splith" data-role="${esc(row.role)}" aria-expanded="${isOpen}"><span>${esc(row.label)}</span><span class="co-chip">${chip[row.state]}</span></button>${cells}</div>`
+  }).join('')
+}
+
+function questionView(cluster) {
   const q = cluster.question
-  const where = q.kind === 'section'
-    ? `Same team · ${q.section}. Shared steps are compared inside ${q.section}.`
-    : 'Company-wide. These agents sit on different teams. One of them is on a stale copy of the same fact.'
-  return `<article class="co-cluster card"${latest ? ' id="co-latest" tabindex="-1"' : ''}><header class="co-ch"><p class="co-kicker">${esc(where)}</p><h2>“${esc(q.ask)}”</h2><p class="co-meta">${cluster.cards.length} agents · ${cluster.answers.length} ${cluster.answers.length === 1 ? 'answer' : 'answers'} · ${cluster.splits.length} mid-path ${cluster.splits.length === 1 ? 'split' : 'splits'} · ${cluster.recipeCount} recipes${cluster.thinCount ? ` · ${cluster.thinCount} with instructions only` : ''}</p><p class="co-blend">Concord did not blend these into one answer.</p></header><div class="co-body">${answerBoard(cluster)}${pathBlock(cluster)}${traces(cluster)}</div></article>`
+  const cards = cardsOf(cluster)
+  const finals = []
+  for (const c of cards) if (!finals.some(f => f.run.finalKey === c.run.finalKey)) finals.push(c)
+  const n = cards.length
+  const head = finals.length > 1 ? `${num(finals.length)} different answers to one question` : 'One answer'
+  const others = cluster.cards.length - n
+  const more = others > 0 ? `<details class="co-all"><summary>All ${cluster.cards.length} ${esc(q.section)} agents on this question</summary><div class="co-body">${answerBoard(cluster)}${pathBlock(cluster)}${traces(cluster)}</div></details>` : ''
+  return `<article class="card co-view" id="co-view" tabindex="-1"><header class="co-vh"><p class="co-kicker">${q.kind === 'section' ? `Same team · ${esc(q.section)}` : 'Company-wide'}</p><h2>“${esc(q.ask)}”</h2><p class="co-meta">${n === 3 ? 'All three' : `All ${n}`} finished · read from the last scan</p></header>
+<div class="co-cols">${cards.map(agentCol).join('')}</div>
+<h3 class="co-h">${head}</h3>
+<div class="co-finals">${finals.map(c => `<div class="co-fin ${toneOf(c).cls}${c.run.finalText.length > 70 ? ' is-long' : ''}"><span class="co-badge">${esc(toneOf(c).badge)}</span><b>${esc(c.run.finalText)}</b><small>${esc(cards.filter(x => x.run.finalKey === c.run.finalKey).map(x => x.agent.owner).join(', '))}</small></div>`).join('')}</div>
+${q.story ? `<p class="co-story">${esc(q.story)}</p>` : ''}
+<h3 class="co-h">Where they split <small>tap a step</small></h3>
+<div class="co-splits">${splitRows(cluster, cards)}</div>
+<p class="co-foot">Concord doesn't average these. It shows you which source each answer came from.</p>${more}</article>`
 }
 
-function turnView(turn, index) {
-  const q = `<p class="co-you"><span>You asked</span> ${esc(turn.query)}</p>`
-  const latest = index === ui.turns.length - 1
-  if (!turn.cluster) return `<div class="co-turn">${q}<p class="co-missbox">No registered agent answers that. Try a question below. Concord will not invent a blended reply.</p></div>`
-  return `<div class="co-turn">${q}${clusterView(turn.cluster, latest)}</div>`
+function tabs(scan) {
+  return `<div class="co-tabs" role="tablist">${QUESTIONS.filter(q => q.tab).map(q => {
+    const cluster = scan.clusters.find(c => c.question.id === q.id)
+    const cards = cardsOf(cluster)
+    const answers = new Set(cards.map(c => c.run.finalKey)).size
+    const on = ui.selected === q.id
+    return `<button type="button" class="co-tab ${on ? 'on' : ''}" role="tab" aria-selected="${on}" data-pick="${esc(q.id)}"><span class="co-herok">Same team · ${esc(q.section)}</span><b>${esc(q.ask)}</b><small>${cards.length} agents · ${answers} ${answers === 1 ? 'answer' : 'answers'}</small></button>`
+  }).join('')}</div>`
 }
 
-function dash(scan) {
-  const s = summarize(scan)
-  const pending = !flagsEqual(ui.pending, s.flags)
+function flagsCard(scan) {
+  const pending = !flagsEqual(ui.pending, scan.flags)
   const stage = n => `<button type="button" class="fbtn ${ui.pending.qualifyStageMin === n ? 'on' : ''}" data-flag="qualifyStageMin" data-value="${n}" aria-pressed="${ui.pending.qualifyStageMin === n}">Stage ≥ ${n}</button>`
   const shadow = (on, label) => `<button type="button" class="fbtn ${ui.pending.shadowCaughtUp === on ? 'on' : ''}" data-flag="shadowCaughtUp" data-value="${on ? '1' : '0'}" aria-pressed="${ui.pending.shadowCaughtUp === on}">${label}</button>`
-  return `<div class="grid g4 co-kpis"><div class="card kpi"><div class="l">Recipe agents</div><div class="v">${s.agents}</div><div class="d">${s.questions} questions in the registry</div></div>
-<div class="card kpi"><div class="l">Questions that disagree</div><div class="v">${s.openQuestions}</div><div class="d">${s.splits} mid-path splits in the last scan</div></div>
-<div class="card kpi"><div class="l">Jordan · live sheet</div><div class="v co-money">${esc(s.heroText)}</div><div class="d">Qualified pipeline after his recipe</div></div>
-<div class="card kpi"><div class="l">Priya · sheet copy</div><div class="v co-money">${esc(s.shadowText)}</div><div class="d">${s.flags.shadowCaughtUp ? 'Copy caught up to the live sheet' : 'Copy still frozen on Oct 6'}</div></div></div>
-<div class="card co-flags"><div class="hd"><h3>Data flags</h3><span class="r">Seed ${esc(s.seed)} · last scan stage ≥ ${s.flags.qualifyStageMin} · ${s.flags.shadowCaughtUp ? 'shadow caught up' : 'shadow stale'}</span></div><div class="bd"><div class="co-flagrow"><span>Qualify bar</span><span class="co-flagbtns">${stage(3)}${stage(4)}</span></div><div class="co-flagrow"><span>Priya's pipeline copy</span><span class="co-flagbtns">${shadow(false, 'Stale copy')}${shadow(true, 'Caught up')}</span></div><div class="co-flagact"><button type="button" class="btn p" data-rescan>Rescan</button><button type="button" class="btn" data-flag-reset>Reset flags</button>${pending ? '<p class="co-pending">Flag changed. Rescan reruns every recipe. The numbers above stay on the last scan until then.</p>' : '<p class="co-pending is-quiet">Numbers come from the last scan of the registry. Rescan after a flag change.</p>'}</div></div></div>`
-}
-
-function picker(scan) {
-  const s = summarize(scan)
-  const stat = q => `${q.agents} agents · ${q.answers} ${q.answers === 1 ? 'answer' : 'answers'} · ${q.splits} ${q.splits === 1 ? 'split' : 'splits'}`
-  const hero = s.questionsDetail.find(q => q.kind === 'section')
-  const rest = s.questionsDetail.filter(q => q !== hero)
-  return `<button type="button" class="co-hero" data-ask="${esc(hero.ask)}"><span class="co-herok">Same team · ${esc(hero.section)}</span><b>${esc(hero.ask)}</b><small>${stat(hero)} in the last scan</small></button>
-<div class="schips co-more"><span class="dim">Also company-wide</span>${rest.map(q => `<button type="button" class="schip" data-ask="${esc(q.ask)}" title="${esc(stat(q))}">${esc(q.ask)}</button>`).join('')}</div>`
+  return `<div class="card co-flags"><div class="hd"><h3>Change the data, then rescan</h3><span class="r">Seed ${esc(scan.seed)} · last scan stage ≥ ${scan.flags.qualifyStageMin} · ${scan.flags.shadowCaughtUp ? 'copy caught up' : 'copy stale'}</span></div><div class="bd"><div class="co-flagrow"><span>Sales qualify bar</span><span class="co-flagbtns">${stage(3)}${stage(4)}</span></div><div class="co-flagrow"><span>Priya's pipeline copy</span><span class="co-flagbtns">${shadow(false, 'Stale copy')}${shadow(true, 'Caught up')}</span></div><div class="co-flagact"><button type="button" class="btn p" data-rescan>Rescan</button><button type="button" class="btn" data-flag-reset>Reset flags</button>${pending ? '<p class="co-pending">Flag changed. Rescan reruns every recipe. The answers stay on the last scan until then.</p>' : '<p class="co-pending is-quiet">Every answer comes from the last scan of the registry.</p>'}</div></div></div>`
 }
 
 export function companyPage() {
   const scan = lastScan()
-  return `<div class="page co" id="company"><div class="hrow"><div class="co-intro"><h1>Ask Meridian</h1><p class="sub">A fictional ${COMPANY.people}-person B2B company. Ten people in Sales built agents for the same question, and they get ten different numbers. Agents are recipes over one shared dataset — not model calls. Ask, and Concord returns the cluster: every matching agent, and the step where a shared path splits.</p></div></div>
+  const cluster = ui.selected ? scan.clusters.find(c => c.question.id === ui.selected) : null
+  const body = ui.miss != null
+    ? `<p class="co-missbox">No registered agent answers “${esc(ui.miss)}”. Pick one of the questions above. Concord will not invent a blended reply.</p>`
+    : cluster ? questionView(cluster) : '<p class="co-empty">Pick a question. Each one is asked by three people on the same team, and their agents disagree.</p>'
+  return `<div class="page co" id="company"><div class="co-intro"><h1>Ask Meridian</h1><p class="sub">A fictional ${COMPANY.people}-person B2B company. People on the same team built agents for the same question and get different answers. Agents are recipes over one shared dataset, not model calls. Pick a question, or ask one.</p></div>
 <form class="co-ask sbox big" id="co-form"><label class="co-label" for="coq">Question</label><input id="coq" name="q" autocomplete="off" placeholder="Ask a workplace question" enterkeyhint="send"/><button class="btn p" type="submit">Ask</button></form>
-${picker(scan)}
-${dash(scan)}
-<div class="co-log" aria-live="polite">${ui.turns.map((turn, i) => turnView(turn, i)).join('') || '<p class="co-empty">The scan is already in. Ask a question to see the cluster. Concord reads that scan and shows every answer. It does not pick a winner.</p>'}</div></div>`
+${tabs(scan)}
+<div class="co-out" aria-live="polite">${body}</div>
+${flagsCard(scan)}</div>`
 }
 
 export function resetCompany() {
@@ -146,11 +208,17 @@ export function mountCompany(rerender) {
   if (!root) return
   if (ui.scroll) {
     ui.scroll = false
-    document.getElementById('co-latest')?.scrollIntoView({block: 'start'})
+    document.getElementById('co-view')?.scrollIntoView({block: 'start'})
   }
   root.addEventListener('click', e => {
-    const askBtn = e.target.closest('[data-ask]')
-    if (askBtn) { submit(askBtn.dataset.ask); rerender(); return }
+    const pick = e.target.closest('[data-pick]')
+    if (pick) { ui.selected = pick.dataset.pick; ui.miss = null; rerender(); return }
+    const role = e.target.closest('[data-role]')
+    if (role) {
+      const q = ui.selected
+      ui.open[q] = ui.open[q] === role.dataset.role ? '' : role.dataset.role
+      rerender(); return
+    }
     const flag = e.target.closest('[data-flag]')
     if (flag) {
       if (flag.dataset.flag === 'qualifyStageMin') ui.pending.qualifyStageMin = Number(flag.dataset.value) === 4 ? 4 : 3
@@ -167,21 +235,12 @@ export function mountCompany(rerender) {
   root.addEventListener('submit', e => {
     if (e.target.id !== 'co-form') return
     e.preventDefault()
-    const input = root.querySelector('#coq')
-    submit(input.value)
+    const query = String(root.querySelector('#coq').value || '').trim()
+    if (!query) return
+    const result = ask(query)
+    ui.selected = result.cluster ? result.cluster.question.id : ui.selected
+    ui.miss = result.cluster ? null : query
+    ui.scroll = !!result.cluster
     rerender()
   })
-}
-
-function submit(text) {
-  const query = String(text || '').trim()
-  if (!query) return
-  const result = ask(query)
-  ui.turns.push({
-    query,
-    questionId: result.cluster ? result.cluster.question.id : null,
-    cluster: result.cluster,
-  })
-  if (ui.turns.length > 4) ui.turns.shift()
-  ui.scroll = !!result.cluster
 }

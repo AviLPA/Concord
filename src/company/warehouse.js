@@ -27,74 +27,100 @@ export const DOCS = {
 
 export const SOURCES = {
   'sheet.pipeline.live': {
+    badge: 'Live spreadsheet',
     label: 'Q4 pipeline — Revenue Ops (live sheet)',
     kind: 'opps', projection: 'live', official: true, duplicateOf: null,
     asOf: 'today',
   },
   'sheet.pipeline.shadow': {
+    badge: 'Google Sheet copy',
     label: "Q4 pipeline — Priya's copy",
     kind: 'opps', projection: 'shadow', official: false, duplicateOf: 'sheet.pipeline.live',
     asOf: 'Oct 6, 2026',
   },
   'crm.pipeline.friday': {
+    badge: 'CRM export',
     label: 'CRM pipeline export — Friday',
     kind: 'opps', projection: 'friday', official: false, duplicateOf: 'sheet.pipeline.live',
     asOf: 'Oct 24, 2026',
   },
   'sheet.sql.live': {
+    badge: 'Live spreadsheet',
     label: 'Accepted SQLs — Marketing ops (live)',
     kind: 'sqls', official: true, duplicateOf: null,
     asOf: 'today',
   },
   'sheet.clients.live': {
+    badge: 'Live spreadsheet',
     label: 'Customers — CS ops (live sheet)',
     kind: 'accounts', projection: 'live', official: true, duplicateOf: null,
     asOf: 'today',
   },
   'sheet.clients.copy': {
+    badge: 'Google Sheet copy',
     label: "Customers — Jonah's copy",
     kind: 'accounts', projection: 'copy', official: false, duplicateOf: 'sheet.clients.live',
     asOf: 'Sep 2, 2026',
   },
   'crm.clients.sept': {
+    badge: 'CRM export',
     label: 'CRM accounts export — September',
     kind: 'accounts', projection: 'export', official: false, duplicateOf: 'sheet.clients.live',
     asOf: 'Sep 28, 2026',
   },
   'brain.brand': {
+    badge: 'Company brain',
     label: 'Company brain · Brand',
     kind: 'doc', doc: 'brandLine', official: true, duplicateOf: null,
     asOf: 'Sep 1, 2026',
   },
   'notion.brand': {
+    badge: 'Official Notion',
     label: 'Notion · Brand guidelines',
     kind: 'doc', doc: 'brandLine', official: true, duplicateOf: null,
     asOf: 'Sep 1, 2026',
   },
   'notion.brand.old': {
+    badge: 'Duplicated page',
     label: 'Notion · Brand (OLD)',
     kind: 'doc', doc: 'brandLineOld', official: false, duplicateOf: 'notion.brand',
     asOf: 'Nov 12, 2025',
   },
   'brain.acv': {
+    badge: 'Company brain',
     label: 'Company brain · planning ACV',
     kind: 'doc', doc: 'acvPlan', official: true, duplicateOf: null,
     asOf: 'Aug 15, 2026',
   },
   'notion.acv.old': {
+    badge: 'Duplicated page',
     label: 'Notion · SQL coverage (enablement copy)',
     kind: 'doc', doc: 'acvOld', official: false, duplicateOf: 'brain.acv',
     asOf: 'Jun 3, 2025',
   },
   'notion.msa': {
+    badge: 'Official Notion',
     label: 'Notion · MSA (current)',
     kind: 'doc', doc: 'msaCurrent', official: true, duplicateOf: null,
     asOf: 'Mar 2, 2026',
   },
   'notion.msa.2024': {
+    badge: 'Duplicated page',
     label: 'Notion · MSA 2024 (deal-desk copy)',
     kind: 'doc', doc: 'msa2024', official: false, duplicateOf: 'notion.msa',
     asOf: 'Jan 18, 2024',
+  },
+  'sheet.sqlweekly.live': {
+    badge: 'Live spreadsheet',
+    label: 'Weekly inbound SQLs — Marketing ops (live sheet)',
+    kind: 'weeks', official: true, duplicateOf: null,
+    asOf: 'today',
+  },
+  'sheet.sqlweekly.copy': {
+    badge: 'Google Sheet copy',
+    label: "Weekly inbound SQLs — Theo's copy",
+    kind: 'weeks', official: false, duplicateOf: 'sheet.sqlweekly.live', through: '2026-10-05',
+    asOf: 'Oct 6, 2026',
   },
 }
 
@@ -154,6 +180,13 @@ export const SQLS = [
   ...Array.from({length: 2}, (_, i) => ({id: `q3${i + 1}`, name: `Q3 SQL ${i + 1}`, accepted: true, quarter: '2026Q3'})),
 ]
 
+// Inbound SQLs per week, by week start. A copy only has the weeks up to its `through` date.
+export const WEEKS = [
+  ['2026-08-31', 'Aug 31', 17], ['2026-09-07', 'Sep 7', 18], ['2026-09-14', 'Sep 14', 20],
+  ['2026-09-21', 'Sep 21', 22], ['2026-09-28', 'Sep 28', 24], ['2026-10-05', 'Oct 5', 23],
+  ['2026-10-12', 'Oct 12', 19], ['2026-10-19', 'Oct 19', 16], ['2026-10-26', 'Oct 26', 14],
+].map(([week, label, sqls]) => ({id: 'w' + week, week, label, sqls}))
+
 export function quarterOf(iso) {
   const [y, m] = iso.split('-').map(Number)
   return `${y}Q${Math.ceil(m / 3)}`
@@ -189,6 +222,7 @@ export function readSource(sourceId, flags) {
   if (source.kind === 'doc') return {source, doc: DOCS[source.doc], rows: []}
   if (source.kind === 'opps') return {source, doc: null, rows: OPPS.flatMap(row => projectOpp(row, source.projection, flags))}
   if (source.kind === 'accounts') return {source, doc: null, rows: ACCOUNTS.flatMap(row => projectAccount(row, source.projection))}
+  if (source.kind === 'weeks') return {source, doc: null, rows: WEEKS.filter(w => !source.through || w.week <= source.through).map(w => ({...w}))}
   if (source.kind === 'sqls') return {source, doc: null, rows: SQLS.map(row => ({...row}))}
   throw new Error('Unknown kind ' + source.kind)
 }

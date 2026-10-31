@@ -22,14 +22,14 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/live` | Old route, redirects to `#/watch`. |
 
 ## Ask Meridian (`#/company`)
-Meridian is a fictional 380-person B2B company. One shared dataset (pipeline, SQLs, customers, and a few docs) feeds a registry of 20 recipe agents. A recipe is a deterministic list of steps from a closed set: read a source, filter, sum, multiply, answer. Concord does not call a model. Asking a question matches a registered question, reads the last scan, and returns the **cluster**: every agent on that question, the distinct finals, and the shared steps that diverged. Nothing is blended into one answer.
+Meridian is a fictional 380-person B2B company. One shared dataset (pipeline, weekly SQLs, customers, and a few docs) feeds a registry of recipe agents. A recipe is a deterministic list of steps from a closed set: read a source, filter, sum, multiply, trend, answer. Concord does not call a model. Asking a question matches a registered question, reads the last scan, and returns the **cluster**. Nothing is blended into one answer.
 
-The story is one team disagreeing with itself. Ten Sales agents answer “What’s our qualified pipeline for this quarter?” and get ten numbers. The causes are ordinary: a Google Sheet Priya copied on Oct 6, Friday’s CRM export, a West-pod filter, a $25k desk floor, a new-logo cut, SQL coverage times an old ACV page versus the company brain, and a stricter hygiene rule. Dana Brooks has instructions and a final only, so both check depths show. Three smaller company-wide questions (active clients, brand line, payment terms) use the same machinery and sit under **Also company-wide**.
+The page is three same-team questions, shown as tabs. Click one and you get three agents side by side: the live spreadsheet, a Google Sheet copy, and a note that never opens the file. Under that: the three different answers, a short story of why they split, and a **Where they split** accordion. Sales still has all ten agents; they sit under **All 10 Sales agents on this question**. Brand line and payment terms are still in the registry if you type them.
 
 Demo path:
-1. Open `#/company`. Ask the Sales question, or click it.
-2. Read the ten answers, then the **Path**: Source, In quarter, Qualify, and Local filter line up across the team. Red **Split** is a step whose output is unique. Amber is a step shared by a smaller group (Noah and Tess read the same SQLs, then multiply by different ACV pages).
-3. Under **Data flags**, set the qualify bar to Stage ≥ 4. Nothing moves yet. Press **Rescan**. Jordan goes from $2,213,000 to $1,435,000, Priya from $2,063,000 to $1,075,000, and the question goes from 10 answers to 9.
+1. Open `#/company`. Click **How are inbound SQLs trending this quarter?** Ines (live sheet) is down 22%. Theo (Oct 6 copy) is up 28%. Carmen repeats the Oct 7 recap (“up ~35%, still climbing”).
+2. Click the Sales tab. Jordan $2,213,000, Priya $2,063,000, Dana $2,400,000. Open **All 10 Sales agents** for the rest of the team.
+3. Under **Change the data, then rescan**, set Stage ≥ 4. Nothing moves yet. Press **Rescan**. Jordan goes to $1,435,000, Priya to $1,075,000.
 
 Flags are kept for the browser tab (`sessionStorage`). **Reset flags** or **Reset demo** clears them.
 
@@ -80,7 +80,7 @@ After deploying, check `/#/company`, `/meridian`, and `/site/`.
 
 ## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
 - `test-onboarding.mjs [baseUrl] [shotDir]`: landing through resolve, dashboard, the walkthrough, and reset, at 1280×800 and 390×844. Exits non-zero on failure.
-- `test-meridian.mjs [baseUrl]`: Ask Meridian. Ask the Sales question, read the cluster, flip the flag, rescan, and the company-wide picks, at 1280×800 and 390×844.
+- `test-meridian.mjs [baseUrl]`: Ask Meridian. The three same-team tabs, the Marketing trio, Sales, CS, ask, rescan, and a no-match, at 1280×800 and 390×844.
 - `test-watch.mjs [baseUrl]`: walkthrough click-through, controls, explore, and the adoption timeline, at 1280×800, 390×844, and 360×740. Exits non-zero on failure.
 - `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
 - `video.mjs [desktop|phone]` and `video-onboarding.mjs [desktop|phone]`: CDP screencast recordings.

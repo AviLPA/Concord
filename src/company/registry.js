@@ -11,6 +11,8 @@
 // depth: "recipe" records every step. "instructions" is a note plus a final, so both check depths exist.
 // section is who gets compared on a shared step. team is the workplace team on the card.
 // note is prose about why this agent drifts. The runner does not branch on it.
+// tab questions are the three shown side by side. featured is the trio in that view: the live
+// source, a copy, and a note. story is the one-paragraph read under the answers.
 
 export const QUESTIONS = [
   {
@@ -22,16 +24,31 @@ export const QUESTIONS = [
       'qualified pipeline', 'pipeline this quarter', 'q4 pipeline', 'sales pipeline',
       'pipeline for this quarter', 'how much pipeline', 'qualified pipe',
     ],
+    tab: true,
+    featured: ['sales.live.qualified', 'sales.shadow.qualified', 'sales.standup'],
+    story: "Same recipe, same stage bar. Priya's sheet is a copy from Oct 6, so it misses the deals that moved since. Dana's agent repeats the $2.4M from Monday's standup and never opens the sheet.",
+  },
+  {
+    id: 'q.marketing.sqls',
+    kind: 'section',
+    section: 'Marketing',
+    ask: 'How are inbound SQLs trending this quarter?',
+    signals: ['inbound sqls', 'sql trend', 'sqls trending', 'inbound sql', 'sql volume', 'inbound leads', 'how are sqls'],
+    tab: true,
+    story: "Same sheet, same window, same math. Theo's Oct 6 copy is missing the three newest weeks (Oct 12, 19, 26), so its latest week is still the Oct 5 peak: up 28%. On the live sheet SQLs peaked and fell for three straight weeks: down 22%. The recap agent repeats a slope someone wrote in early October.",
   },
   {
     id: 'q.company.clients',
-    kind: 'company',
-    section: 'Company',
+    kind: 'section',
+    section: 'CS',
     ask: 'Which clients are active?',
     signals: [
       'active clients', 'active customers', 'active accounts', 'who are our clients',
       'customer list', 'which customers are live', 'current clients',
     ],
+    tab: true,
+    featured: ['clients.live', 'clients.copy', 'clients.board'],
+    story: "Same 13 accounts, same rule. Jonah's September copy still has Quarry active and Umber paused, so “active” names a different ten. Harper's agent lists the six names on the Q3 board slide.",
   },
   {
     id: 'q.company.brand',
@@ -224,7 +241,7 @@ export const AGENTS = [
   {
     id: 'clients.live',
     questionId: 'q.company.clients',
-    section: 'Company', team: 'CS', role: 'CS ops', owner: 'Maya Ellison',
+    section: 'CS', team: 'CS', role: 'CS ops', owner: 'Maya Ellison',
     verb: 'List active clients',
     tool: 'n8n', depth: 'recipe',
     note: 'The live customer sheet CS ops maintains.',
@@ -237,7 +254,7 @@ export const AGENTS = [
   {
     id: 'clients.copy',
     questionId: 'q.company.clients',
-    section: 'Company', team: 'CS', role: 'CS', owner: 'Jonah Pike',
+    section: 'CS', team: 'CS', role: 'CSM', owner: 'Jonah Pike',
     verb: 'List active clients',
     tool: 'n8n', depth: 'recipe',
     note: "A copy of that sheet from September. Quarry is still active on it. Umber is still paused.",
@@ -250,7 +267,7 @@ export const AGENTS = [
   {
     id: 'clients.export',
     questionId: 'q.company.clients',
-    section: 'Company', team: 'RevOps', role: 'RevOps', owner: 'Elena Voss',
+    section: 'CS', team: 'RevOps', role: 'RevOps', owner: 'Elena Voss',
     verb: 'List active clients from the CRM export',
     tool: 'chatgpt', depth: 'recipe',
     note: 'September CRM export. Halcyon had not gone live yet, and Quarry had not been marked churned.',
@@ -263,13 +280,53 @@ export const AGENTS = [
   {
     id: 'clients.board',
     questionId: 'q.company.clients',
-    section: 'Company', team: 'Exec', role: 'Chief of staff', owner: 'Harper Lin',
+    section: 'CS', team: 'CS', role: 'CS lead', owner: 'Harper Lin',
     verb: 'Read the client slide',
     tool: 'claude', depth: 'instructions',
-    note: 'The client list on the Q3 board slide. It does not open a system.',
+    note: 'Reads the client list on the Q3 board slide. It does not open a system.',
     steps: [
       {id: 'note', role: 'instructions', op: 'note', label: 'Read the project instructions', text: 'Q3 board slide, clients: Reed, Bramble, Northpeak, Cinder, Vesper, Lumen. Do not open the customer sheet.'},
       {id: 'ans', role: 'answer', op: 'literal', label: 'Return the names on the slide', value: 'bramble,cinder,lumen,northpeak,reed,vesper', text: '6 active — Bramble Health, Cinder & Co, Lumen Freight, Northpeak Logistics, Reed Analytics, Vesper Grid', unit: 'clients'},
+    ],
+  },
+  {
+    id: 'mkt.live',
+    questionId: 'q.marketing.sqls',
+    section: 'Marketing', team: 'Marketing', role: 'Marketing ops', owner: 'Ines Duarte',
+    verb: 'Track the inbound SQL trend',
+    tool: 'n8n', depth: 'recipe',
+    note: 'Marketing ops weekly SQL sheet · live, through Oct 26',
+    steps: [
+      readRows('sheet.sqlweekly.live', 'Read the weekly SQL sheet'),
+      where('win', 'window', [{field: 'week', gte: '2026-09-07'}], 'Keep weeks this quarter'),
+      {id: 'trend', role: 'trend', op: 'trend', label: 'Compare the first and latest week'},
+      {id: 'ans', role: 'answer', op: 'answer_trend', label: 'Answer with the trend'},
+    ],
+  },
+  {
+    id: 'mkt.copy',
+    questionId: 'q.marketing.sqls',
+    section: 'Marketing', team: 'Marketing', role: 'Demand gen', owner: 'Theo Brandt',
+    verb: 'Track the inbound SQL trend',
+    tool: 'n8n', depth: 'recipe',
+    note: "Theo's Google Sheet copy · frozen Oct 6",
+    steps: [
+      readRows('sheet.sqlweekly.copy', "Read Theo's copy of the weekly SQL sheet"),
+      where('win', 'window', [{field: 'week', gte: '2026-09-07'}], 'Keep weeks this quarter'),
+      {id: 'trend', role: 'trend', op: 'trend', label: 'Compare the first and latest week'},
+      {id: 'ans', role: 'answer', op: 'answer_trend', label: 'Answer with the trend'},
+    ],
+  },
+  {
+    id: 'mkt.recap',
+    questionId: 'q.marketing.sqls',
+    section: 'Marketing', team: 'Marketing', role: 'VP Marketing', owner: 'Carmen Liu',
+    verb: 'Answer the SQL trend from the recap',
+    tool: 'claude', depth: 'instructions',
+    note: 'Oct 7 webinar recap · “up ~35%, still climbing”',
+    steps: [
+      {id: 'note', role: 'instructions', op: 'note', label: 'Read the project instructions', text: 'From the Oct 7 webinar recap: inbound SQLs are up about 35% since September and still climbing. Use that; no need to open the SQL sheet.'},
+      {id: 'ans', role: 'answer', op: 'literal', label: 'Return the trend in the note', value: 'up35', text: 'Up ~35% since September — still climbing', unit: 'text'},
     ],
   },
   {

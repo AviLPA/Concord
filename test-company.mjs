@@ -136,6 +136,19 @@ try {
   check('terms values', termText('terms.current') === 'Net 30' && termText('terms.archive') === 'Net 45' && termText('terms.note') === 'Net 60')
   check('terms thin', terms.thinCount === 1 && terms.cards.find(c => c.agent.id === 'terms.note').agent.depth === 'instructions')
 
+  const mkt = eng.ask('how are inbound sqls trending this quarter', scan).cluster
+  check('match marketing', mkt?.question.id === 'q.marketing.sqls')
+  const mt = id => mkt.cards.find(c => c.agent.id === id).run.finalText
+  check('marketing live', mt('mkt.live') === 'Down 22% since Sep 7 — 14 SQLs in the week of Oct 26 (peaked Sep 28 at 24)', mt('mkt.live'))
+  check('marketing copy', mt('mkt.copy') === 'Up 28% since Sep 7 — 23 SQLs in the week of Oct 5 (peaked Sep 28 at 24)', mt('mkt.copy'))
+  check('marketing note', mt('mkt.recap').startsWith('Up ~35%') && mkt.thinCount === 1)
+  check('marketing source splits', mkt.paths.find(p => p.role === 'source').split)
+  check('tab trios', QUESTIONS.filter(q => q.tab).length === 3 && QUESTIONS.filter(q => q.tab).every(q => {
+    const c = scan.clusters.find(x => x.question.id === q.id)
+    const ids = q.featured || c.cards.map(x => x.agent.id)
+    return ids.length === 3 && ids.every(id => c.cards.some(x => x.agent.id === id)) && new Set(ids.map(id => c.cards.find(x => x.agent.id === id).run.finalKey)).size === 3
+  }))
+
   check('questions covered', QUESTIONS.every(q => scan.clusters.some(c => c.question.id === q.id && c.cards.length >= 3)))
 } finally {
   await server.close()

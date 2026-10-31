@@ -3,7 +3,7 @@ import {COMPANY, readSource} from './warehouse.js'
 
 export const OPS = new Set([
   'note', 'read_rows', 'read_doc', 'where', 'sum', 'multiply_count',
-  'answer_money', 'answer_names', 'answer_doc', 'literal',
+  'answer_money', 'answer_names', 'answer_doc', 'literal', 'trend', 'answer_trend',
 ])
 
 export const ROLE_LABEL = {
@@ -12,6 +12,7 @@ export const ROLE_LABEL = {
   window: 'In quarter',
   qualify: 'Qualify',
   scope: 'Local filter',
+  trend: 'Trend',
   aggregate: 'Total',
   answer: 'Answer',
 }
@@ -28,6 +29,7 @@ const FIELD = {
   buyer: 'economic buyer',
   accepted: 'accepted',
   quarter: 'quarter',
+  week: 'week starting',
 }
 
 export function money(n) {
@@ -87,6 +89,7 @@ function idsOf(rows) {
 
 function rowKind(rows) {
   if (!rows.length) return 'empty'
+  if ('week' in rows[0]) return 'weeks'
   if ('stage' in rows[0]) return 'opps'
   if ('accepted' in rows[0]) return 'sqls'
   if ('status' in rows[0]) return 'accounts'
@@ -97,6 +100,7 @@ function whereText(rows, clause) {
   const kind = rowKind(rows)
   if (kind === 'opps') return `${clause} · ${rows.length} deals · ${money(sumAmount(rows))}`
   if (kind === 'sqls') return `${clause} · ${rows.length} SQLs`
+  if (kind === 'weeks') return `${clause} · ${rows.length} weeks · ${rows.map(w => `${w.label}: ${w.sqls}`).join(', ')}`
   if (kind === 'accounts') {
     const names = rows.map(r => r.name).sort((a, b) => a < b ? -1 : a > b ? 1 : 0)
     return `${clause} · ${rows.length} accounts · ${names.join(', ') || 'none'}`
@@ -119,9 +123,10 @@ function apply(step, ctx, flags) {
     ctx.doc = null
     ctx.scalar = null
     const kind = rowKind(got.rows)
-    const total = kind === 'opps' ? ` · sheet total ${money(sumAmount(got.rows))}` : ''
+    const total = kind === 'opps' ? ` · sheet total ${money(sumAmount(got.rows))}`
+      : kind === 'weeks' ? ` · latest week ${got.rows[got.rows.length - 1].label}` : ''
     return {
-      text: `${got.source.label} · ${got.rows.length} rows · as of ${got.source.asOf}${total}`,
+      text: `${got.source.label} · ${got.rows.length} ${kind === 'weeks' ? 'weekly rows' : 'rows'} · as of ${got.source.asOf}${total}`,
       valueKey: 'rows:' + idsOf(got.rows),
       value: got.rows.length,
       ...bindingOf(got.source),
@@ -168,6 +173,25 @@ function apply(step, ctx, flags) {
       unit: 'USD',
       ...bindingOf(got.source),
     }
+  }
+  if (step.op === 'trend') {
+    const rows = ctx.rows || []
+    const first = rows[0]
+    const last = rows[rows.length - 1]
+    const peak = rows.reduce((top, w) => w.sqls > top.sqls ? w : top, first)
+    const pct = Math.round((last.sqls - first.sqls) / first.sqls * 100)
+    ctx.trend = {first, last, peak, pct}
+    return {
+      text: `First week ${first.label}: ${first.sqls} SQLs → latest week ${last.label}: ${last.sqls} SQLs · ${pct > 0 ? '+' : ''}${pct}%`,
+      valueKey: `trend:${pct}|${idsOf(rows)}`,
+      value: pct,
+      unit: 'pct',
+    }
+  }
+  if (step.op === 'answer_trend') {
+    const {first, last, peak, pct} = ctx.trend
+    const text = `${pct >= 0 ? 'Up' : 'Down'} ${Math.abs(pct)}% since ${first.label} — ${last.sqls} SQLs in the week of ${last.label} (peaked ${peak.label} at ${peak.sqls})`
+    return {text, valueKey: 'trendans:' + text, value: pct, unit: 'pct'}
   }
   if (step.op === 'answer_money') {
     const total = ctx.scalar != null ? ctx.scalar : sumAmount(ctx.rows || [])

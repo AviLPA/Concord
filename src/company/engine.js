@@ -4,7 +4,7 @@ import {OPS, runAgent} from './ops.js'
 import {COMPANY, DEFAULT_FLAGS, SOURCES} from './warehouse.js'
 
 const STOP = new Set('how many much what which who is are was were the a an our we do does of for to in on this that it be can with my me show list give all any per whats whats your you just from about right now please tell'.split(' '))
-const PATH_ROLES = ['source', 'window', 'qualify', 'scope', 'aggregate']
+const PATH_ROLES = ['source', 'window', 'qualify', 'scope', 'trend', 'aggregate']
 
 function norm(s) {
   return String(s || '').toLowerCase().replace(/['’]/g, '')
