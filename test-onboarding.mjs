@@ -213,7 +213,7 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert(explained.includes('How many of your agents agree, out of 100. Bigger jobs count more. 100 means every job is in sync.'), 'company score line')
  assert(explained.includes('How many agents doing this job match the official answer, out of 100. 100 means they all agree.'), 'job score line')
  const nav=await p.$$eval('.side .nav',e=>e.map(x=>x.textContent.trim()))
- assert(/^Walkthrough/.test(nav[0]), 'sidebar '+nav[0])
+ assert(/^Ask Meridian/.test(nav[0])&&/^Walkthrough/.test(nav[1]), 'sidebar '+nav.slice(0,2).join(' | '))
  assert(!nav.some(x=>/Live build/.test(x)), 'old Live build nav')
  if(vp.width>=820){await p.fill('#topq','refund');await p.press('#topq','Enter');await p.waitForTimeout(400)
   assert(locationHash(await p.evaluate(()=>location.hash)).includes('refund'), 'top search hash')
