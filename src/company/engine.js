@@ -234,6 +234,25 @@ export function rescan(next) {
   return last
 }
 
+// The buyer card shows three agents: the official file, a stale copy, and a note
+// that never opens a file. Extra agents stay in the full cluster.
+export function buyerLanes(cluster) {
+  const cards = cluster?.cards || []
+  const sourceStep = card => card.run.steps.find(step => step.binding)
+  const official = cards.find(card => sourceStep(card)?.official)
+  const copy = cards.find(card => sourceStep(card)?.duplicateOf)
+  const thin = cards.find(card => card.agent.depth === 'instructions')
+  const picked = []
+  for (const card of [official, copy, thin]) {
+    if (card && !picked.includes(card)) picked.push(card)
+  }
+  for (const card of cards) {
+    if (picked.length >= 3) break
+    if (!picked.includes(card)) picked.push(card)
+  }
+  return picked.slice(0, 3)
+}
+
 export function ask(text, scan = lastScan()) {
   const hit = matchQuestion(text)
   if (!hit) return {query: String(text || '').trim(), match: null, cluster: null}

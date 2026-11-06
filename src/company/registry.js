@@ -47,6 +47,30 @@ export const QUESTIONS = [
     ask: 'What are our standard payment terms?',
     signals: ['payment terms', 'standard payment', 'net 30', 'contract terms', 'msa payment', 'payment term'],
   },
+  {
+    id: 'q.sales.acv',
+    kind: 'section',
+    section: 'Sales',
+    ask: "What's our planning ACV?",
+    signals: ['planning acv', 'average contract value', 'average deal size', 'planning average'],
+  },
+  {
+    id: 'q.company.liability',
+    kind: 'company',
+    section: 'Company',
+    ask: "What's our standard liability cap?",
+    signals: ['liability cap', 'limitation of liability', 'standard liability', 'liability limit'],
+  },
+]
+
+// Buyer board, read left to right, then the second row. Six clusters, two rows of three.
+export const BOARD = [
+  'q.sales.pipeline',
+  'q.sales.acv',
+  'q.company.clients',
+  'q.company.brand',
+  'q.company.terms',
+  'q.company.liability',
 ]
 
 const IN_QUARTER = [
@@ -342,6 +366,78 @@ export const AGENTS = [
     steps: [
       {id: 'note', role: 'instructions', op: 'note', label: 'Read the project instructions', text: 'Enterprise orders go out at Net 60. That is what I put on the last three orders. Do not open the MSA.'},
       {id: 'ans', role: 'answer', op: 'literal', label: 'Return the term in the note', value: 'Net 60', text: 'Net 60', unit: 'text'},
+    ],
+  },
+  {
+    id: 'sales.acv.brain',
+    questionId: 'q.sales.acv',
+    section: 'Sales', team: 'Sales', role: 'Sales ops', owner: 'Nia Patel',
+    verb: 'Read the planning ACV',
+    tool: 'claude', depth: 'recipe',
+    note: 'The planning ACV in the company brain. Coverage math uses this number.',
+    steps: [
+      {id: 'src', role: 'source', op: 'read_doc', source: 'brain.acv', label: 'Read the planning ACV in the company brain'},
+      {id: 'ans', role: 'answer', op: 'answer_doc', field: 'acv', label: 'Return that ACV'},
+    ],
+  },
+  {
+    id: 'sales.acv.old',
+    questionId: 'q.sales.acv',
+    section: 'Sales', team: 'Sales', role: 'Enablement', owner: 'Caleb Ruiz',
+    verb: 'Read the planning ACV',
+    tool: 'n8n', depth: 'recipe',
+    note: 'The enablement copy of the SQL coverage page. It still says $42k.',
+    steps: [
+      {id: 'src', role: 'source', op: 'read_doc', source: 'notion.acv.old', label: 'Read the ACV on the enablement copy'},
+      {id: 'ans', role: 'answer', op: 'answer_doc', field: 'acv', label: 'Return that ACV'},
+    ],
+  },
+  {
+    id: 'sales.acv.note',
+    questionId: 'q.sales.acv',
+    section: 'Sales', team: 'Sales', role: 'AE', owner: 'Willa Grant',
+    verb: 'Answer ACV from the deck note',
+    tool: 'chatgpt', depth: 'instructions',
+    note: 'The pitch deck still says $45k. The agent was told not to open the brain.',
+    steps: [
+      {id: 'note', role: 'instructions', op: 'note', label: 'Read the project instructions', text: 'The pitch deck says planning ACV is $45,000. Do not open the company brain.'},
+      {id: 'ans', role: 'answer', op: 'literal', label: 'Return the number in the note', value: 45000, text: '$45,000', unit: 'USD'},
+    ],
+  },
+  {
+    id: 'terms.cap.current',
+    questionId: 'q.company.liability',
+    section: 'Company', team: 'Legal', role: 'Counsel', owner: 'Naomi Idris',
+    verb: 'Read the liability cap',
+    tool: 'claude', depth: 'recipe',
+    note: 'The current MSA, same file as the payment term.',
+    steps: [
+      {id: 'src', role: 'source', op: 'read_doc', source: 'notion.msa', label: 'Read the liability cap in the current MSA'},
+      {id: 'ans', role: 'answer', op: 'answer_doc', field: 'liability', label: 'Return the cap'},
+    ],
+  },
+  {
+    id: 'terms.cap.archive',
+    questionId: 'q.company.liability',
+    section: 'Company', team: 'Sales', role: 'Deal desk', owner: 'Leo Marsh',
+    verb: 'Read the liability cap',
+    tool: 'n8n', depth: 'recipe',
+    note: 'The 2024 MSA in the deal-desk folder. Same copy as the Net 45 term.',
+    steps: [
+      {id: 'src', role: 'source', op: 'read_doc', source: 'notion.msa.2024', label: 'Read the liability cap in the deal-desk copy'},
+      {id: 'ans', role: 'answer', op: 'answer_doc', field: 'liability', label: 'Return the cap'},
+    ],
+  },
+  {
+    id: 'terms.cap.note',
+    questionId: 'q.company.liability',
+    section: 'Company', team: 'Sales', role: 'AE', owner: 'Sasha Nguyen',
+    verb: 'Answer the cap from the note',
+    tool: 'chatgpt', depth: 'instructions',
+    note: 'A personal note that enterprise paper goes out uncapped.',
+    steps: [
+      {id: 'note', role: 'instructions', op: 'note', label: 'Read the project instructions', text: 'Enterprise paper goes out uncapped. That is what I told the last three buyers. Do not open the MSA.'},
+      {id: 'ans', role: 'answer', op: 'literal', label: 'Return the cap in the note', value: 'Uncapped', text: 'Uncapped', unit: 'text'},
     ],
   },
 ]
