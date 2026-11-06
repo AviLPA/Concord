@@ -30,7 +30,7 @@ if (stored && (stored.qualifyStageMin !== DEFAULT_FLAGS.qualifyStageMin || store
 
 const ui = {
   pending: stored || {...DEFAULT_FLAGS},
-  selected: null,
+  selected: QUESTIONS.find(q => q.tab)?.id || null,
   open: {},
   miss: null,
   scroll: false,

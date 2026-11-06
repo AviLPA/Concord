@@ -15,7 +15,8 @@ async function run(name,vp){
  assert(await p.title()==='Concord · Ask Meridian', name+' title')
  const tabs=await p.$$eval('.co-tab b',els=>els.map(e=>e.textContent))
  assert(tabs.join('|')==="What's our qualified pipeline for this quarter?|How are inbound SQLs trending this quarter?|Which clients are active?", name+' tabs '+tabs.join('|'))
- assert(await p.locator('#co-view').count()===0, name+' nothing open before a pick')
+ assert(await p.locator('#co-view').count()===1, name+' sales trio open on arrival')
+ assert((await p.getAttribute('[data-pick="q.sales.pipeline"]','aria-selected'))==='true', name+' sales tab on')
 
  await p.click('[data-pick="q.marketing.sqls"]');await p.waitForSelector('#co-view')
  const owners=await p.$$eval('#co-view .co-colh b',els=>els.map(e=>e.textContent))
@@ -58,6 +59,13 @@ async function run(name,vp){
 
  await p.fill('#coq','hello there');await p.click('#co-form button[type=submit]')
  assert(await p.locator('.co-missbox').count()===1, name+' no-match reply')
+
+ await p.goto(BASE+'site/');await p.waitForSelector('.hero')
+ assert(await p.locator('.navcta a.btn.mint').getAttribute('href')==='../#/company', name+' showcase open-demo href')
+ assert((await p.$$eval('.ctas a.btn.mint',els=>els.map(e=>e.getAttribute('href')))).every(h=>h==='../#/company'), name+' showcase sample-data hrefs')
+ await p.click('.navcta a.btn.mint');await p.waitForSelector('#company')
+ assert(await p.title()==='Concord · Ask Meridian', name+' showcase button opens Ask Meridian')
+ assert(await p.locator('#co-view').count()===1, name+' showcase lands on the trio')
 
  const ov=await p.evaluate(()=>document.documentElement.scrollWidth-innerWidth)
  assert(ov<=1, name+' horizontal overflow '+ov)
