@@ -186,7 +186,8 @@ function apply(step, ctx, flags) {
   }
   if (step.op === 'answer_doc') {
     const v = ctx.doc ? ctx.doc[step.field] : ''
-    return {text: String(v ?? ''), valueKey: 'docans:' + v, value: v, unit: 'text'}
+    const text = typeof v === 'number' ? money(v) : String(v ?? '')
+    return {text, valueKey: 'docans:' + v, value: v, unit: typeof v === 'number' ? 'USD' : 'text'}
   }
   if (step.op === 'literal') {
     ctx.scalar = step.value

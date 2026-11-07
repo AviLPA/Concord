@@ -17,7 +17,7 @@ function check(name, cond, detail) {
 try {
   const eng = await server.ssrLoadModule('/src/company/engine.js')
   const reg = await server.ssrLoadModule('/src/company/registry.js')
-  const {AGENTS, QUESTIONS} = reg
+  const {AGENTS, QUESTIONS, BOARD} = reg
   const errors = eng.validateRegistry()
   check('registry', errors.length === 0, errors.join('; '))
 
@@ -137,6 +137,31 @@ try {
   check('terms thin', terms.thinCount === 1 && terms.cards.find(c => c.agent.id === 'terms.note').agent.depth === 'instructions')
 
   check('questions covered', QUESTIONS.every(q => scan.clusters.some(c => c.question.id === q.id && c.cards.length >= 3)))
+
+  check('board six', BOARD.length === 6 && new Set(BOARD).size === 6)
+  check('board known', BOARD.every(id => QUESTIONS.some(q => q.id === id)))
+  const laneIds = id => eng.buyerLanes(scan.clusters.find(c => c.question.id === id)).map(c => c.agent.id).join(',')
+  check('sales lanes', laneIds('q.sales.pipeline') === 'sales.live.qualified,sales.shadow.qualified,sales.standup')
+  check('client lanes', laneIds('q.company.clients') === 'clients.live,clients.copy,clients.board')
+  check('brand lanes', laneIds('q.company.brand') === 'brand.brain,brand.old,brand.notion')
+  check('term lanes', laneIds('q.company.terms') === 'terms.current,terms.archive,terms.note')
+  check('every card has three', BOARD.every(id => eng.buyerLanes(scan.clusters.find(c => c.question.id === id)).length === 3))
+
+  const acv = eng.ask("what's our planning acv", scan).cluster
+  check('match acv', acv?.question.id === 'q.sales.acv')
+  check('acv section', acv.cards.every(c => c.agent.section === 'Sales' && c.agent.team === 'Sales'))
+  const acvText = id => acv.cards.find(c => c.agent.id === id).run
+  check('acv brain', acvText('sales.acv.brain').finalValue === 48000 && acvText('sales.acv.brain').finalText === '$48,000')
+  check('acv copy', acvText('sales.acv.old').finalValue === 42000 && acvText('sales.acv.old').finalText === '$42,000')
+  check('acv note', acvText('sales.acv.note').finalText === '$45,000' && acvText('sales.acv.note').depth === 'instructions')
+  check('acv lanes', laneIds('q.sales.acv') === 'sales.acv.brain,sales.acv.old,sales.acv.note')
+
+  const cap = eng.ask('standard liability cap', scan).cluster
+  check('match liability', cap?.question.id === 'q.company.liability')
+  const capText = id => cap.cards.find(c => c.agent.id === id).run.finalText
+  check('liability values', capText('terms.cap.current') === '12 months of fees' && capText('terms.cap.archive') === 'fees paid in the prior 12 months' && capText('terms.cap.note') === 'Uncapped')
+  check('liability thin', cap.thinCount === 1)
+  check('pipeline still distinct', eng.ask('qualified pipeline this quarter', scan).cluster?.question.id === 'q.sales.pipeline')
 } finally {
   await server.close()
 }

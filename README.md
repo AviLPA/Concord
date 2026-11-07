@@ -41,11 +41,16 @@ Private preview at `#/company` (sidebar: **Ask Meridian**). This does not replac
 
 Meridian is a fictional 380-person B2B company. One shared dataset (pipeline, SQLs, customers, and a few docs) feeds a registry of recipe agents. Recipes are deterministic formulas — a closed set of steps such as read a source, filter, sum, or multiply. Concord does not call a model. Asking a question matches a registered question, reads the last scan, and returns the **cluster**: every agent on that question, the distinct finals, and the mid-path steps that diverged.
 
-The hero cluster is inside Sales: “What’s our qualified pipeline for this quarter?” Ten Sales agents answer it. Most are multi-step recipes. Dana Brooks is instructions plus a final, so both check depths show. They disagree because of a copied Google Sheet, a Friday CRM export, a pod filter, a $25k desk floor, a new-logo cut, SQL coverage times a stale ACV page versus the company brain, and a stricter hygiene rule.
+The buyer view is a **2×3 board**. Six questions, two rows of three. Each card shows three agents: the official source, a stale copy, and the next agent still answering it (often a note that never opens the file). Click a card for the full path. The other agents on that question stay in the detail.
 
-Three smaller company-wide questions use the same machinery: active clients (live sheet vs a September copy vs a CRM export vs a board slide), the brand line (company brain and official Notion vs a duplicated old page), and payment terms (current MSA vs a 2024 copy vs a personal note).
+1. Sales · “What’s our qualified pipeline for this quarter?” Jordan’s live sheet is $2,213,000, Priya’s Oct 6 copy is $2,063,000, Dana’s standup note is $2,400,000. Seven more Sales agents are in the detail. They disagree because of a Friday CRM export, a pod filter, a $25k desk floor, a new-logo cut, SQL coverage times a stale ACV page versus the company brain, and a stricter hygiene rule. Dana is instructions plus a final, so both check depths show.
+2. Sales · “What’s our planning ACV?” Nia reads $48,000 in the company brain. Caleb still has the enablement copy at $42,000. Willa’s deck note says $45,000.
+3. “Which clients are active?” Maya’s live sheet and Jonah’s September copy both say 10, and the names differ. Harper reads a board slide.
+4. Brand line: company brain and official Notion agree; Jules still opens the duplicated “Brand (OLD)” page.
+5. Payment terms: current MSA is Net 30, the 2024 deal-desk copy is Net 45, Evan’s note says Net 60.
+6. Liability cap: the current MSA says 12 months of fees, the 2024 copy says fees paid in the prior 12 months, Sasha’s note says uncapped.
 
-The scan strip is computed from the registry and the last scan. Change the qualify bar or mark Priya’s sheet copy as caught up, then **Rescan**. Jordan’s and Priya’s numbers move. The open cluster, if you have one, is read again from that scan.
+The cards and the detail are computed from the registry and the last scan. Change the qualify bar or mark Priya’s sheet copy as caught up, then **Rescan**. Jordan’s and Priya’s numbers move on the Sales pipeline card. The open cluster is read again from that scan.
 
 Adding the next agent is a row in `src/company/registry.js` (question id, sources, steps). Adding a file or a copy is a source in `src/company/warehouse.js`. The chat, the diff, and the scan strip do not need a new screen. That is the path toward ~150 agents: more rows, not more runners, and not a fleet of model calls.
 
@@ -54,7 +59,7 @@ Adding the next agent is a row in `src/company/registry.js` (question id, source
 npm install
 npm run dev
 ```
-Open `http://localhost:5173/#/company`. Ask “What’s our qualified pipeline for this quarter?” (or use a chip). Open a person’s full path. Then set the qualify bar to stage ≥ 4 and press Rescan.
+Open `http://localhost:5173/#/company`. The six cards are the board. Click the qualified-pipeline card and read the path. Then set the qualify bar to stage ≥ 4 and press Rescan.
 
 ```
 npm run test:company
