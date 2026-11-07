@@ -2,7 +2,7 @@
 // Usage: node video-onboarding.mjs [desktop|phone]  then encode with the ffmpeg line printed at the end. Needs `npm run preview` on :4173.
 import {chromium} from 'playwright'
 import fs from 'fs'
-const MODE=process.argv[2]||'desktop',PH=MODE==='phone',U='http://localhost:4173/'
+const MODE=process.argv[2]||'desktop',PH=MODE==='phone',U='http://localhost:4173/app/'
 const Z=PH?2:1.5,VP=PH?{width:780,height:1688}:{width:1920,height:1200}
 const DIR=`/tmp/obframes-${MODE}`;fs.rmSync(DIR,{recursive:true,force:true});fs.mkdirSync(DIR)
 const b=await chromium.launch();const ctx=await b.newContext({viewport:VP,deviceScaleFactor:1})

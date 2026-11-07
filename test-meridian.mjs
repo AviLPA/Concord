@@ -1,7 +1,9 @@
 // Ask Meridian: the three same-team questions side by side, where they split, ask, and rescan.
 // Usage: node test-meridian.mjs [baseUrl]
 import {chromium} from 'playwright'
-const BASE=process.argv[2]||'http://localhost:4173/'
+const ROOT=(process.argv[2]||'http://localhost:4173/').replace(/\/?$/,'/')
+const BASE=new URL('app/', ROOT).href
+const SITE=ROOT
 const b=await chromium.launch();const errs=[]
 const fail=m=>{errs.push(m);console.error('FAIL',m)}
 const assert=(ok,m)=>{if(!ok)fail(m)}
@@ -60,9 +62,11 @@ async function run(name,vp){
  await p.fill('#coq','hello there');await p.click('#co-form button[type=submit]')
  assert(await p.locator('.co-missbox').count()===1, name+' no-match reply')
 
- await p.goto(BASE+'site/');await p.waitForSelector('.hero')
- assert(await p.locator('.navcta a.btn.mint').getAttribute('href')==='../#/company', name+' showcase open-demo href')
- assert((await p.$$eval('.ctas a.btn.mint',els=>els.map(e=>e.getAttribute('href')))).every(h=>h==='../#/company'), name+' showcase sample-data hrefs')
+ await p.goto(SITE);await p.waitForSelector('.hero')
+ assert(/Concord: one official answer/.test(await p.title()), name+' homepage is the showcase '+await p.title())
+ assert(await p.locator('#app').count()===0, name+' homepage is not the app')
+ assert(await p.locator('.navcta a.btn.mint').getAttribute('href')==='/app/#/company', name+' showcase open-demo href')
+ assert((await p.$$eval('.ctas a.btn.mint',els=>els.map(e=>e.getAttribute('href')))).every(h=>h==='/app/#/company'), name+' showcase sample-data hrefs')
  await p.click('.navcta a.btn.mint');await p.waitForSelector('#company')
  assert(await p.title()==='Concord · Ask Meridian', name+' showcase button opens Ask Meridian')
  assert(await p.locator('#co-view').count()===1, name+' showcase lands on the trio')

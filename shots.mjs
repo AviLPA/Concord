@@ -1,6 +1,6 @@
 // High-res screenshots of key screens. Requires `npm run preview` on :4173.
 import {chromium} from 'playwright'
-const D='/workspace/concord-shots/',U='http://localhost:4173/#/'
+const D='/workspace/concord-shots/',U='http://localhost:4173/app/#/'
 const b=await chromium.launch()
 const at=async(p,step)=>{await p.goto(U+'watch');await p.waitForTimeout(300);if(!await p.$('.wcard [data-w=start]')){await p.reload();await p.waitForTimeout(600)}await p.click(`[data-wgo="${step}"]`);await p.waitForTimeout(400)}
 const d=await b.newPage({viewport:{width:1440,height:900},deviceScaleFactor:2})

@@ -1,7 +1,7 @@
 // Walkthrough: click-through story, controls, and explore applying the shared store.
 // Usage: node test-watch.mjs [baseUrl]
 import {chromium} from 'playwright'
-const BASE=process.argv[2]||'http://localhost:4173/'
+const BASE=process.argv[2]||'http://localhost:4173/app/'
 const b=await chromium.launch();const errs=[]
 const fail=m=>{errs.push(m);console.error('FAIL',m)}
 const assert=(ok,m)=>{if(!ok)fail(m)}

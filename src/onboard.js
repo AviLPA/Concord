@@ -145,7 +145,7 @@ function guideText(){const s=OB.step
 }
 export function guide(){const g=document.getElementById('obguide');if(g)g.innerHTML=`<span class="gdot"></span><span><b class="gk">Next:</b> ${guideText()}</span>`}
 export function onboardPage(){const s=OB.step
-  return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="#/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
+  return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
 <nav class="obsteps">${STEPS.map(([k,l],i)=>{const idx=STEPS.findIndex(x=>x[0]===s),done=i<idx||(k==='resolve'&&OB.resolved);return `<button class="${k===s?'on':''} ${done?'done':''}" data-obgo="${k}" ${reach(k)?'':'disabled'}><i>${done?'✓':i+1}</i><span>${l}</span></button>`}).join('')}</nav>
 <div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Walkthrough</span></a><a class="obskip" href="#/overview">Skip to app</a></div></header>
 <div class="obguide" id="obguide"></div><main class="obm">${({workspace:wsStep,connect:connStep,scan:scanStep,search:searchStep,resolve:()=>resolveView(OB.cid,true)})[s]()}</main>${modal?modalHTML():''}</div>`}

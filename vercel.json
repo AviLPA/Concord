@@ -5,7 +5,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "redirects": [
-    { "source": "/site", "destination": "/site/", "permanent": true },
-    { "source": "/meridian", "destination": "/#/company", "permanent": false }
+    { "source": "/meridian", "destination": "/app/#/company", "permanent": false }
   ]
 }

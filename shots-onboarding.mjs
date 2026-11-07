@@ -1,6 +1,6 @@
 // High-res screenshots of landing + hands-on onboarding. Requires `npm run preview` on :4173.
 import {chromium} from 'playwright'
-const D='/workspace/concord-shots/',U='http://localhost:4173/'
+const D='/workspace/concord-shots/',U='http://localhost:4173/app/'
 const b=await chromium.launch()
 const d=await b.newPage({viewport:{width:1440,height:900},deviceScaleFactor:2})
 await d.goto(U);await d.evaluate(()=>localStorage.clear());await d.reload();await d.waitForTimeout(600);await d.screenshot({path:D+'10-landing-desktop.png'})

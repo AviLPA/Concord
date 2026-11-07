@@ -23,7 +23,7 @@ function startVite(port, endpoint){
     const t = setTimeout(() => reject(new Error('vite ' + port + ' timed out\n' + buf)), 40000)
     const on = chunk => {
       buf += chunk.toString()
-      if(/Local:\s+http/i.test(buf)){clearTimeout(t); resolve('http://127.0.0.1:' + port + '/')}
+      if(/Local:\s+http/i.test(buf)){clearTimeout(t); resolve('http://127.0.0.1:' + port + '/app/')}
     }
     child.stdout.on('data', on)
     child.stderr.on('data', on)

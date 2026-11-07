@@ -1,7 +1,7 @@
 // E2E: landing -> Get started -> connect both -> scan -> search -> resolve -> dashboard; landing -> Walkthrough.
 // Usage: node test-onboarding.mjs [baseUrl] [shotDir]   (needs `npm run preview` for the default base)
 import {chromium} from 'playwright'
-const BASE=process.argv[2]||'http://localhost:4173/',DIR=process.argv[3]||'/tmp/ob'
+const BASE=process.argv[2]||'http://localhost:4173/app/',DIR=process.argv[3]||'/tmp/ob'
 import fs from 'fs';fs.mkdirSync(DIR,{recursive:true})
 const b=await chromium.launch();const errs=[];const log=(...a)=>console.log(...a)
 const fail=m=>{errs.push(m);console.error('FAIL',m)}
@@ -141,8 +141,9 @@ async function run(n,vp){const ctx=await b.newContext({viewport:vp,deviceScaleFa
  assert((await p.locator('.top .wordmark').innerText())==='concord', 'app header wordmark')
  assert(await p.locator('.side .wordmark').count()===0, 'sidebar repeats the wordmark')
  assert(/back to site/i.test(await p.locator('.top .backsite').innerText()), 'back to site')
- await p.click('.backsite');await p.waitForSelector('.lhero')
- await p.locator('a[href="#/start"]').last().click();await p.waitForTimeout(300);await shot('02-workspace')
+ await p.click('.backsite');await p.waitForSelector('.hero')
+ assert(/Concord: one official answer/.test(await p.title()), 'back to site is the showcase')
+ await p.goto(BASE+'#/start');await p.waitForTimeout(300);await shot('02-workspace')
  const size=await p.$eval('#f-size',e=>e.value)
  assert(/301/.test(size)&&/1,000/.test(size), 'size default '+size)
  assert((await p.$eval('#f-role',e=>e.value))==='Head of RevOps', 'role default')
