@@ -189,10 +189,16 @@ function docTitle(raw){
 function renderPage(){
   if(location.hash==='#/live') history.replaceState(null,'','#/watch')
   const raw=location.hash.replace(/^#\/?/,''), h=raw.split('/')
-  const marketing=!raw||raw==='home'||raw==='how'||raw==='pricing'||raw==='about'||raw==='watch'
+  if(!raw||raw==='home'){
+    history.replaceState(null,'','#/company')
+    S.route='company'
+    document.body.classList.remove('lpbody')
+    document.title=docTitle('company')
+    $('#app').innerHTML=shell(companyPage());mountCompany(render);return
+  }
+  const marketing=raw==='how'||raw==='pricing'||raw==='about'||raw==='watch'
   document.body.classList.toggle('lpbody',marketing)
   document.title=docTitle(raw)
-  if(!raw||raw==='home'){S.route='home';$('#app').innerHTML=landingPage();mountLanding();return}
   if(raw==='how'){S.route='how';$('#app').innerHTML=howPage();return}
   if(raw==='pricing'){S.route='pricing';$('#app').innerHTML=pricingPage();return}
   if(raw==='about'){S.route='about';$('#app').innerHTML=aboutPage();return}
