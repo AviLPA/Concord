@@ -7,7 +7,11 @@ export default {
   build: {
     assetsInlineLimit: (file) => !file.includes('/site/'),
     rollupOptions: {
-      input: { main: root('./index.html'), site: root('./site/index.html') },
+      input: {
+        main: root('./index.html'),
+        app: root('./app/index.html'),
+        site: root('./site/index.html'),
+      },
     },
   },
 }

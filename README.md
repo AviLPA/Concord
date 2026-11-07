@@ -2,14 +2,18 @@
 
 Interactive proof-of-concept for an agent consistency layer. Employees build agents in Claude and n8n. Agents doing the same job end up with different definitions. Concord connects read-only, compares those definitions and the answers already on record, and lets the owner publish one official definition. Builders adopt it themselves. Concord re-reads the project or the workflow to verify.
 
-Live demo: https://concord-demo.space.fast/
+Live demo: https://concord-demo.space.fast/site/
 
 All data is fictional (Northwind, 480 people). Everything runs client-side; there is no backend. Progress is kept in `localStorage` (key `concord-demo-v2`) and can be cleared with **Reset demo** in the app sidebar. The hands-on flow and the walkthrough share that store. If Customer health is already decided, the story says so and does not overwrite it.
 
 ## Routes
 | Route | What |
 |---|---|
-| `#/` (or no hash) | Marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About, Open the demo, and **Try it with sample data**. The hero is the drift-then-snap chart (35, 42, 17, then 28) for “How many accounts are at risk this quarter?” Below it: the problem, from conflict to one official answer, the product illustration, and who it is built for. |
+| `/` | **Public homepage.** The light mint showcase (same page as `/site/`). |
+| `/site/` | Same showcase, kept so the existing live URL still works. |
+| `/app/` | The interactive Concord app (hash routes below). |
+| `/app/#/company` or `/meridian` | **Ask Meridian**, the product demo. `/meridian` redirects here. |
+| `/app/#/` | In-app marketing home. Sticky nav: Home, How it works, Walkthrough, Pricing, About. The hero is the drift-then-snap chart (35, 42, 17, then 28) for “How many accounts are at risk this quarter?” |
 | `#/how` | How it works: Read, Detect, Decide, and Verify adoption. The $10k intentional-difference example lives here. |
 | `#/pricing` | Three tiers. The Consistency Audit is free. Team and Enterprise say Contact us. The semantic layer is marked coming next. Prices are placeholders. No checkout. |
 | `#/about` | Agents answering the same question should give the same answer. Why now, and three principles: read-only, owners decide, builders stay in charge. Northwind is fictional. |
@@ -18,10 +22,9 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
 | `#/watch` | **Walkthrough**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Dana gets 35. The nightly scan alerts Sara. Four answers are 35, 42, 17, and 28. Sara signs off 28. Daily scans end with all 4 agents agreeing on 28. |
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
-| `#/company` | **Ask Meridian**, the product demo (first item in the app sidebar). See below. `/meridian` on the deployed site redirects here. |
 | `#/live` | Old route, redirects to `#/watch`. |
 
-## Ask Meridian (`#/company`)
+## Ask Meridian (`/app/#/company`)
 Meridian is a fictional 380-person B2B company. One shared dataset (pipeline, weekly SQLs, customers, and a few docs) feeds a registry of recipe agents. A recipe is a deterministic list of steps from a closed set: read a source, filter, sum, multiply, trend, answer. Concord does not call a model. Asking a question matches a registered question, reads the last scan, and returns the **cluster**. Nothing is blended into one answer.
 
 The page is three same-team questions, shown as tabs. Click one and you get three agents side by side: the live spreadsheet, a Google Sheet copy, and a note that never opens the file. Under that: the three different answers, a short story of why they split, and a **Where they split** accordion. Sales still has all ten agents; they sit under **All 10 Sales agents on this question**. Brand line and payment terms are still in the registry if you type them.
@@ -52,8 +55,10 @@ A click-through story in six steps. The user clicks Next and Back, or a step in 
 
 Controls: Next, Back, and clickable step markers. Back is disabled on the first step. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
 
-## Showcase site (`site/`)
-A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It has its own HTML, CSS, and JS. **Open the demo** and **Try it with sample data** open Ask Meridian at `../#/company`. **Watch it live** still goes to the walkthrough at `../#/watch`.
+## Showcase site (`/` and `site/`)
+The public homepage is the light mint brand site. Source lives in `site/` (HTML, CSS, JS). Vite also emits it as `dist/index.html`, so `/` and `/site/` are the same page.
+
+**Ask Meridian is the demo.** **Open the demo** and **Try it with sample data** go to `/app/#/company`. **Watch it live** is a separate walkthrough at `/app/#/watch`. **Back to site** in the app returns to `/`.
 
 - Hero: four Sales agents answer “What's our churn risk this quarter?” with 35, 42, 17, and 28, then converge on Sara Klein’s official 28.
 - How it works, a “same question?” section, integrations, and a closing CTA.
@@ -68,12 +73,12 @@ A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`,
     npm run preview    # serves dist/ on :4173
 
 ## Deploy (Vercel)
-`vercel.json` sets the Vite build, `dist/` output, and two redirects: `/site` to `/site/` and `/meridian` to `/#/company`. The app uses hash routes, so no rewrites are needed.
+`vercel.json` sets the Vite build and `dist/` output. `/` is the showcase (`dist/index.html`). `/meridian` redirects to `/app/#/company`. The app’s own routes are hashes under `/app/`.
 
 - Dashboard: Add New → Project → import `AviLPA/Concord` → Deploy. The settings come from `vercel.json`.
 - CLI: `npx vercel deploy --prod --yes --token "$VERCEL_TOKEN"` from the repo root. The first run creates and links the project.
 
-After deploying, check `/#/company`, `/meridian`, and `/site/`.
+After deploying, check `/`, `/site/`, `/app/#/company`, and `/meridian`.
 
 ## Tests
 - `npm run test:company`: the Meridian engine. Matcher, Sales finals, mid-path splits, the flag flip, and the company-wide clusters. No browser needed.

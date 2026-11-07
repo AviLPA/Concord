@@ -1,7 +1,7 @@
 // Regenerates the product screenshots used by the showcase site (site/assets/product/).
 // Requires `npm run preview` on :4173 and `npx playwright install chromium`.
 import {chromium} from 'playwright'
-const D=new URL('./assets/product/',import.meta.url).pathname,U=process.argv[2]||'http://localhost:4173/'
+const D=new URL('./assets/product/',import.meta.url).pathname,U=process.argv[2]||'http://localhost:4173/app/'
 const b=await chromium.launch()
 const d=await b.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1.5})
 const shot=(n)=>d.screenshot({path:D+n+'.jpg',type:'jpeg',quality:84})

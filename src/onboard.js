@@ -113,7 +113,7 @@ function stage4(c,R,inOB,offAns,plan){
   const js=M.jobScore(c.job,C.S), p=M.companyParts(C.S)
   return `${timelineMarkup(c.id)}<div class="rdone">${C.ic('check',18)}<div><b>This job is ${js==null?'—':js}. The recorded answer on the official definition is ${esc(plan.ans||offAns)}.</b><span>${plan.verifiedNeed.length}/${plan.need.length} builders applied the suggestion. Concord verified by re-reading. Company score is ${p.score}.</span></div></div>
 <p class="mut" style="margin-top:8px">The next daily scans check that the builders applied the change. Concord alerts again if one is still off.</p>
-<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Go to dashboard →</button><a class="btn wbtn" href="#/watch">${C.ic('play',12)} Walkthrough</a>`:`<a class="btn p" href="#/overview">Back to dashboard</a><a class="btn" href="#/conflicts/${c.id}">See adoption</a>`}</div>`
+<div class="rrow" style="margin-top:12px;flex-wrap:wrap">${inOB?`<button class="btn p" data-obfinish>Open the demo →</button><a class="btn wbtn" href="#/company">${C.ic('ask',12)} Ask Meridian</a>`:`<a class="btn p" href="#/company">Back to the demo</a>`}</div>`
 }
 function variantDone(c,inOB){
   const p=M.companyParts(C.S)
@@ -145,9 +145,9 @@ function guideText(){const s=OB.step
 }
 export function guide(){const g=document.getElementById('obguide');if(g)g.innerHTML=`<span class="gdot"></span><span><b class="gk">Next:</b> ${guideText()}</span>`}
 export function onboardPage(){const s=OB.step
-  return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="#/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
+  return `<div class="ob"><header class="obh"><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="/">Back to site</a><span class="obws" data-obws-label>${esc(OB.company||'Your company')}</span>
 <nav class="obsteps">${STEPS.map(([k,l],i)=>{const idx=STEPS.findIndex(x=>x[0]===s),done=i<idx||(k==='resolve'&&OB.resolved);return `<button class="${k===s?'on':''} ${done?'done':''}" data-obgo="${k}" ${reach(k)?'':'disabled'}><i>${done?'✓':i+1}</i><span>${l}</span></button>`}).join('')}</nav>
-<div class="obr"><a class="obwatch" href="#/watch">${C.ic('play',11)}<span>Walkthrough</span></a><a class="obskip" href="#/overview">Skip to app</a></div></header>
+<div class="obr"><a class="obwatch" href="#/company">${C.ic('ask',11)}<span>Ask Meridian</span></a><a class="obskip" href="#/company">Skip to demo</a></div></header>
 <div class="obguide" id="obguide"></div><main class="obm">${({workspace:wsStep,connect:connStep,scan:scanStep,search:searchStep,resolve:()=>resolveView(OB.cid,true)})[s]()}</main>${modal?modalHTML():''}</div>`}
 const logo=()=>lockup(18)
 function wsStep(){return `<div class="obgrid"><div class="card obcard"><h1>Create your workspace</h1><p class="sub">Northwind is a fictional company of ${M.PEOPLE} people. Nothing leaves your browser.</p>
@@ -223,10 +223,10 @@ const CLOSE=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke=
 const MKT=[['home','Home','#/'],['how','How it works','#/how'],['watch','Walkthrough','#/watch'],['pricing','Pricing','#/pricing'],['about','About','#/about']]
 function mktLinks(active){return MKT.map(([id,label,href])=>`<a href="${href}" class="${active===id?'on':''}"${active===id?' aria-current="page"':''}>${label}</a>`).join('')}
 function marketFoot(active){
-  return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Your teams build. Concord keeps their answers aligned.</span><span>Works with Claude and n8n.</span><a href="#/overview">Open the demo</a><a href="#/start">Try it with sample data</a></div></div></footer>`
+  return `<footer class="sitefoot"><div class="sitefoot-in"><a class="brand" href="#/">${lockup(16)}</a><nav class="sitefoot-nav" aria-label="Footer">${mktLinks(active)}</nav><div class="sitefoot-meta"><span>Your teams build. Concord keeps their answers aligned.</span><span>Works with Claude and n8n.</span><a href="#/company">Open the demo</a><a href="#/company">Try it with sample data</a></div></div></footer>`
 }
 export function marketShell(active, main){
-  return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/overview">Open the demo</a><a class="btn p" href="#/start">Try it with sample data</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/overview">Open the demo</a><a class="btn p" href="#/start">Try it with sample data</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
+  return `<div class="mkt"><header class="sitebar"><div class="sitebar-in"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav" aria-label="Primary">${mktLinks(active)}</nav><div class="siteacts"><a class="sitein" href="#/company">Open the demo</a><a class="btn p" href="#/company">Try it with sample data</a></div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${mktLinks(active)}</nav><a class="sitein" href="#/company">Open the demo</a><a class="btn p" href="#/company">Try it with sample data</a></div></header><div class="lp">${main}</div>${marketFoot(active)}</div>`
 }
 let phaseTimer=0, phaseTimers=[]
 const LANES=[
@@ -284,8 +284,8 @@ function laneRow(l){
 function landingShell(main){
   const jumps=[['example','Example'],['what','What you get'],['how','How it works'],['next','Coming next']]
   const nav=jumps.map(([id,label])=>`<a href="#${id}" data-scroll="${id}">${label}</a>`).join('')
-  const more=[['#/watch','Walkthrough'],['#/how','How it works'],['#/pricing','Pricing'],['#/about','About'],['#/overview','Open the demo'],['#/start','Try it with sample data']]
-  return `<div class="mkt v20"><header class="sitebar"><div class="v20wrap v20bar"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav v20links" aria-label="Primary">${nav}</nav><div class="v20cta">${leadCta('v20btn sm')}</div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${nav}${more.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}</nav></div></header><div class="lp">${main}</div><footer class="sitefoot"><div class="v20wrap v20foot"><a class="brand" href="#/" aria-label="Concord home">${lockup(16)}</a><p class="vtl">Your teams build. <span>Concord keeps their answers aligned.</span></p><p class="vworks">Works with Claude and n8n.</p><nav class="sitefoot-nav" aria-label="Footer">${mktLinks('home')}<a class="sitein" href="#/overview">Open the demo</a><a href="#/start">Try it with sample data</a></nav></div></footer></div>`
+  const more=[['#/watch','Walkthrough'],['#/how','How it works'],['#/pricing','Pricing'],['#/about','About'],['#/company','Open the demo'],['#/company','Try it with sample data']]
+  return `<div class="mkt v20"><header class="sitebar"><div class="v20wrap v20bar"><a class="brand" href="#/" aria-label="Concord home">${lockup(20)}</a><nav class="sitenav v20links" aria-label="Primary">${nav}</nav><div class="v20cta">${leadCta('v20btn sm')}</div><button class="siteburger" type="button" data-navtoggle aria-expanded="false" aria-label="Open menu">${BURGER}</button></div><div class="sitemenu" hidden><nav aria-label="Mobile">${nav}${more.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}</nav></div></header><div class="lp">${main}</div><footer class="sitefoot"><div class="v20wrap v20foot"><a class="brand" href="#/" aria-label="Concord home">${lockup(16)}</a><p class="vtl">Your teams build. <span>Concord keeps their answers aligned.</span></p><p class="vworks">Works with Claude and n8n.</p><nav class="sitefoot-nav" aria-label="Footer">${mktLinks('home')}<a class="sitein" href="#/company">Open the demo</a><a href="#/company">Try it with sample data</a></nav></div></footer></div>`
 }
 const VIZ1=['','r','','d','','','r','','d','','s','','','d','','r'].map(k=>`<i${k?` class="${k}"`:''}></i>`).join('')
 export function landingPage(){
@@ -420,7 +420,7 @@ document.addEventListener('click',e=>{
   if(d.rchip){R.reason=d.rchip;rerenderR();return}
   if(d.rpublish!=null){if(!R.reason.trim())return;commitFrom(R,c);R.stage=2;rerenderR();syncBadge();return}
   if(d.rsuggest!=null){startSuggest(cid);return}
-  if(d.obfinish!=null){OB.resolved=true;save();location.hash='#/overview'}
+  if(d.obfinish!=null){OB.resolved=true;save();location.hash='#/company'}
 })
 function startSuggest(cid){
   const c=M.CONF.find(x=>x.id===cid), R=rs(cid)

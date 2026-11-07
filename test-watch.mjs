@@ -1,7 +1,7 @@
 // Walkthrough: click-through story, controls, and explore applying the shared store.
 // Usage: node test-watch.mjs [baseUrl]
 import {chromium} from 'playwright'
-const BASE=process.argv[2]||'http://localhost:4173/'
+const BASE=process.argv[2]||'http://localhost:4173/app/'
 const b=await chromium.launch();const errs=[]
 const fail=m=>{errs.push(m);console.error('FAIL',m)}
 const assert=(ok,m)=>{if(!ok)fail(m)}
@@ -12,7 +12,7 @@ async function run(name,vp){
  assert(await p.$eval('#gnum',e=>e.textContent)==='53', name+' fresh score')
  assert(await p.$eval('#kopen',e=>e.textContent)==='6', name+' fresh conflicts')
  await p.screenshot({path:`/tmp/t-${name}-0-home.png`})
- await p.click('.hero [data-startwatch]');await p.waitForTimeout(400);await p.screenshot({path:`/tmp/t-${name}-1-intro.png`})
+ await p.goto(BASE+'#/watch');await p.waitForTimeout(400);await p.screenshot({path:`/tmp/t-${name}-1-intro.png`})
  assert(await p.locator('.sitebar').count()===1, name+' watch stays on the site')
  assert(await p.locator('.sitefoot').count()===1, name+' watch footer')
  assert(await p.locator('.shell').count()===0, name+' watch has no app sidebar')
@@ -201,12 +201,9 @@ async function run(name,vp){
   assert(v!=='none', name+' phone chat tab')}
  for(let i=0;i<10;i++){if(await p.$eval('[data-w=next]',e=>e.disabled).catch(()=>true))break;await p.click('[data-w=next]')}
  await p.waitForSelector('.wrapc');await p.click('[data-w=explore]');await p.waitForTimeout(600)
- const k=await p.$$eval('.kpi .v',e=>e.map(x=>x.textContent.trim()));const g=await p.$eval('#gnum',e=>e.textContent)
- console.log(name,'after explore KPIs',k,'score',g)
- assert(k.join('/')==='20/2/5/2', name+' explore KPIs '+k.join('/'))
- assert(g==='68', name+' explore score '+g)
- const toast=await p.locator('.toast').innerText().catch(()=>'')
- assert(/verified by re-reading/.test(toast), name+' explore toast '+toast)
+ assert(await p.evaluate(()=>location.hash)==='#/company', name+' explore opens Ask Meridian')
+ assert(await p.locator('#company').count()===1, name+' explore landed on Meridian')
+ assert((await p.$eval('#company h1',e=>e.textContent)).includes('Ask Meridian'), name+' explore heading')
  await p.screenshot({path:`/tmp/t-${name}-8-explored.png`})
  await p.goto(BASE+'#/conflicts/c1');await p.waitForTimeout(400);await p.screenshot({path:`/tmp/t-${name}-9-c1.png`})
  const conflict=await p.evaluate(()=>document.body.innerText)
