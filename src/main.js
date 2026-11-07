@@ -1,4 +1,5 @@
 import './style.css'
+import {companyPage, mountCompany, resetCompany} from './company/ui.js'
 import {watchPage,mountWatch} from './watch.js'
 import {OB,initOB,landingPage,howPage,pricingPage,aboutPage,onboardPage,searchBox,resolveView,checklist,mountOB,mountLanding,timelineMarkup,marketShell} from './onboard.js'
 import {bindLead, paintLead, closeLead} from './lead.js'
@@ -16,6 +17,7 @@ alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
 cube:'<path d="m12 2 9 5v10l-9 5-9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/>',
 plug:'<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/>',
 gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
+ask:'<path d="M5 6h14v9H8l-3 3z"/>',
 search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
 bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/>',
 check:'<path d="m5 12 5 5 9-10"/>',menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',
@@ -31,11 +33,12 @@ const openN=()=>M.openConflicts(S).length
 const highN=()=>M.openConflicts(S).filter(c=>c.sev==='bad').length
 
 const NAV=[['watch','Walkthrough','play'],['overview','Overview','home'],['agents','Agents','bot'],['jobs','Jobs & overlap','layers'],['conflicts','Conflicts','alert'],['blocks','Official answers','cube'],['integrations','Integrations','plug']]
-const TITLES={search:'Search',resolve:'Resolve conflict',start:'Setup'}
+const TITLES={search:'Search',resolve:'Resolve conflict',start:'Setup',company:'Ask Meridian'}
 function shell(inner){
   const title=(NAV.find(n=>n[0]===S.route)||[0,TITLES[S.route]||''])[1]
   const p=parts()
-  return `<div class="shell"><aside class="side" id="side"><div class="ws"><div><b>${esc(OB.company)}</b><small>${M.PEOPLE} people · Claude Enterprise</small></div></div>
+  return `<div class="shell"><aside class="side" id="side"><div class="ws"><div><b>${S.route==='company'?'Meridian':esc(OB.company)}</b><small>${S.route==='company'?'Synthetic company · recipe scan':M.PEOPLE+' people · Claude Enterprise'}</small></div></div>
+<a class="nav ${S.route==='company'?'on':''}" href="#/company">${ic('ask')}Ask Meridian<span class="newb">Demo</span></a>
 ${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${openN()}</span>`:r==='agents'?`<span class="ct">${AGENTS.length}</span>`:r==='watch'?'<span class="newb">Start here</span>':''}</a>`).join('')}
 <div class="sec">Workspace</div><a class="nav ${S.route==='start'?'on':''}" href="#/start">${ic('check')}Setup guide</a><a class="nav" href="#/integrations">${ic('gear')}Settings</a><button class="nav navbtn" data-reset>${ic('x')}Reset demo</button>
 <div class="sidefoot"><div style="display:flex;align-items:center;gap:8px;color:var(--tx);font-weight:500">${ic('lock',14)}Read-only connections</div><div style="margin-top:4px">Concord never runs or edits an agent. It scans on a schedule and alerts the owner. Later scans check that builders updated their own agents.</div></div></aside>
@@ -180,7 +183,7 @@ function integ(){
 function docTitle(raw){
   const key=(raw||'home').split('/')[0]||'home'
   if(key==='home') return "Your people are building the same agents. They're getting different answers."
-  const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official answers',integrations:'Integrations'}
+  const names={how:'How it works',pricing:'Pricing',about:'About',watch:'Walkthrough',live:'Walkthrough',start:'Setup',search:'Search',resolve:'Resolve',overview:'Overview',agents:'Agents',jobs:'Jobs & overlap',conflicts:'Conflicts',blocks:'Official answers',integrations:'Integrations',company:'Ask Meridian'}
   return 'Concord · '+(names[key]||'Overview')
 }
 function renderPage(){
@@ -196,6 +199,7 @@ function renderPage(){
   if(h[0]==='start'){S.route='start';$('#app').innerHTML=onboardPage();mountOB();return}
   if(h[0]==='search'){S.route='search';S.q=decodeURIComponent(h.slice(1).join('/')||'');$('#app').innerHTML=shell(`<div class="page spage"><h1>Search</h1><p class="sub">Every agent doing a job, in Claude and n8n, with the definition and the answer already on record.</p>${searchBox(S.q)}</div>`);return}
   if(h[0]==='resolve'){S.route='resolve';$('#app').innerHTML=shell(`<div class="page">${resolveView(h[1]||'c1',false)}</div>`);return}
+  if(h[0]==='company'){S.route='company';$('#app').innerHTML=shell(companyPage());mountCompany(render);return}
   S.route=NAV.some(n=>n[0]===h[0])?h[0]:'overview'
   S.conflict=S.route==='conflicts'?(h[1]||(innerWidth>=820?CONF.find(c=>M.isOpen(c,S))?.id||CONF[0].id:null)):S.conflict
   if(S.route==='watch'){$('#app').innerHTML=marketShell('watch',watchPage(!!S.resolved.c1));mountWatch({onExplore:exploreAfterWatch,already:()=>!!S.resolved.c1});return}
@@ -234,7 +238,7 @@ function markVariant(id, agentIndex){
 }
 function verify(i){if(!S.verified.includes(i)) S.verified.push(i);save()}
 function save(){try{localStorage.setItem(M.LS_KEY,JSON.stringify({v:2,OB,resolved:S.resolved,variants:S.variants,wins:S.wins,edits:S.edits,origin:S.origin,semanticTool:S.semanticTool,customAns:S.customAns,publishBack:S.publishBack,verified:S.verified,suggested:S.suggested,reasons:S.reasons,semanticConnected:!!S.semanticConnected}))}catch(e){}}
-function reset(){try{localStorage.removeItem(M.LS_KEY)}catch(e){}location.hash='#/';location.reload()}
+function reset(){try{localStorage.removeItem(M.LS_KEY)}catch(e){}resetCompany();location.hash='#/';location.reload()}
 function load(){
   let d=null;try{d=JSON.parse(localStorage.getItem(M.LS_KEY)||'null')}catch(e){}
   if(!d||d.v!==2) return

@@ -18,7 +18,27 @@ All data is fictional (Northwind, 480 people). Everything runs client-side; ther
 | `#/resolve/<cid>` | Resolve as owner: pick a definition, write or combine your own, import a certified metric from dbt, Atlan, or Qontext, or mark a different job / valid variant. Publish a block, send suggested changes, and watch adoption over day 1, day 3, and day 6. Concord verifies by re-reading. |
 | `#/watch` | **Walkthrough**, inside the marketing layout. Click Next through each step. Nothing plays on its own. Dana gets 35. The nightly scan alerts Sara. Four answers are 35, 42, 17, and 28. Sara signs off 28. Daily scans end with all 4 agents agreeing on 28. |
 | `#/overview`, `#/agents`, `#/jobs`, `#/conflicts`, `#/conflicts/<cid>`, `#/blocks`, `#/integrations` | The app. Overview explains the consistency score. A fresh workspace is 53, with 6 open conflicts. After Customer health is adopted, the job is 100 and the company score is 68, with 5 conflicts still open. |
+| `#/company` | **Ask Meridian**, the product demo (first item in the app sidebar). See below. `/meridian` on the deployed site redirects here. |
 | `#/live` | Old route, redirects to `#/watch`. |
+
+## Ask Meridian (`#/company`)
+Meridian is a fictional 380-person B2B company. One shared dataset (pipeline, weekly SQLs, customers, and a few docs) feeds a registry of recipe agents. A recipe is a deterministic list of steps from a closed set: read a source, filter, sum, multiply, trend, answer. Concord does not call a model. Asking a question matches a registered question, reads the last scan, and returns the **cluster**. Nothing is blended into one answer.
+
+The page is three same-team questions, shown as tabs. Click one and you get three agents side by side: the live spreadsheet, a Google Sheet copy, and a note that never opens the file. Under that: the three different answers, a short story of why they split, and a **Where they split** accordion. Sales still has all ten agents; they sit under **All 10 Sales agents on this question**. Brand line and payment terms are still in the registry if you type them.
+
+Demo path:
+1. Open `#/company`. Click **How are inbound SQLs trending this quarter?** Ines (live sheet) is down 22%. Theo (Oct 6 copy) is up 28%. Carmen repeats the Oct 7 recap (“up ~35%, still climbing”).
+2. Click the Sales tab. Jordan $2,213,000, Priya $2,063,000, Dana $2,400,000. Open **All 10 Sales agents** for the rest of the team.
+3. Under **Change the data, then rescan**, set Stage ≥ 4. Nothing moves yet. Press **Rescan**. Jordan goes to $1,435,000, Priya to $1,075,000.
+
+Flags are kept for the browser tab (`sessionStorage`). **Reset flags** or **Reset demo** clears them.
+
+Code, in `src/company/`:
+- `warehouse.js`: Meridian’s tables and sources. A source is a binding: the live sheet, a copy, an export, the company brain, official Notion, or a duplicated page. Flags: `qualifyStageMin` and `shadowCaughtUp`.
+- `registry.js`: questions and agents. A new agent is a row (question, sources, steps), not a new screen.
+- `ops.js`: the one interpreter for every recipe.
+- `engine.js`: the question matcher, the scan, and the path diff.
+- `ui.js` and `company.css`: the page.
 
 ## Walkthrough
 A click-through story in six steps. The user clicks Next and Back, or a step in the stepper. Each step is a short headline and one sentence. Animations play once when a step opens. Nothing advances on its own. There is no play, pause, or speed control. The right panel is what Concord sees. On a phone that panel shows first, with a tab for the agent view. Scans run daily.
@@ -33,7 +53,7 @@ A click-through story in six steps. The user clicks Next and Back, or a step in 
 Controls: Next, Back, and clickable step markers. Back is disabled on the first step. **Explore the full app** writes the story into the shared store, unless the workspace already decided Customer health. The hands-on app keeps its sidebar and shares the site header, with **Back to site**.
 
 ## Showcase site (`site/`)
-A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It has its own HTML, CSS, and JS. Its CTAs link into the app at `../#/start` and `../#/watch`.
+A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`, built to `dist/site/index.html`). It has its own HTML, CSS, and JS. **Open the demo** and **Try it with sample data** open Ask Meridian at `../#/company`. **Watch it live** still goes to the walkthrough at `../#/watch`.
 
 - Hero: four Sales agents answer “What's our churn risk this quarter?” with 35, 42, 17, and 28, then converge on Sara Klein’s official 28.
 - How it works, a “same question?” section, integrations, and a closing CTA.
@@ -47,8 +67,20 @@ A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`,
     npm run build      # static output in dist/ (relative base, can be hosted anywhere)
     npm run preview    # serves dist/ on :4173
 
+## Deploy (Vercel)
+`vercel.json` sets the Vite build, `dist/` output, and two redirects: `/site` to `/site/` and `/meridian` to `/#/company`. The app uses hash routes, so no rewrites are needed.
+
+- Dashboard: Add New → Project → import `AviLPA/Concord` → Deploy. The settings come from `vercel.json`.
+- CLI: `npx vercel deploy --prod --yes --token "$VERCEL_TOKEN"` from the repo root. The first run creates and links the project.
+
+After deploying, check `/#/company`, `/meridian`, and `/site/`.
+
+## Tests
+- `npm run test:company`: the Meridian engine. Matcher, Sales finals, mid-path splits, the flag flip, and the company-wide clusters. No browser needed.
+
 ## Scripts (Playwright; need `npm run preview` running and `npx playwright install chromium`)
 - `test-onboarding.mjs [baseUrl] [shotDir]`: landing through resolve, dashboard, the walkthrough, and reset, at 1280×800 and 390×844. Exits non-zero on failure.
+- `test-meridian.mjs [baseUrl]`: Ask Meridian. The three same-team tabs, the Marketing trio, Sales, CS, ask, rescan, and a no-match, at 1280×800 and 390×844.
 - `test-watch.mjs [baseUrl]`: walkthrough click-through, controls, explore, and the adoption timeline, at 1280×800, 390×844, and 360×740. Exits non-zero on failure.
 - `shots.mjs`, `shots-onboarding.mjs`: high-res screenshots to /workspace/concord-shots/.
 - `video.mjs [desktop|phone]` and `video-onboarding.mjs [desktop|phone]`: CDP screencast recordings.
@@ -58,5 +90,6 @@ A standalone brand site, served at `/site/` (dev: `http://localhost:5173/site/`,
 - `src/main.js`: app shell, routing, persistence, and the dashboard screens.
 - `src/onboard.js`: landing page, onboarding, search, and the resolve flow.
 - `src/watch.js`: click-through walkthrough.
-- `src/style.css`: all styles.
+- `src/company/`: Ask Meridian (see above).
+- `src/style.css`: all styles, except `src/company/company.css`.
 - `site/`: the standalone showcase page, built next to the app.
