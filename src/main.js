@@ -27,7 +27,7 @@ const ic=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="no
 const {AGENTS,CONF,BLOCKS,TOOLS,DC}=M
 const tool=k=>`<span class="ptag"><i style="background:${TOOLS[k].c}"></i>Built in ${TOOLS[k].n}</span>`
 const dav=a=>`<span class="dav" style="background:${DC[a.dept]||'#9AABB3'};color:var(--on-sync)">${initials(a.b)}</span>`
-const S=Object.assign(M.emptyState(),{route:'overview',agent:null,conflict:null,filter:'all',toast:null,scoreOpen:false,semanticConnected:false})
+const S=Object.assign(M.emptyState(),{route:'company',agent:null,conflict:null,filter:'all',toast:null,scoreOpen:false,semanticConnected:false})
 const parts=()=>M.companyParts(S)
 const openN=()=>M.openConflicts(S).length
 const highN=()=>M.openConflicts(S).filter(c=>c.sev==='bad').length
@@ -39,11 +39,11 @@ function shell(inner){
   const p=parts()
   return `<div class="shell"><aside class="side" id="side"><div class="ws"><div><b>${S.route==='company'?'Meridian':esc(OB.company)}</b><small>${S.route==='company'?'Synthetic company · recipe scan':M.PEOPLE+' people · Claude Enterprise'}</small></div></div>
 <a class="nav ${S.route==='company'?'on':''}" href="#/company">${ic('ask')}Ask Meridian<span class="newb">Demo</span></a>
-${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${openN()}</span>`:r==='agents'?`<span class="ct">${AGENTS.length}</span>`:r==='watch'?'<span class="newb">Start here</span>':''}</a>`).join('')}
+${NAV.map(([r,l,i])=>`<a class="nav ${S.route===r?'on':''}" href="#/${r}" data-nav="${r}">${ic(i)}${l}${r==='conflicts'?`<span class="ct r">${openN()}</span>`:r==='agents'?`<span class="ct">${AGENTS.length}</span>`:''}</a>`).join('')}
 <div class="sec">Workspace</div><a class="nav ${S.route==='start'?'on':''}" href="#/start">${ic('check')}Setup guide</a><a class="nav" href="#/integrations">${ic('gear')}Settings</a><button class="nav navbtn" data-reset>${ic('x')}Reset demo</button>
 <div class="sidefoot"><div style="display:flex;align-items:center;gap:8px;color:var(--tx);font-weight:500">${ic('lock',14)}Read-only connections</div><div style="margin-top:4px">Concord never runs or edits an agent. It scans on a schedule and alerts the owner. Later scans check that builders updated their own agents.</div></div></aside>
 <div class="main"><header class="top"><button class="iconbtn burger" id="burger">${ic('menu')}</button><a class="brand" href="#/" aria-label="concord, home">${lockup(20)}</a><a class="backsite" href="/">Back to site</a><div class="crumb"><b>${title}</b></div>${tag('Demo data')}
-${S.route!=='watch'?`<a class="topcta" href="#/watch">${ic('play',11)}<span>Walkthrough</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
+${S.route!=='company'?`<a class="topcta" href="#/company">${ic('ask',11)}<span>Ask Meridian</span></a>`:''}<label class="search">${ic('search',14)}<input id="topq" placeholder="Search a business term, e.g. customer health" value="${S.route==='search'?esc(S.q||''):''}"/><kbd>↵</kbd></label><button class="iconbtn">${ic('bell')}</button><div class="av" title="${esc(OB.name)} · ${esc(OB.role)}">${initials(OB.name)}</div></header>${inner}</div></div>
 ${S.toast?`<div class="toast">${ic('check')}${esc(S.toast)}</div>`:''}`}
 
 function gauge(v){const r=70,c=Math.PI*r,p=v/100*c;return `<svg viewBox="0 0 180 110" width="100%" style="max-width:260px">
@@ -89,8 +89,8 @@ function overview(){
   const p=parts(), cl=AGENTS.filter(a=>a.tool==='claude').length
   const dep=M.deptConflicts(S), max=Math.max(1,...dep.map(d=>d[1]))
   const jobs=p.rows.filter(r=>r.count>=2)
-  return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in Claude and n8n. ${Brand} reads both, and never runs or edits an agent.</p><div style="margin-top:8px">${tag(AGENTS.length+' agents · one inventory')}</div></div><div class="act"><a class="btn p" href="#/conflicts">Review conflicts</a></div></div>
-${checklist()}<div class="hero"><div><span class="wbadge">${ic('play',12)} ${S.resolved.c1?'Walk through again':'New here? Start with this'}</span><h2>Build anything. Concord scans, then alerts.</h2><p>Dana builds a Q4 at-risk agent and gets 35. That night's scan finds 35, 42, 17, and 28, and alerts Sara. She marks 28. Builders fix their own agents. Later scans check. Click through it.</p></div><a class="btn p big" href="#/watch" data-startwatch>Start the walkthrough</a></div>
+  return `<div class="page"><div class="hrow"><div><h1>Good evening, ${esc(OB.name.split(' ')[0])}</h1><p class="sub">Your team builds agents in Claude and n8n. ${Brand} reads both, and never runs or edits an agent.</p><div style="margin-top:8px">${tag(AGENTS.length+' agents · one inventory')}</div></div><div class="act"><a class="btn p" href="#/company">Open Ask Meridian</a></div></div>
+${checklist()}<div class="hero"><div><span class="wbadge">${ic('ask',12)} The demo</span><h2>Ask Meridian</h2><p>People on the same team built agents for the same question and get different answers. That is the product demo. Pick a question, or ask one.</p></div><a class="btn p big" href="#/company">Open the demo</a></div>
 <div class="grid g4" style="margin-bottom:14px">
 <div class="card kpi"><div class="l">${ic('bot',14)}Agents monitored</div><div class="v">${AGENTS.length}</div><div class="d">${cl} in Claude · ${AGENTS.length-cl} in n8n</div></div>
 <div class="card kpi"><div class="l">${ic('plug',14)}Connected tools</div><div class="v">${S.semanticConnected?3:2}</div><div class="d">${S.semanticConnected?'Claude, n8n, semantic layer':'Claude + n8n · read-only'}</div></div>
@@ -238,7 +238,7 @@ function markVariant(id, agentIndex){
 }
 function verify(i){if(!S.verified.includes(i)) S.verified.push(i);save()}
 function save(){try{localStorage.setItem(M.LS_KEY,JSON.stringify({v:2,OB,resolved:S.resolved,variants:S.variants,wins:S.wins,edits:S.edits,origin:S.origin,semanticTool:S.semanticTool,customAns:S.customAns,publishBack:S.publishBack,verified:S.verified,suggested:S.suggested,reasons:S.reasons,semanticConnected:!!S.semanticConnected}))}catch(e){}}
-function reset(){try{localStorage.removeItem(M.LS_KEY)}catch(e){}resetCompany();location.hash='#/';location.reload()}
+function reset(){try{localStorage.removeItem(M.LS_KEY)}catch(e){}resetCompany();location.hash='#/company';location.reload()}
 function load(){
   let d=null;try{d=JSON.parse(localStorage.getItem(M.LS_KEY)||'null')}catch(e){}
   if(!d||d.v!==2) return
@@ -247,14 +247,14 @@ function load(){
   S.verified=d.verified||[]; S.suggested=d.suggested||[]; S.semanticConnected=!!d.semanticConnected
 }
 function exploreAfterWatch(){
-  if(S.resolved.c1){location.hash='#/overview';S.toast='Opened the workspace. The story did not overwrite your decision.';render();setTimeout(()=>{S.toast=null;const el=$('.toast');if(el)el.remove()},3200);return}
-  S.resolved.c1='official'; S.wins.c1=3; S.origin.c1='agent'
-  S.reasons.c1='Most complete signal, and it matches what we report to the board.'
-  if(!S.suggested.includes('c1')) S.suggested.push('c1')
-  for(const i of [0,1,2]) if(!M.isVariant('c1',i,S)&&!S.verified.includes(i)) S.verified.push(i)
-  save(); location.hash='#/overview'
-  S.toast='Customer health is 100. Dana, Maya, and Tom were verified by re-reading.'
-  render(); setTimeout(()=>{S.toast=null;const el=$('.toast');if(el)el.remove()},3200)
+  if(!S.resolved.c1){
+    S.resolved.c1='official'; S.wins.c1=3; S.origin.c1='agent'
+    S.reasons.c1='Most complete signal, and it matches what we report to the board.'
+    if(!S.suggested.includes('c1')) S.suggested.push('c1')
+    for(const i of [0,1,2]) if(!M.isVariant('c1',i,S)&&!S.verified.includes(i)) S.verified.push(i)
+    save()
+  }
+  location.hash='#/company'
 }
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-f],[data-agent],[data-close],[data-variant],[data-scoreinfo],[data-semcon],#burger')

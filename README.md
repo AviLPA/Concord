@@ -58,7 +58,7 @@ Controls: Next, Back, and clickable step markers. Back is disabled on the first 
 ## Showcase site (`/` and `site/`)
 The public homepage is the light mint brand site. Source lives in `site/` (HTML, CSS, JS). Vite also emits it as `dist/index.html`, so `/` and `/site/` are the same page.
 
-**Open the demo** and **Try it with sample data** go to `/app/#/company` (Ask Meridian). **Watch it live** goes to `/app/#/watch`. **Back to site** in the app returns to `/`.
+**Ask Meridian is the demo.** **Open the demo** and **Try it with sample data** go to `/app/#/company`. **Watch it live** is a separate walkthrough at `/app/#/watch`. **Back to site** in the app returns to `/`.
 
 - Hero: four Sales agents answer “What's our churn risk this quarter?” with 35, 42, 17, and 28, then converge on Sara Klein’s official 28.
 - How it works, a “same question?” section, integrations, and a closing CTA.
